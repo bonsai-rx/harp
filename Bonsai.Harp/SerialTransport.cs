@@ -30,7 +30,7 @@ namespace Bonsai.Harp
             this.observer = observer;
             serialPort = new SerialPort(portName, 2000000, Parity.None, 8, StopBits.One);
             serialPort.ReadBufferSize = DefaultReadBufferSize;
-            serialPort.RtsEnable = true;
+            serialPort.Handshake = Handshake.RequestToSend;
             serialPort.DataReceived += serialPort_DataReceived;
             serialPort.ErrorReceived += serialPort_ErrorReceived;
         }
