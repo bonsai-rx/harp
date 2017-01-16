@@ -83,6 +83,8 @@
     <Compile Include="BufferedStream.cs" />
     <Compile Include="HarpTypes.cs" />
     <Compile Include="CreateHarpDataFrame.cs" />
+    <Compile Include="Devices\Synchronizer.cs" />
+    <Compile Include="Devices\SynchronizerEvent.cs" />
     <Compile Include="HarpDataFrame.cs" />
     <Compile Include="LedType.cs" />
     <Compile Include="MessageId.cs" />
