@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -7,17 +8,17 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
-    class CircularPort
+    class BufferedStream
     {
-        readonly SerialPort serialPort;
+        readonly Stream serialStream;
         byte[] readBuffer;
         int readOffset;
         int writeOffset;
 
-        public CircularPort(SerialPort port)
+        public BufferedStream(Stream stream, int readBufferSize)
         {
-            serialPort = port;
-            readBuffer = new byte[serialPort.ReadBufferSize * 2];
+            serialStream = stream;
+            readBuffer = new byte[readBufferSize * 2];
         }
 
         public int BytesToRead
@@ -74,14 +75,14 @@ namespace Bonsai.Harp
             if (writeOffset >= readOffset)
             {
                 bytesWritten = Math.Min(readBuffer.Length - writeOffset, count);
-                serialPort.Read(readBuffer, writeOffset, bytesWritten);
+                serialStream.Read(readBuffer, writeOffset, bytesWritten);
                 writeOffset = (writeOffset + bytesWritten) % readBuffer.Length;
                 count -= bytesWritten;
                 if (count == 0) return bytesWritten;
             }
 
             var remaining = Math.Min(readOffset - writeOffset, count);
-            serialPort.Read(readBuffer, writeOffset, remaining);
+            serialStream.Read(readBuffer, writeOffset, remaining);
             writeOffset = (writeOffset + remaining) % readBuffer.Length;
             return bytesWritten + remaining;
         }

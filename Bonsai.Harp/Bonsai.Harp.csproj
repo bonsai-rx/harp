@@ -80,7 +80,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CircularPort.cs" />
+    <Compile Include="BufferedStream.cs" />
     <Compile Include="HarpTypes.cs" />
     <Compile Include="CreateHarpDataFrame.cs" />
     <Compile Include="HarpDataFrame.cs" />

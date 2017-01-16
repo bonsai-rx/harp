@@ -9,10 +9,12 @@ namespace Bonsai.Harp
 {
     public class SerialTransport : IDisposable
     {
+        const int DefaultReadBufferSize = 1048576; // 2^20 = 1 MB
         const byte IdMask = 0x03;
+        const byte ErrorMask = 0x08;
         readonly IObserver<HarpDataFrame> observer;
         readonly SerialPort serialPort;
-        readonly CircularPort circularPort;
+        BufferedStream bufferedStream;
         byte[] currentMessage;
         int currentOffset;
         int pendingId;
@@ -27,9 +29,15 @@ namespace Bonsai.Harp
 
             this.observer = observer;
             serialPort = new SerialPort(portName, 2000000, Parity.None, 8, StopBits.One);
+            serialPort.ReadBufferSize = DefaultReadBufferSize;
             serialPort.RtsEnable = true;
             serialPort.DataReceived += serialPort_DataReceived;
-            circularPort = new CircularPort(serialPort);
+            serialPort.ErrorReceived += serialPort_ErrorReceived;
+        }
+
+        void serialPort_ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
+        {
+            //TODO: Create exception with the error state and send to observer
         }
 
         public void Open()
@@ -45,71 +53,79 @@ namespace Bonsai.Harp
 
         void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            var bytesToRead = serialPort.BytesToRead;
-            circularPort.PushBytes(bytesToRead);
-            while (serialPort.IsOpen && bytesToRead > 0)
+            try
             {
-                // There is a current packet
-                if (currentMessage != null)
+                var bytesToRead = serialPort.BytesToRead;
+                bufferedStream = bufferedStream ?? new BufferedStream(serialPort.BaseStream, serialPort.ReadBufferSize);
+                bufferedStream.PushBytes(bytesToRead);
+                while (serialPort.IsOpen && bytesToRead > 0)
                 {
-                    var remaining = Math.Min(currentMessage.Length - currentOffset, bytesToRead);
-                    var bytesRead = circularPort.Read(currentMessage, currentOffset, remaining);
-
-                    currentOffset += bytesRead;
-                    bytesToRead -= bytesRead;
-
-                    // If our packet is complete
-                    if (currentOffset >= currentMessage.Length)
+                    // There is a current packet
+                    if (currentMessage != null)
                     {
-                        byte sum = 0;
-                        var checksum = currentMessage[currentMessage.Length - 1];
-                        for (int i = 0; i < currentMessage.Length - 1; i++)
+                        var remaining = Math.Min(currentMessage.Length - currentOffset, bytesToRead);
+                        var bytesRead = bufferedStream.Read(currentMessage, currentOffset, remaining);
+
+                        currentOffset += bytesRead;
+                        bytesToRead -= bytesRead;
+
+                        // If our packet is complete
+                        if (currentOffset >= currentMessage.Length)
                         {
-                            sum += currentMessage[i];
+                            byte sum = 0;
+                            var checksum = currentMessage[currentMessage.Length - 1];
+                            for (int i = 0; i < currentMessage.Length - 1; i++)
+                            {
+                                sum += currentMessage[i];
+                            }
+
+                            // If checksum is valid, emit packet
+                            if (sum == checksum)
+                            {
+                                var dataFrame = new HarpDataFrame(currentMessage);
+                                observer.OnNext(dataFrame);
+                            }
+                            else
+                            {
+                                var offset = currentMessage.Length - 2;
+                                bufferedStream.Seek(-offset);
+                                bytesToRead += offset;
+                            }
+                            currentMessage = null;
+                            currentOffset = 0;
+                            pendingId = 0;
+                        }
+                    }
+                    // Read packet length and allocate
+                    else if (pendingId > 0)
+                    {
+                        var length = bufferedStream.ReadByte();
+                        if (length > 0)
+                        {
+                            currentMessage = new byte[length + 2];
+                            currentMessage[0] = (byte)pendingId;
+                            currentMessage[1] = (byte)length;
+                            currentOffset = 2;
+                        }
+                        else pendingId = 0;
+                        bytesToRead--;
+                    }
+                    // Check for a new packet
+                    else
+                    {
+                        pendingId = bufferedStream.ReadByte();
+                        if ((pendingId & ~(IdMask | ErrorMask)) != 0)
+                        {
+                            pendingId = 0;
                         }
 
-                        // If checksum is valid, emit packet
-                        if (sum == checksum)
-                        {
-                            var dataFrame = new HarpDataFrame(currentMessage);
-                            observer.OnNext(dataFrame);
-                        }
-                        else
-                        {
-                            var offset = currentMessage.Length - 2;
-                            circularPort.Seek(-offset);
-                            bytesToRead += offset;
-                        }
-                        currentMessage = null;
-                        currentOffset = 0;
-                        pendingId = 0;
+                        bytesToRead--;
                     }
                 }
-                // Read packet length and allocate
-                else if (pendingId > 0)
-                {
-                    var length = circularPort.ReadByte();
-                    if (length > 0)
-                    {
-                        currentMessage = new byte[length + 2];
-                        currentMessage[0] = (byte)pendingId;
-                        currentMessage[1] = (byte)length;
-                        currentOffset = 2;
-                    }
-                    else pendingId = 0;
-                    bytesToRead--;
-                }
-                // Check for a new packet
-                else
-                {
-                    pendingId = circularPort.ReadByte();
-                    if ((pendingId & ~IdMask) != 0)
-                    {
-                        pendingId = 0;
-                    }
-
-                    bytesToRead--;
-                }
+            }
+            catch (Exception ex)
+            {
+                observer.OnError(ex);
             }
         }
 
