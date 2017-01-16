@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://bitbucket.org/horizongir/bonsai.harp/raw/a4c695f7615912f409c00ac07cb0ed0d13054c19/LICENSE</licenseUrl>
+    <projectUrl>https://bitbucket.org/horizongir/bonsai.harp</projectUrl>
+    <iconUrl>https://bitbucket.org/horizongir/bonsai/raw/7aacc64dc4647e57362ab310238591dc197fef0d/Resources/Bonsai.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <copyright>The Harp Project Developers © 2017</copyright>
+    <tags>Bonsai Harp Champalimaud Foundation Hardware</tags>
+  </metadata>
+</package>
