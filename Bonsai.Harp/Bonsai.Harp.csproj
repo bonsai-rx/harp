@@ -96,7 +96,6 @@
     <Compile Include="HandleError.cs" />
     <Compile Include="Parse.cs" />
     <Compile Include="PortNameConverter.cs" />
-    <Compile Include="ReceiveMessage.cs" />
     <Compile Include="Device.cs" />
     <Compile Include="SerialTransport.cs" />
     <Compile Include="StateType.cs" />
