@@ -82,6 +82,8 @@
   <ItemGroup>
     <Compile Include="BufferedStream.cs" />
     <Compile Include="BitToMat.cs" />
+    <Compile Include="Devices\DeviceEvent.cs" />
+    <Compile Include="Devices\EventDevice.cs" />
     <Compile Include="HarpTypes.cs" />
     <Compile Include="CreateHarpDataFrame.cs" />
     <Compile Include="Devices\EventSynchronizer.cs" />
