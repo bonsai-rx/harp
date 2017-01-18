@@ -23,11 +23,5 @@ namespace Bonsai.Harp.Devices
         EVT0_Input8,
         EVT0_Output0,
         EVT0_Address,
-
-        /* Event: OUTPUTS */
-        EVT1_Outputs,
-        EVT1_OutputsRaw,
-
-        EVT1_Output0,
     }
 }
