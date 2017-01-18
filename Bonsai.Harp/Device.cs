@@ -15,12 +15,18 @@ namespace Bonsai.Harp
     public class Device : Source<HarpDataFrame>, INamedElement
     {
         string name;
-        string portName = "COMx";
+        string portName;
+        LedType ledState;
+        LedType visualIndicators;
 
-        StateType state = StateType.Active; // Default value
-        LedType state_led = LedType.On;     // Default value
-        LedType visual = LedType.On;        // Default value
-        bool readAllRegs = true;            // Default value
+        public Device()
+        {
+            PortName = "COMx";
+            DeviceState = StateType.Active;
+            LedState = LedType.On;
+            VisualIndicators = LedType.On;
+            ReadAllRegisters = true;
+        }
 
 
         [Description("Select device COM port. (This option can't be change during run mode)")]
@@ -33,59 +39,45 @@ namespace Bonsai.Harp
                 portName = value;
 
                 // This code is run (asynchronously) only when the port name changes
-                ConfAndGetDeviceName(portName, state_led, visual).Subscribe(deviceName => name = deviceName);
+                ConfAndGetDeviceName(portName, ledState, visualIndicators).Subscribe(deviceName => name = deviceName);
             }
         }
 
         [Description("Defines the State of the Device during run time. (This option can't be change during run time)")]
-        public StateType State
-        {
-            get { return state; }
-
-            set
-            {
-                state = value;
-            }
-        }
+        public StateType DeviceState { get; set; }
 
         [Description("Defines if the device will send the content of all values when go to run time. (This option can't be change during run time)")]
-        public bool ReadAllRegs
-        {
-            get { return readAllRegs; }
-
-            set
-            {
-                readAllRegs = value;
-            }
-        }
+        public bool ReadAllRegisters { get; set; }
 
         [Description("Defines if the Device's LED that indicates current State is On or Off. (This option can't be change during run time)")]
-        public LedType State_LED
+        public LedType LedState
         {
-            get { return state_led; }
+            get { return ledState; }
 
             set
             {
-                state_led = value;
+                ledState = value;
 
                 // This code is run (asynchronously) only when the state led changes
-                ConfAndGetDeviceName(portName, state_led, visual).Subscribe(deviceName => name = deviceName);
+                ConfAndGetDeviceName(portName, ledState, visualIndicators).Subscribe(deviceName => name = deviceName);
             }
         }
 
         [Description("Defines if all the visual indicators of the Device are On or Off. (This option can't be change during run time)")]
-        public LedType Visual
+        public LedType VisualIndicators
         {
-            get { return visual; }
-
+            get { return visualIndicators; }
             set
             {
-                visual = value;
+                visualIndicators = value;
 
                 // This code is run (asynchronously) only when the visual changes
-                ConfAndGetDeviceName(portName, state_led, visual).Subscribe(deviceName => name = deviceName);
+                ConfAndGetDeviceName(portName, ledState, visualIndicators).Subscribe(deviceName => name = deviceName);
             }
         }
+
+        [Description("Ignore errors")]
+        public bool IgnoreErrors { get; set; }
 
         static byte[] CreateWriteOpCtrlCmd(StateType stateMode, LedType operationLED, LedType visualEN, bool dumpRegisters)
         {
@@ -167,15 +159,16 @@ namespace Bonsai.Harp
             return Observable.Create<HarpDataFrame>(observer =>
             {
                 var transport = new SerialTransport(PortName, observer);
+                transport.IgnoreErrors = IgnoreErrors;
                 transport.Open();
                 
-                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(state, state_led, visual, readAllRegs);
+                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState, ledState, visualIndicators, ReadAllRegisters);
                 transport.Write(new HarpDataFrame(cmdWriteOpCtrl));
 
                 var cleanup = Disposable.Create(() =>
                 {
                     //Console.WriteLine("!");
-                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(StateType.Standby, state_led, visual, false);
+                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(StateType.Standby, ledState, visualIndicators, false);
                     transport.Write(new HarpDataFrame(cmdWriteOpCtrl));
                 });
 
@@ -190,9 +183,10 @@ namespace Bonsai.Harp
             return Observable.Create<HarpDataFrame>(observer =>
             {
                 var transport = new SerialTransport(PortName, observer);
+                transport.IgnoreErrors = IgnoreErrors;
                 transport.Open();
 
-                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(state, state_led, visual, readAllRegs);
+                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState, ledState, visualIndicators, ReadAllRegisters);
                 transport.Write(new HarpDataFrame(cmdWriteOpCtrl));
 
                 var sourceDisposable = new SingleAssignmentDisposable();
@@ -200,13 +194,13 @@ namespace Bonsai.Harp
                     input => transport.Write(input),
                     ex => {
                         //observer.OnError(ex);
-                        cmdWriteOpCtrl = CreateWriteOpCtrlCmd(StateType.Standby, state_led, visual, false);
+                        cmdWriteOpCtrl = CreateWriteOpCtrlCmd(StateType.Standby, ledState, visualIndicators, false);
                         transport.Write(new HarpDataFrame(cmdWriteOpCtrl));
                     },
                     () =>
                     {
                         //observer.OnCompleted();
-                        cmdWriteOpCtrl = CreateWriteOpCtrlCmd(StateType.Standby, state_led, visual, false);
+                        cmdWriteOpCtrl = CreateWriteOpCtrlCmd(StateType.Standby, ledState, visualIndicators, false);
                         transport.Write(new HarpDataFrame(cmdWriteOpCtrl));
                     }
 
@@ -215,7 +209,7 @@ namespace Bonsai.Harp
                 var cleanup = Disposable.Create(() =>
                 {
                     //Console.WriteLine("!");
-                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(StateType.Standby, state_led, visual, false);
+                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(StateType.Standby, ledState, visualIndicators, false);
                     transport.Write(new HarpDataFrame(cmdWriteOpCtrl));
                 });
 

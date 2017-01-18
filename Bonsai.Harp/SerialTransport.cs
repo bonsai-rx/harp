@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
-    public class SerialTransport : IDisposable
+    class SerialTransport : IDisposable
     {
         const int DefaultReadBufferSize = 1048576; // 2^20 = 1 MB
         const byte IdMask = 0x03;
@@ -16,6 +16,7 @@ namespace Bonsai.Harp
         readonly SerialPort serialPort;
         BufferedStream bufferedStream;
         byte[] currentMessage;
+        bool ignoreErrors;
         int currentOffset;
         int pendingId;
         bool disposed;
@@ -40,6 +41,12 @@ namespace Bonsai.Harp
             //TODO: Create exception with the error state and send to observer
         }
 
+        public bool IgnoreErrors
+        {
+            get { return ignoreErrors; }
+            set { ignoreErrors = value; }
+        }
+
         public void Open()
         {
             serialPort.Open();
@@ -50,6 +57,56 @@ namespace Bonsai.Harp
             serialPort.Write(input.Message, 0, input.Message.Length);
         }
 
+        static void ProcessThrowException(HarpDataFrame message)
+        {
+            if (message.Error)
+            {
+                string payload;
+                switch ((HarpTypes)(message.Message[4] & ~0x10))
+                {
+                    case HarpTypes.U8:
+                        payload = ((byte)(message.Message[11])).ToString() + "(U8)";
+                        break;
+                    case HarpTypes.I8:
+                        payload = ((sbyte)(message.Message[11])).ToString() + "(U8)";
+                        break;
+                    case HarpTypes.U16:
+                        payload = (BitConverter.ToUInt16(message.Message, 11)).ToString() + "(U16)";
+                        break;
+                    case HarpTypes.I16:
+                        payload = (BitConverter.ToInt16(message.Message, 11)).ToString() + "(I16)";
+                        break;
+                    case HarpTypes.U32:
+                        payload = (BitConverter.ToUInt32(message.Message, 11)).ToString() + "(U32)";
+                        break;
+                    case HarpTypes.I32:
+                        payload = (BitConverter.ToInt32(message.Message, 11)).ToString() + "(I32)";
+                        break;
+                    case HarpTypes.U64:
+                        payload = (BitConverter.ToUInt64(message.Message, 11)).ToString() + "(U64)";
+                        break;
+                    case HarpTypes.I64:
+                        payload = (BitConverter.ToInt64(message.Message, 11)).ToString() + "(I64)";
+                        break;
+                    case HarpTypes.Float:
+                        payload = (BitConverter.ToSingle(message.Message, 11)).ToString() + "(Float)";
+                        break;
+
+                    default:
+                        payload = "NaN";
+                        break;
+                }
+
+                string exception;
+
+                if (message.Id == MessageId.Write)
+                    exception = "User tried an erroneous command: write value " + payload + " to address " + message.Address + ".";
+                else
+                    exception = "User tried an erroneous command: read from address " + message.Address + ".";
+
+                throw new InvalidOperationException(exception);
+            }
+        }
 
         void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
@@ -83,6 +140,7 @@ namespace Bonsai.Harp
                             if (sum == checksum)
                             {
                                 var dataFrame = new HarpDataFrame(currentMessage);
+                                if (!ignoreErrors) ProcessThrowException(dataFrame);
                                 observer.OnNext(dataFrame);
                             }
                             else

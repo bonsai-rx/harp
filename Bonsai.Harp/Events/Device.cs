@@ -10,16 +10,28 @@ using System.Text;
 // TODO: replace this with the transform input and output types.
 using TResult = System.String;
 
-namespace Bonsai.Harp.Devices
+namespace Bonsai.Harp.Events
 {
-    public class EventDevice : SingleArgumentExpressionBuilder
+    public class Device : SingleArgumentExpressionBuilder, INamedElement
     {
-        public EventDevice()
+        public Device()
         {
-            Type = DeviceEvent.EVT_Timestamp;
+            Type = EventType.Timestamp;
         }
 
-        public DeviceEvent Type { get; set; }
+        string INamedElement.Name
+        {
+            get { return typeof(Device).Name + "." + Type.ToString(); }
+        }
+
+        public enum EventType : byte
+        {
+            /* Event: TIMESTAMP_SECOND */
+            Timestamp = 0,
+            TimestampRegister,
+        }
+
+        public EventType Type { get; set; }
 
         public override Expression Build(IEnumerable<Expression> expressions)
         {
@@ -29,10 +41,10 @@ namespace Bonsai.Harp.Devices
                 /************************************************************************/
                 /* List of Events                                                       */
                 /************************************************************************/
-                case DeviceEvent.EVT_Timestamp:
-                    return Expression.Call(typeof(EventDevice), "ProcessEVT_Timestamp", null, expression);
-                case DeviceEvent.EVT_TimestampRaw:
-                    return Expression.Call(typeof(EventDevice), "ProcessEVT_TimestampRaw", null, expression);
+                case EventType.Timestamp:
+                    return Expression.Call(typeof(Device), "ProcessEVT_Timestamp", null, expression);
+                case EventType.TimestampRegister:
+                    return Expression.Call(typeof(Device), "ProcessEVT_TimestampRaw", null, expression);
 
                 /************************************************************************/
                 /* Default                                                              */
