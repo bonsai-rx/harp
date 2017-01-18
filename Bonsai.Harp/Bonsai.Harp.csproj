@@ -92,8 +92,6 @@
     <Compile Include="HarpType.cs" />
     <Compile Include="LedType.cs" />
     <Compile Include="MessageId.cs" />
-    <Compile Include="ErrorChoice.cs" />
-    <Compile Include="HandleError.cs" />
     <Compile Include="Parse.cs" />
     <Compile Include="PortNameConverter.cs" />
     <Compile Include="Device.cs" />
