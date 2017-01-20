@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
@@ -139,7 +140,7 @@ namespace Bonsai.Harp
                         case HarpType.U32:
                         case HarpType.U64:
                             //UInt64 dataUInt = (UInt64)Data;
-                            UInt64 dataUInt = (UInt64)(Convert.ToUInt64(Data));
+                            UInt64 dataUInt = (UInt64)(Convert.ToUInt64(Data, CultureInfo.InvariantCulture));
                             data = BitConverter.GetBytes(dataUInt);
                             break;
 
@@ -148,13 +149,13 @@ namespace Bonsai.Harp
                         case HarpType.I32:
                         case HarpType.I64:
                             //Int64 dataInt = (Int64)Data;
-                            Int64 dataInt = (Int64)(Convert.ToInt64(Data));
+                            Int64 dataInt = (Int64)(Convert.ToInt64(Data, CultureInfo.InvariantCulture));
                             data = BitConverter.GetBytes(dataInt);
                             break;
 
                         case HarpType.Float:
                             //var dataSingle = (Single)Data;
-                            Single dataSingle = (Single)(Convert.ToSingle(Data));
+                            Single dataSingle = (Single)(Convert.ToSingle(Data, CultureInfo.InvariantCulture));
                             data = BitConverter.GetBytes(dataSingle);
                             break;
 
