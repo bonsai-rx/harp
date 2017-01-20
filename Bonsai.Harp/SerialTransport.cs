@@ -62,48 +62,68 @@ namespace Bonsai.Harp
             if (message.Error)
             {
                 string payload;
-                switch ((HarpTypes)(message.Message[4] & ~0x10))
-                {
-                    case HarpTypes.U8:
-                        payload = ((byte)(message.Message[11])).ToString() + "(U8)";
-                        break;
-                    case HarpTypes.I8:
-                        payload = ((sbyte)(message.Message[11])).ToString() + "(U8)";
-                        break;
-                    case HarpTypes.U16:
-                        payload = (BitConverter.ToUInt16(message.Message, 11)).ToString() + "(U16)";
-                        break;
-                    case HarpTypes.I16:
-                        payload = (BitConverter.ToInt16(message.Message, 11)).ToString() + "(I16)";
-                        break;
-                    case HarpTypes.U32:
-                        payload = (BitConverter.ToUInt32(message.Message, 11)).ToString() + "(U32)";
-                        break;
-                    case HarpTypes.I32:
-                        payload = (BitConverter.ToInt32(message.Message, 11)).ToString() + "(I32)";
-                        break;
-                    case HarpTypes.U64:
-                        payload = (BitConverter.ToUInt64(message.Message, 11)).ToString() + "(U64)";
-                        break;
-                    case HarpTypes.I64:
-                        payload = (BitConverter.ToInt64(message.Message, 11)).ToString() + "(I64)";
-                        break;
-                    case HarpTypes.Float:
-                        payload = (BitConverter.ToSingle(message.Message, 11)).ToString() + "(Float)";
-                        break;
+                bool errorOnType = false;
 
-                    default:
-                        payload = "NaN";
-                        break;
+                try
+                {
+                    switch ((HarpTypes)(message.Message[4] & ~0x10))
+                    {
+                        case HarpTypes.U8:
+                            payload = ((byte)(message.Message[11])).ToString();
+                            break;
+                        case HarpTypes.I8:
+                            payload = ((sbyte)(message.Message[11])).ToString();
+                            break;
+                        case HarpTypes.U16:
+                            payload = (BitConverter.ToUInt16(message.Message, 11)).ToString();
+                            break;
+                        case HarpTypes.I16:
+                            payload = (BitConverter.ToInt16(message.Message, 11)).ToString();
+                            break;
+                        case HarpTypes.U32:
+                            payload = (BitConverter.ToUInt32(message.Message, 11)).ToString();
+                            break;
+                        case HarpTypes.I32:
+                            payload = (BitConverter.ToInt32(message.Message, 11)).ToString();
+                            break;
+                        case HarpTypes.U64:
+                            payload = (BitConverter.ToUInt64(message.Message, 11)).ToString();
+                            break;
+                        case HarpTypes.I64:
+                            payload = (BitConverter.ToInt64(message.Message, 11)).ToString();
+                            break;
+                        case HarpTypes.Float:
+                            payload = (BitConverter.ToSingle(message.Message, 11)).ToString();
+                            break;
+
+                        default:
+                            payload = "";
+                            break;
+                    }
                 }
+                catch (Exception)
+                {
+                    errorOnType = true;
+                    payload = "";
+                }
+
 
                 string exception;
 
-                if (message.Id == MessageId.Write)
-                    exception = "User tried an erroneous command: write value " + payload + " to address " + message.Address + ".";
-                else
-                    exception = "User tried an erroneous command: read from address " + message.Address + ".";
+                HarpType TypeUsedToRead = (HarpType)(message.Message[4] & ~((byte)(HarpTypes.Timestamp)));
+                string note = "\n\nNote: If the Payload is an array only the first value is shown here.";
 
+                if (message.Id == MessageId.Write)
+                {
+                    exception = "The device reported an erroneous write command. Check the command details bellow for clues.\nPayload: " + payload + ", Address: " + message.Address + ", Type: " + TypeUsedToRead + "." + note;
+                }
+                else
+                {
+                    if (errorOnType)
+                        exception = "The device reported an erroneous read command.\nType not correct for address " + message.Address + ".";
+                    else
+                        exception = "The device reported an erroneous read command. Check the command details bellow for clues.\nAddress: " + message.Address + ", Type: " + TypeUsedToRead + "." + note;
+                }
                 throw new InvalidOperationException(exception);
             }
         }
