@@ -131,9 +131,9 @@ namespace Bonsai.Harp
                             case 1024:
                                 return ("Poke (" + portName + ")");
                             case 1040:
-                                return ("Multi PWM generator (" + portName + ")");
+                                return ("MultiPwmGenerator (" + portName + ")");
                             case 1056:
-                                return ("WEAR basestation (" + portName + ")");
+                                return ("WearBasestation (" + portName + ")");
                             case 1072:
                                 return ("12V Output Drive (" + portName + ")");
                             case 1088:
