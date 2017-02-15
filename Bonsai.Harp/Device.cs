@@ -106,7 +106,8 @@ namespace Bonsai.Harp
                 var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(StateType.Standby, state_led, visual, false);
                 var replyWriteOpCtrl = new byte[13];
 
-                using (var devicePort = new SerialPort(portName, 2000000, Parity.None, 8, StopBits.One))
+                //using (var devicePort = new SerialPort(portName, 2000000, Parity.None, 8, StopBits.One))
+                using (var devicePort = new SerialPort(portName, 1000000, Parity.None, 8, StopBits.One))
                 {
                     try
                     {
