@@ -136,9 +136,9 @@ namespace Bonsai.Harp
                             case 1056:
                                 return ("WearBasestation (" + portName + ")");
                             case 1072:
-                                return ("12V Output Drive (" + portName + ")");
+                                return ("12VoltsDrive (" + portName + ")");
                             case 1088:
-                                return ("LED array (" + portName + ")");
+                                return ("LedController (" + portName + ")");
                             case 1104:
                                 return ("Synchronizer (" + portName + ")");
 
