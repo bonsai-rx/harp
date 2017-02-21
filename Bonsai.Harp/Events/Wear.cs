@@ -16,28 +16,54 @@ namespace Bonsai.Harp.Events
     {
         public Wear()
         {
-            Type = EventType.Motion;
+            Type = EventType.MotionAll;
         }
 
         public enum EventType : byte
-        {
+        {            
             /* Event: DATA */
-            Motion = 0,
-            MotionRegister,
+            MotionAll = 0,
+            MotionAccelerometer,
+            MotionGyroscope,
+            MotionMagnetometer,
 
+            /* Event: MISC */
+            AnalogInput,
+            DigitalInput0,
+            DigitalInput1,
 
-            /* To code */
-            Input0,
-            Input1,
-            Input2,
-            Input3,
-            Input4,
-            Input5,
-            Input6,
-            Input7,
-            Input8,
-            Output0,
-            Address,
+            /* Event: ACQ_STATUS */
+            Acquiring,
+
+            /* Event: BATTERY, TX_RETRIES and RX_GOOD */
+            SensorTemperature,
+            Battery,
+            TxRetries,
+            RxGood,
+
+            /* Event: MISC */
+            RegisterAnalogInput,
+            RegisterDigitalInput0,
+            RegisterDigitalInput1,
+
+            /* Event: ACQ_STATUS */
+            RegisterAcquiring,
+
+            /* Event: START_STIM */
+            RegisterStimulationStart,
+
+            /* Event: DEV_SELECT */
+            RegisterDeviceSelected,
+
+            /* Event: CAM0 and CAM1 */
+            RegisterCamera0,
+            RegisterCamera1,
+
+            /* Event: BATTERY, TX_RETRIES and RX_GOOD */
+            RegisterSensorTemperature,
+            RegisterBattery,
+            RegisterTxRetries,
+            RegisterRxGood,
         }
 
         string INamedElement.Name
@@ -53,38 +79,83 @@ namespace Bonsai.Harp.Events
             switch (Type)
             {
                 /************************************************************************/
-                /* Event: DATA                                                  */
+                /* Event: DATA                                                          */
                 /************************************************************************/
-                case EventType.Motion:
-                    return Expression.Call(typeof(Wear), "ProcessMotion", null, expression);
-                case EventType.MotionRegister:
-                    return Expression.Call(typeof(Wear), "ProcessMotionRegister", null, expression);
+                case EventType.MotionAll:
+                    return Expression.Call(typeof(Wear), "ProcessMotionAll", null, expression);
+                case EventType.MotionAccelerometer:
+                    return Expression.Call(typeof(Wear), "ProcessMotionAccelerometer", null, expression);
+                case EventType.MotionGyroscope:
+                    return Expression.Call(typeof(Wear), "ProcessMotionGyroscope", null, expression);
+                case EventType.MotionMagnetometer:
+                    return Expression.Call(typeof(Wear), "ProcessMotionMotionMagnetometer", null, expression);
+                
+                /************************************************************************/
+                /* Event: MISC                                                          */
+                /************************************************************************/
+                case EventType.AnalogInput:
+                    return Expression.Call(typeof(Wear), "ProcessAnalogInput", null, expression);
+                case EventType.DigitalInput0:
+                    return Expression.Call(typeof(Wear), "ProcessDigitalInput0", null, expression);
+                case EventType.DigitalInput1:
+                    return Expression.Call(typeof(Wear), "ProcessDigitalInput1", null, expression);
+
+
+                case EventType.RegisterAnalogInput:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterAnalogInput", null, expression);
+                case EventType.RegisterDigitalInput0:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterDigitalInput0", null, expression);
+                case EventType.RegisterDigitalInput1:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterDigitalInput1", null, expression);
 
                 /************************************************************************/
-                /* Event: INPUTS_STATE (boolean and address)                            */
+                /* Event: ACQ_STATUS                                                    */
                 /************************************************************************/
-                case EventType.Input0:
-                    return Expression.Call(typeof(Wear), "ProcessInput0", null, expression);
-                case EventType.Input1:
-                    return Expression.Call(typeof(Wear), "ProcessInput1", null, expression);
-                case EventType.Input2:
-                    return Expression.Call(typeof(Wear), "ProcessInput2", null, expression);
-                case EventType.Input3:
-                    return Expression.Call(typeof(Wear), "ProcessInput3", null, expression);
-                case EventType.Input4:
-                    return Expression.Call(typeof(Wear), "ProcessInput4", null, expression);
-                case EventType.Input5:
-                    return Expression.Call(typeof(Wear), "ProcessInput5", null, expression);
-                case EventType.Input6:
-                    return Expression.Call(typeof(Wear), "ProcessInput6", null, expression);
-                case EventType.Input7:
-                    return Expression.Call(typeof(Wear), "ProcessInput7", null, expression);
-                case EventType.Input8:
-                    return Expression.Call(typeof(Wear), "ProcessInput8", null, expression);
-                case EventType.Output0:
-                    return Expression.Call(typeof(Wear), "ProcessOutput0", null, expression);
-                case EventType.Address:
-                    return Expression.Call(typeof(Wear), "ProcessAddress", null, expression);
+                case EventType.Acquiring:
+                    return Expression.Call(typeof(Wear), "ProcessAcquiring", null, expression);
+                case EventType.RegisterAcquiring:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterAcquiring", null, expression);
+
+                /************************************************************************/
+                /* Event: START_STIM                                                    */
+                /************************************************************************/
+                case EventType.RegisterStimulationStart:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterStimulationStart", null, expression);
+
+                /************************************************************************/
+                /* Event: DEV_SELECT                                                    */
+                /************************************************************************/
+                case EventType.RegisterDeviceSelected:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterDeviceSelected", null, expression);
+
+                /************************************************************************/
+                /* Event: BATTERY, TX_RETRIES and RX_GOOD                               */
+                /************************************************************************/
+                case EventType.SensorTemperature:
+                    return Expression.Call(typeof(Wear), "ProcessSensorTemperature", null, expression);
+                case EventType.Battery:
+                    return Expression.Call(typeof(Wear), "ProcessBatery", null, expression);
+                case EventType.TxRetries:
+                    return Expression.Call(typeof(Wear), "ProcessTxRetries", null, expression);
+                case EventType.RxGood:
+                    return Expression.Call(typeof(Wear), "ProcessRxGood", null, expression);
+
+                case EventType.RegisterSensorTemperature:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterSensorTemperature", null, expression);
+                case EventType.RegisterBattery:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterBatery", null, expression);
+                case EventType.RegisterTxRetries:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterTxRetries", null, expression);
+                case EventType.RegisterRxGood:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterRxGood", null, expression);
+
+                /************************************************************************/
+                /* Event: CAM0 and CAM1                                                 */
+                /************************************************************************/
+                case EventType.RegisterCamera0:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterCamera0", null, expression);
+                case EventType.RegisterCamera1:
+                    return Expression.Call(typeof(Wear), "ProcessRegisterCamera1", null, expression);
 
                 /************************************************************************/
                 /* Default                                                              */
@@ -101,13 +172,24 @@ namespace Bonsai.Harp.Events
             return seconds + microseconds * 32e-6;
         }
 
-        static bool is_evt0(HarpDataFrame input) { return ((input.Address == 32) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt33(HarpDataFrame input) { return ((input.Address == 33) && (input.Error == false) && (input.Id == MessageId.Event)); }
         static bool is_evt34(HarpDataFrame input) { return ((input.Address == 34) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt35(HarpDataFrame input) { return ((input.Address == 35) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt36(HarpDataFrame input) { return ((input.Address == 36) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt37(HarpDataFrame input) { return ((input.Address == 37) && (input.Error == false) && (input.Id == MessageId.Event)); }
+
+        static bool is_evt40(HarpDataFrame input) { return ((input.Address == 40) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt42(HarpDataFrame input) { return ((input.Address == 42) && (input.Error == false) && (input.Id == MessageId.Event)); }
+
+        static bool is_evt43(HarpDataFrame input) { return ((input.Address == 43) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt44(HarpDataFrame input) { return ((input.Address == 44) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt45(HarpDataFrame input) { return ((input.Address == 45) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt55(HarpDataFrame input) { return ((input.Address == 55) && (input.Error == false) && (input.Id == MessageId.Event)); }
 
         /************************************************************************/
         /* Event: DATA                                                          */
         /************************************************************************/
-        static IObservable<Mat> ProcessMotion(IObservable<HarpDataFrame> source)
+        static IObservable<Mat> ProcessMotionAll(IObservable<HarpDataFrame> source)
         {
             return source.Where(is_evt34).Select(input =>
             {
@@ -120,104 +202,74 @@ namespace Bonsai.Harp.Events
             });
         }
 
-        static IObservable<Timestamped<string>> ProcessMotionRegister(IObservable<HarpDataFrame> source)
+        /************************************************************************/
+        /* Event: ACQ_STATUS                                                    */
+        /************************************************************************/
+        static IObservable<bool> ProcessAcquiring(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input =>
+            return source.Where(is_evt40).Select(input =>
+            {
+                return ((input.Message[11] & 1) == 1);
+            });
+        }
+
+        static IObservable<Timestamped<bool>> ProcessRegisterAcquiring(IObservable<HarpDataFrame> source)
+        {
+            return source.Where(is_evt40).Select(input =>
             {
                 var timestamp = ParseTimestamp(input.Message, 5);
-                var value = BitConverter.ToUInt16(input.Message, 11);
-                return new Timestamped<string>("teste", timestamp);
+
+                if ((input.Message[11] & 1) == 1)
+                    return new Timestamped<bool>(true, timestamp);
+                else
+                    return new Timestamped<bool>(false, timestamp);
             });
         }
 
         /************************************************************************/
-        /* Event: INPUTS_STATE (boolean and address)                            */
+        /* Event: DEV_SELECT                                                    */
         /************************************************************************/
-        static IObservable<bool> ProcessInput0(IObservable<HarpDataFrame> source)
+        static IObservable<Timestamped<string>> ProcessRegisterDeviceSelected(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
+            return source.Where(is_evt42).Select(input =>
             {
-                return ((input.Message[11] & (1 << 0)) == (1 << 0));
+                var timestamp = ParseTimestamp(input.Message, 5);
+                string MyOutput;
+
+                switch (input.Message[11] & 3)
+                {
+                    case 0: MyOutput = "Wired";
+                        break;
+                    case 1: MyOutput = "Wireless (RF1)";
+                        break;
+                    case 2: MyOutput = "Wireless (RF2)";
+                        break;
+                    default: MyOutput = "";
+                        break;
+                }
+
+                return new Timestamped<string>(MyOutput, timestamp);
             });
         }
 
-        static IObservable<bool> ProcessInput1(IObservable<HarpDataFrame> source)
+        /************************************************************************/
+        /* Event: CAM0 and CAM1                                                 */
+        /************************************************************************/
+        static IObservable<Timestamped<string>> ProcessRegisterCamera0(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
+            return source.Where(is_evt36).Select(input =>
             {
-                return ((input.Message[11] & (1 << 1)) == (1 << 1));
+                var timestamp = ParseTimestamp(input.Message, 5);
+                return new Timestamped<string>("Camera0", timestamp);
             });
         }
 
-        static IObservable<bool> ProcessInput2(IObservable<HarpDataFrame> source)
+        static IObservable<Timestamped<string>> ProcessRegisterCamera1(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
+            return source.Where(is_evt37).Select(input =>
             {
-                return ((input.Message[11] & (1 << 2)) == (1 << 2));
-            });
-        }
-
-        static IObservable<bool> ProcessInput3(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 3)) == (1 << 3));
-            });
-        }
-
-        static IObservable<bool> ProcessInput4(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 4)) == (1 << 4));
-            });
-        }
-
-        static IObservable<bool> ProcessInput5(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 5)) == (1 << 5));
-            });
-        }
-
-        static IObservable<bool> ProcessInput6(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 6)) == (1 << 6));
-            });
-        }
-
-        static IObservable<bool> ProcessInput7(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 7)) == (1 << 7));
-            });
-        }
-
-        static IObservable<bool> ProcessInput8(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 8)) == (1 << 8));
-            });
-        }
-
-        static IObservable<bool> ProcessOutput0(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[12] & (1 << 5)) == (1 << 5));
-            });
-        }
-
-        static IObservable<int> ProcessAddress(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return (input.Message[12] >> 6) & 3;
+                var timestamp = ParseTimestamp(input.Message, 5);
+                return new Timestamped<string>("Camera1", timestamp);
             });
         }
     }
