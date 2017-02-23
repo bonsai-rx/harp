@@ -28,7 +28,7 @@ namespace Bonsai.Harp.Events
         {
             /* Event: TIMESTAMP_SECOND */
             Timestamp = 0,
-            TimestampRegister,
+            RegisterTimestammp,
         }
 
         public EventType Type { get; set; }
@@ -42,9 +42,9 @@ namespace Bonsai.Harp.Events
                 /* List of Events                                                       */
                 /************************************************************************/
                 case EventType.Timestamp:
-                    return Expression.Call(typeof(Device), "ProcessEVT_Timestamp", null, expression);
-                case EventType.TimestampRegister:
-                    return Expression.Call(typeof(Device), "ProcessEVT_TimestampRaw", null, expression);
+                    return Expression.Call(typeof(Device), "ProcessTimestamp", null, expression);
+                case EventType.RegisterTimestammp:
+                    return Expression.Call(typeof(Device), "ProcessRegisterTimestamp", null, expression);
 
                 /************************************************************************/
                 /* Default                                                              */
@@ -66,22 +66,14 @@ namespace Bonsai.Harp.Events
         /************************************************************************/
         /* Process Events                                                       */
         /************************************************************************/
-        static IObservable<UInt32> ProcessEVT_Timestamp(IObservable<HarpDataFrame> source)
+        static IObservable<UInt32> ProcessTimestamp(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt_timestamp).Select(input =>
-            {
-                return BitConverter.ToUInt32(input.Message, 11);
-            });
+            return source.Where(is_evt_timestamp).Select(input => { return BitConverter.ToUInt32(input.Message, 11); });
         }
 
-        static IObservable<Timestamped<UInt32>> ProcessEVT_TimestampRaw(IObservable<HarpDataFrame> source)
+        static IObservable<Timestamped<UInt32>> ProcessRegisterTimestamp(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt_timestamp).Select(input =>
-            {
-                var timestamp = ParseTimestamp(input.Message, 5);
-                var value = BitConverter.ToUInt32(input.Message, 11);
-                return new Timestamped<UInt32>(value, timestamp);
-            });
+            return source.Where(is_evt_timestamp).Select(input => { return new Timestamped<UInt32>(BitConverter.ToUInt32(input.Message, 11), ParseTimestamp(input.Message, 5)); });
         }        
     }
 }
