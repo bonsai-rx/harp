@@ -10,6 +10,14 @@ using System.Text;
 // TODO: replace this with the transform input and output types.
 using TResult = System.String;
 
+/* Events are divided into two categories: Bonsai Events and Raw Registers. */
+/*   - Bonsai Events:                                                                                                                      */
+/*                   Should follow Bonsai guidelines and use types like int, bool, float, Mat and string (for Enums like Wear's DEV_SELECT */
+/*   - Raw Registers:                                                                                                                      */
+/*                   Should have the Timestamped output and the value must have the exact same type of the Harp device register.           */
+/*                   An exception can be made to the output type when:                                                                     */
+/*                           1. The register only have one bit that can be considered as a pure boolena. Can use bool as ouput type.       */
+
 namespace Bonsai.Harp.Events
 {
     public class Synchronizer : SingleArgumentExpressionBuilder, INamedElement
@@ -23,8 +31,6 @@ namespace Bonsai.Harp.Events
         {
             /* Event: INPUTS_STATE */
             Inputs = 0,
-            Register,
-
             Input0,
             Input1,
             Input2,
@@ -36,6 +42,8 @@ namespace Bonsai.Harp.Events
             Input8,
             Output0,
             Address,
+
+            RegisterInputs,
         }
 
         string INamedElement.Name
@@ -55,8 +63,8 @@ namespace Bonsai.Harp.Events
                 /************************************************************************/
                 case EventType.Inputs:
                     return Expression.Call(typeof(Synchronizer), "ProcessInputs", null, expression);
-                case EventType.Register:
-                    return Expression.Call(typeof(Synchronizer), "ProcessInputsRaw", null, expression);
+                case EventType.RegisterInputs:
+                    return Expression.Call(typeof(Synchronizer), "ProcessRegisterInputs", null, expression);
 
                 /************************************************************************/
                 /* Event: INPUTS_STATE (boolean and address)                            */
@@ -120,14 +128,9 @@ namespace Bonsai.Harp.Events
             });
         }
 
-        static IObservable<Timestamped<UInt16>> ProcessInputsRaw(IObservable<HarpDataFrame> source)
+        static IObservable<Timestamped<UInt16>> ProcessRegisterInputs(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                var timestamp = ParseTimestamp(input.Message, 5);
-                var value = BitConverter.ToUInt16(input.Message, 11);
-                return new Timestamped<UInt16>(value, timestamp);
-            });
+            return source.Where(is_evt0).Select(input => {  return new Timestamped<UInt16>(BitConverter.ToUInt16(input.Message, 11), ParseTimestamp(input.Message, 5)); });
         }
 
         /************************************************************************/
@@ -135,90 +138,49 @@ namespace Bonsai.Harp.Events
         /************************************************************************/
         static IObservable<bool> ProcessInput0(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 0)) == (1 << 0));
-            });
+            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
         }
-
         static IObservable<bool> ProcessInput1(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 1)) == (1 << 1));
-            });
+            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
         }
-
         static IObservable<bool> ProcessInput2(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 2)) == (1 << 2));
-            });
+            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
         }
-
         static IObservable<bool> ProcessInput3(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 3)) == (1 << 3));
-            });
+            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
         }
-
         static IObservable<bool> ProcessInput4(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 4)) == (1 << 4));
-            });
+            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); });
         }
-
         static IObservable<bool> ProcessInput5(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 5)) == (1 << 5));
-            });
+            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 5)) == (1 << 5)); });
         }
-
         static IObservable<bool> ProcessInput6(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 6)) == (1 << 6));
-            });
+            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 6)) == (1 << 6)); });
         }
-
         static IObservable<bool> ProcessInput7(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 7)) == (1 << 7));
-            });
+            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 7)) == (1 << 7)); });
         }
-
         static IObservable<bool> ProcessInput8(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[11] & (1 << 8)) == (1 << 8));
-            });
+            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 8)) == (1 << 8)); });
         }
 
         static IObservable<bool> ProcessOutput0(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return ((input.Message[12] & (1 << 5)) == (1 << 5));
-            });
+            return source.Where(is_evt0).Select(input => { return ((input.Message[12] & (1 << 5)) == (1 << 5)); });
         }
 
         static IObservable<int> ProcessAddress(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
-            {
-                return (input.Message[12] >> 6) & 3;
-            });
+            return source.Where(is_evt0).Select(input => { return (input.Message[12] >> 6) & 3; });
         }
     }
 }
