@@ -107,30 +107,31 @@ namespace Bonsai.Harp.Events
             return seconds + microseconds * 32e-6;
         }
 
-        static bool is_evt0(HarpDataFrame input) { return ((input.Address == 32) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt32(HarpDataFrame input) { return ((input.Address == 32) && (input.Error == false) && (input.Id == MessageId.Event)); }
 
         /************************************************************************/
         /* Event: INPUTS_STATE                                                  */
         /************************************************************************/
         static IObservable<Mat> ProcessInputs(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input =>
+            return Observable.Defer(() =>
             {
-                var inputs = BitConverter.ToUInt16(input.Message, 11);
-                var output = new Mat(10, 1, Depth.U8, 1);
+                var buffer = new byte[9];
+                return source.Where(is_evt32).Select(input =>
+                {
+                    var inputs = BitConverter.ToUInt16(input.Message, 11);
 
-                output.SetReal(9, (inputs >> 13) & 1);      // Output0
+                    for (int i = 0; i < buffer.Length; i++)
+                       buffer[i] = (byte)((inputs >> i) & 1);
 
-                for (int i = 0; i < output.Rows - 1; i++)
-                    output.SetReal(i, (inputs >> i) & 1);
-
-                return output;
+                    return Mat.FromArray(buffer, 9, 1, Depth.U8, 1);
+                });
             });
         }
 
         static IObservable<Timestamped<UInt16>> ProcessRegisterInputs(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => {  return new Timestamped<UInt16>(BitConverter.ToUInt16(input.Message, 11), ParseTimestamp(input.Message, 5)); });
+            return source.Where(is_evt32).Select(input => {  return new Timestamped<UInt16>(BitConverter.ToUInt16(input.Message, 11), ParseTimestamp(input.Message, 5)); });
         }
 
         /************************************************************************/
@@ -138,49 +139,49 @@ namespace Bonsai.Harp.Events
         /************************************************************************/
         static IObservable<bool> ProcessInput0(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
         }
         static IObservable<bool> ProcessInput1(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
         }
         static IObservable<bool> ProcessInput2(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
         }
         static IObservable<bool> ProcessInput3(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
         }
         static IObservable<bool> ProcessInput4(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); });
         }
         static IObservable<bool> ProcessInput5(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 5)) == (1 << 5)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 5)) == (1 << 5)); });
         }
         static IObservable<bool> ProcessInput6(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 6)) == (1 << 6)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 6)) == (1 << 6)); });
         }
         static IObservable<bool> ProcessInput7(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 7)) == (1 << 7)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 7)) == (1 << 7)); });
         }
         static IObservable<bool> ProcessInput8(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => { return ((input.Message[11] & (1 << 8)) == (1 << 8)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 8)) == (1 << 8)); });
         }
 
         static IObservable<bool> ProcessOutput0(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => { return ((input.Message[12] & (1 << 5)) == (1 << 5)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[12] & (1 << 5)) == (1 << 5)); });
         }
 
         static IObservable<int> ProcessAddress(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt0).Select(input => { return (input.Message[12] >> 6) & 3; });
+            return source.Where(is_evt32).Select(input => { return (input.Message[12] >> 6) & 3; });
         }
     }
 }
