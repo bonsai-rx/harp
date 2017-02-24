@@ -45,6 +45,9 @@ namespace Bonsai.Harp.Events
         Battery,
         RxGood,
 
+        /* Event: ALL VERSIONS */
+        SensorVersions,
+
         /* Raw Registers */
         RegisterStimulationStart,
         RegisterMisc,
@@ -99,7 +102,6 @@ namespace Bonsai.Harp.Events
                 case WearEventType.DigitalInput1:
                     return Expression.Call(typeof(Wear), "ProcessDigitalInput1", null, expression);
 
-
                 case WearEventType.RegisterMisc:
                     return Expression.Call(typeof(Wear), "ProcessRegisterMisc", null, expression);
 
@@ -147,6 +149,12 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Wear), "ProcessRegisterRxGood", null, expression);
 
                 /************************************************************************/
+                /* Event: ALL VERSIONS                                                  */
+                /************************************************************************/
+                case WearEventType.SensorVersions:
+                    return Expression.Call(typeof(Wear), "ProcessSensorVersions", null, expression);
+
+                /************************************************************************/
                 /* Event: CAM0 and CAM1                                                 */
                 /************************************************************************/
                 case WearEventType.RegisterCamera0:
@@ -182,6 +190,15 @@ namespace Bonsai.Harp.Events
         static bool is_evt44(HarpDataFrame input) { return ((input.Address == 44) && (input.Error == false) && (input.Id == MessageId.Event)); }
         static bool is_evt45(HarpDataFrame input) { return ((input.Address == 45) && (input.Error == false) && (input.Id == MessageId.Event)); }
         static bool is_evt55(HarpDataFrame input) { return ((input.Address == 55) && (input.Error == false) && (input.Id == MessageId.Event)); }
+
+        static bool is_evt47(HarpDataFrame input) { return ((input.Address == 47) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt48(HarpDataFrame input) { return ((input.Address == 48) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt49(HarpDataFrame input) { return ((input.Address == 49) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt50(HarpDataFrame input) { return ((input.Address == 50) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt51(HarpDataFrame input) { return ((input.Address == 51) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt52(HarpDataFrame input) { return ((input.Address == 52) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt53(HarpDataFrame input) { return ((input.Address == 53) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt54(HarpDataFrame input) { return ((input.Address == 54) && (input.Error == false) && (input.Id == MessageId.Event)); }
 
         /************************************************************************/
         /* Event: DATA                                                          */
@@ -310,6 +327,66 @@ namespace Bonsai.Harp.Events
         static IObservable<Timestamped<byte>> ProcessRegisterRxGood(IObservable<HarpDataFrame> source)
         {
             return source.Where(is_evt55).Select(input => { return new Timestamped<byte>(input.Message[11], ParseTimestamp(input.Message, 5)); });
+        }
+
+        /************************************************************************/
+        /* Event: ALL VERSIONS                                                  */
+        /************************************************************************/
+        static IObservable<string> ProcessSensorVersions(IObservable<HarpDataFrame> source)
+        {
+            return Observable.Defer(() =>
+            {
+                var VersionsReceived = new bool[8] { false, false, false, false, false, false, false, false };
+                var Versions = new byte[8];
+
+                return source.Where(input => is_evt47(input) || is_evt48(input) || is_evt49(input) || is_evt50(input) || is_evt51(input) || is_evt52(input) || is_evt53(input) || is_evt54(input)).Select(input =>
+                {
+                    if (is_evt47(input)) { VersionsReceived[0] = true; Versions[0] = input.Message[11]; }
+                    if (is_evt48(input)) { VersionsReceived[1] = true; Versions[1] = input.Message[11]; }
+                    if (is_evt49(input)) { VersionsReceived[2] = true; Versions[2] = input.Message[11]; }
+                    if (is_evt50(input)) { VersionsReceived[3] = true; Versions[3] = input.Message[11]; }
+
+                    if (is_evt51(input)) { VersionsReceived[4] = true; Versions[4] = input.Message[11]; }
+                    if (is_evt52(input)) { VersionsReceived[5] = true; Versions[5] = input.Message[11]; }
+                    if (is_evt53(input)) { VersionsReceived[6] = true; Versions[6] = input.Message[11]; }
+                    if (is_evt54(input)) { VersionsReceived[7] = true; Versions[7] = input.Message[11]; }
+
+                    if (VersionsReceived[0] && VersionsReceived[1] && VersionsReceived[2] && VersionsReceived[3])
+                    {
+                        VersionsReceived[0] = false;
+                        VersionsReceived[1] = false;
+                        VersionsReceived[2] = false;
+                        VersionsReceived[3] = false;
+
+                        string version;
+                        version = "Sensor: Firmware " + System.Convert.ToString(Versions[0]);
+                        version += "." + System.Convert.ToString(Versions[1]) + System.Environment.NewLine;
+                        version += "Sensor: Hardware " + System.Convert.ToString(Versions[2]);
+                        version += "." + System.Convert.ToString(Versions[3]);
+
+                        return version;                                   
+                    }
+                    else if (VersionsReceived[4] && VersionsReceived[5] && VersionsReceived[6] && VersionsReceived[7])
+                    {
+                        VersionsReceived[4] = false;
+                        VersionsReceived[5] = false;
+                        VersionsReceived[6] = false;
+                        VersionsReceived[7] = false;
+
+                        string version;
+                        version = "Sensor Receiver: Firmware " + System.Convert.ToString(Versions[4]);
+                        version += "." + System.Convert.ToString(Versions[5]) + System.Environment.NewLine;
+                        version += "Sensor Receiver: Hardware " + System.Convert.ToString(Versions[6]);
+                        version += "." + System.Convert.ToString(Versions[7]);
+
+                        return version;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }).Where(output => output != null);
+            });
         }
 
         /************************************************************************/
