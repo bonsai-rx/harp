@@ -20,49 +20,49 @@ using TResult = System.String;
 
 namespace Bonsai.Harp.Events
 {
+    public enum WearEventType : byte
+    {
+        /* Event: DATA */
+        MotionAll = 0,
+        MotionAccelerometer,
+        MotionGyroscope,
+        MotionMagnetometer,
+
+        /* Event: MISC */
+        AnalogInput,
+        DigitalInput0,
+        DigitalInput1,
+
+        /* Event: ACQ_STATUS */
+        Acquiring,
+
+        /* Event: DEV_SELECT */
+        DeviceSelected,
+
+        /* Event: BATTERY, TX_RETRIES and RX_GOOD */
+        SensorTemperature,
+        TxRetries,
+        Battery,
+        RxGood,
+
+        /* Raw Registers */
+        RegisterStimulationStart,
+        RegisterMisc,
+        RegisterCamera0,
+        RegisterCamera1,
+        RegisterAcquisitionStatus,
+        RegisterDeviceSelected,
+        RegisterSensorTemperature,
+        RegisterTxRetries,
+        RegisterBattery,
+        RegisterRxGood,
+    }
+
     public class Wear : SingleArgumentExpressionBuilder, INamedElement
     {
         public Wear()
         {
-            Type = EventType.MotionAll;
-        }
-
-        public enum EventType : byte
-        {            
-            /* Event: DATA */
-            MotionAll = 0,
-            MotionAccelerometer,
-            MotionGyroscope,
-            MotionMagnetometer,
-
-            /* Event: MISC */
-            AnalogInput,
-            DigitalInput0,
-            DigitalInput1,
-
-            /* Event: ACQ_STATUS */
-            Acquiring,
-
-            /* Event: DEV_SELECT */
-            DeviceSelected,
-
-            /* Event: BATTERY, TX_RETRIES and RX_GOOD */
-            SensorTemperature,
-            TxRetries,
-            Battery,
-            RxGood,
-
-            /* Raw Registers */
-            RegisterStimulationStart,
-            RegisterMisc,
-            RegisterCamera0,
-            RegisterCamera1,
-            RegisterAcquisitionStatus,
-            RegisterDeviceSelected,
-            RegisterSensorTemperature,
-            RegisterTxRetries,
-            RegisterBattery,
-            RegisterRxGood,
+            Type = WearEventType.MotionAll;
         }
 
         string INamedElement.Name
@@ -70,7 +70,7 @@ namespace Bonsai.Harp.Events
             get { return typeof(Wear).Name + "." + Type.ToString(); }
         }
 
-        public EventType Type { get; set; }
+        public WearEventType Type { get; set; }
 
         public override Expression Build(IEnumerable<Expression> expressions)
         {
@@ -80,78 +80,78 @@ namespace Bonsai.Harp.Events
                 /************************************************************************/
                 /* Event: DATA                                                          */
                 /************************************************************************/
-                case EventType.MotionAll:
+                case WearEventType.MotionAll:
                     return Expression.Call(typeof(Wear), "ProcessMotionAll", null, expression);
-                case EventType.MotionAccelerometer:
+                case WearEventType.MotionAccelerometer:
                     return Expression.Call(typeof(Wear), "ProcessMotionAccelerometer", null, expression);
-                case EventType.MotionGyroscope:
+                case WearEventType.MotionGyroscope:
                     return Expression.Call(typeof(Wear), "ProcessMotionGyroscope", null, expression);
-                case EventType.MotionMagnetometer:
+                case WearEventType.MotionMagnetometer:
                     return Expression.Call(typeof(Wear), "ProcessMotionMagnetometer", null, expression);
                 
                 /************************************************************************/
                 /* Event: MISC                                                          */
                 /************************************************************************/
-                case EventType.AnalogInput:
+                case WearEventType.AnalogInput:
                     return Expression.Call(typeof(Wear), "ProcessAnalogInput", null, expression);
-                case EventType.DigitalInput0:
+                case WearEventType.DigitalInput0:
                     return Expression.Call(typeof(Wear), "ProcessDigitalInput0", null, expression);
-                case EventType.DigitalInput1:
+                case WearEventType.DigitalInput1:
                     return Expression.Call(typeof(Wear), "ProcessDigitalInput1", null, expression);
 
 
-                case EventType.RegisterMisc:
+                case WearEventType.RegisterMisc:
                     return Expression.Call(typeof(Wear), "ProcessRegisterMisc", null, expression);
 
                 /************************************************************************/
                 /* Event: ACQ_STATUS                                                    */
                 /************************************************************************/
-                case EventType.Acquiring:
+                case WearEventType.Acquiring:
                     return Expression.Call(typeof(Wear), "ProcessAcquiring", null, expression);
-                case EventType.RegisterAcquisitionStatus:
+                case WearEventType.RegisterAcquisitionStatus:
                     return Expression.Call(typeof(Wear), "ProcessRegisterAcquisitionStatus", null, expression);
 
                 /************************************************************************/
                 /* Event: START_STIM                                                    */
                 /************************************************************************/
-                case EventType.RegisterStimulationStart:
+                case WearEventType.RegisterStimulationStart:
                     return Expression.Call(typeof(Wear), "ProcessRegisterStimulationStart", null, expression);
 
                 /************************************************************************/
                 /* Event: DEV_SELECT                                                    */
                 /************************************************************************/
-                case EventType.DeviceSelected:
+                case WearEventType.DeviceSelected:
                     return Expression.Call(typeof(Wear), "ProcessDeviceSelected", null, expression);
-                case EventType.RegisterDeviceSelected:
+                case WearEventType.RegisterDeviceSelected:
                     return Expression.Call(typeof(Wear), "ProcessRegisterDeviceSelected", null, expression);
 
                 /************************************************************************/
                 /* Event: TEMP, BATTERY, TX_RETRIES and RX_GOOD                          */
                 /************************************************************************/
-                case EventType.SensorTemperature:
+                case WearEventType.SensorTemperature:
                     return Expression.Call(typeof(Wear), "ProcessSensorTemperature", null, expression);
-                case EventType.Battery:
+                case WearEventType.Battery:
                     return Expression.Call(typeof(Wear), "ProcessBatery", null, expression);
-                case EventType.TxRetries:
+                case WearEventType.TxRetries:
                     return Expression.Call(typeof(Wear), "ProcessTxRetries", null, expression);
-                case EventType.RxGood:
+                case WearEventType.RxGood:
                     return Expression.Call(typeof(Wear), "ProcessRxGood", null, expression);
 
-                case EventType.RegisterSensorTemperature:
+                case WearEventType.RegisterSensorTemperature:
                     return Expression.Call(typeof(Wear), "ProcessRegisterSensorTemperature", null, expression);
-                case EventType.RegisterBattery:
+                case WearEventType.RegisterBattery:
                     return Expression.Call(typeof(Wear), "ProcessRegisterBatery", null, expression);
-                case EventType.RegisterTxRetries:
+                case WearEventType.RegisterTxRetries:
                     return Expression.Call(typeof(Wear), "ProcessRegisterTxRetries", null, expression);
-                case EventType.RegisterRxGood:
+                case WearEventType.RegisterRxGood:
                     return Expression.Call(typeof(Wear), "ProcessRegisterRxGood", null, expression);
 
                 /************************************************************************/
                 /* Event: CAM0 and CAM1                                                 */
                 /************************************************************************/
-                case EventType.RegisterCamera0:
+                case WearEventType.RegisterCamera0:
                     return Expression.Call(typeof(Wear), "ProcessRegisterCamera0", null, expression);
-                case EventType.RegisterCamera1:
+                case WearEventType.RegisterCamera1:
                     return Expression.Call(typeof(Wear), "ProcessRegisterCamera1", null, expression);
 
                 /************************************************************************/
@@ -188,53 +188,69 @@ namespace Bonsai.Harp.Events
         /************************************************************************/
         static IObservable<Mat> ProcessMotionAll(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input =>
+            return Observable.Defer(() =>
             {
-                var output = new Mat(9, 1, Depth.S16, 1);
+                var buffer = new short[9];
+                return source.Where(is_evt34).Select(input =>
+                {
+                    for (int i = 0; i < buffer.Length; i++)
+                    {
+                        buffer[i] = BitConverter.ToInt16(input.Message, 11 + i * 2);
+                    }
 
-                for (int i = 0; i < output.Rows; i++)
-                    output.SetReal(i, BitConverter.ToInt16(input.Message, 11 + i * 2));
-
-                return output;
+                    return Mat.FromArray(buffer, 9, 1, Depth.S16, 1);
+                });
             });
         }
 
         static IObservable<Mat> ProcessMotionAccelerometer(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input =>
+            return Observable.Defer(() =>
             {
-                var output = new Mat(3, 1, Depth.S16, 1);
+                var buffer = new short[3];
+                return source.Where(is_evt34).Select(input =>
+                {
+                    for (int i = 0; i < buffer.Length; i++)
+                    {
+                        buffer[i] = BitConverter.ToInt16(input.Message, 11 + (i + 0) * 2);
+                    }
 
-                for (int i = 0; i < output.Rows; i++)
-                    output.SetReal(i, BitConverter.ToInt16(input.Message, 11 + (i+0) * 2));
-
-                return output;
+                    return Mat.FromArray(buffer, 3, 1, Depth.S16, 1);
+                });
             });
         }
 
         static IObservable<Mat> ProcessMotionGyroscope(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input =>
+            return Observable.Defer(() =>
             {
-                var output = new Mat(3, 1, Depth.S16, 1);
+                var buffer = new short[3];
+                return source.Where(is_evt34).Select(input =>
+                {
+                    for (int i = 0; i < buffer.Length; i++)
+                    {
+                        buffer[i] = BitConverter.ToInt16(input.Message, 11 + (i + 3) * 2);
+                    }
 
-                for (int i = 0; i < output.Rows; i++)
-                    output.SetReal(i, BitConverter.ToInt16(input.Message, 11 + (i+3) * 2));
-
-                return output;
+                    return Mat.FromArray(buffer, 3, 1, Depth.S16, 1);
+                });
             });
         }
 
         static IObservable<Mat> ProcessMotionMagnetometer(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input =>
+            return Observable.Defer(() =>
             {
-                var output = new Mat(3, 1, Depth.S16, 1);
+                var buffer = new short[3];
+                return source.Where(is_evt34).Select(input =>
+                {
+                    for (int i = 0; i < buffer.Length; i++)
+                    {
+                        buffer[i] = BitConverter.ToInt16(input.Message, 11 + (i + 6) * 2);
+                    }
 
-                for (int i = 0; i < output.Rows; i++)
-                    output.SetReal(i, BitConverter.ToInt16(input.Message, 11 + (i + 6) * 2));
-
-                return output;
+                    return Mat.FromArray(buffer, 3, 1, Depth.S16, 1);
+                });
             });
         }
 

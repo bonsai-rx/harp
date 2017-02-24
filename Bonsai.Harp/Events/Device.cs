@@ -12,11 +12,18 @@ using TResult = System.String;
 
 namespace Bonsai.Harp.Events
 {
+    public enum DeviceEventType : byte
+    {
+        /* Event: TIMESTAMP_SECOND */
+        Timestamp = 0,
+        RegisterTimestammp,
+    }
+
     public class Device : SingleArgumentExpressionBuilder, INamedElement
     {
         public Device()
         {
-            Type = EventType.Timestamp;
+            Type = DeviceEventType.Timestamp;
         }
 
         string INamedElement.Name
@@ -24,14 +31,7 @@ namespace Bonsai.Harp.Events
             get { return typeof(Device).Name + "." + Type.ToString(); }
         }
 
-        public enum EventType : byte
-        {
-            /* Event: TIMESTAMP_SECOND */
-            Timestamp = 0,
-            RegisterTimestammp,
-        }
-
-        public EventType Type { get; set; }
+        public DeviceEventType Type { get; set; }
 
         public override Expression Build(IEnumerable<Expression> expressions)
         {
@@ -41,9 +41,9 @@ namespace Bonsai.Harp.Events
                 /************************************************************************/
                 /* List of Events                                                       */
                 /************************************************************************/
-                case EventType.Timestamp:
+                case DeviceEventType.Timestamp:
                     return Expression.Call(typeof(Device), "ProcessTimestamp", null, expression);
-                case EventType.RegisterTimestammp:
+                case DeviceEventType.RegisterTimestammp:
                     return Expression.Call(typeof(Device), "ProcessRegisterTimestamp", null, expression);
 
                 /************************************************************************/
