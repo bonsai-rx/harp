@@ -20,30 +20,30 @@ using TResult = System.String;
 
 namespace Bonsai.Harp.Events
 {
+    public enum SynchronizerEventType : byte
+    {
+        /* Event: INPUTS_STATE */
+        Inputs = 0,
+        Input0,
+        Input1,
+        Input2,
+        Input3,
+        Input4,
+        Input5,
+        Input6,
+        Input7,
+        Input8,
+        Output0,
+        Address,
+
+        RegisterInputs,
+    }
+
     public class Synchronizer : SingleArgumentExpressionBuilder, INamedElement
     {
         public Synchronizer()
         {
-            Type = EventType.Inputs;
-        }
-
-        public enum EventType : byte
-        {
-            /* Event: INPUTS_STATE */
-            Inputs = 0,
-            Input0,
-            Input1,
-            Input2,
-            Input3,
-            Input4,
-            Input5,
-            Input6,
-            Input7,
-            Input8,
-            Output0,
-            Address,
-
-            RegisterInputs,
+            Type = SynchronizerEventType.Inputs;
         }
 
         string INamedElement.Name
@@ -51,7 +51,7 @@ namespace Bonsai.Harp.Events
             get { return typeof(Synchronizer).Name + "." + Type.ToString(); }
         }
 
-        public EventType Type { get; set; }
+        public SynchronizerEventType Type { get; set; }
 
         public override Expression Build(IEnumerable<Expression> expressions)
         {
@@ -61,35 +61,35 @@ namespace Bonsai.Harp.Events
                 /************************************************************************/
                 /* Event: INPUTS_STATE                                                  */
                 /************************************************************************/
-                case EventType.Inputs:
+                case SynchronizerEventType.Inputs:
                     return Expression.Call(typeof(Synchronizer), "ProcessInputs", null, expression);
-                case EventType.RegisterInputs:
+                case SynchronizerEventType.RegisterInputs:
                     return Expression.Call(typeof(Synchronizer), "ProcessRegisterInputs", null, expression);
 
                 /************************************************************************/
                 /* Event: INPUTS_STATE (boolean and address)                            */
                 /************************************************************************/
-                case EventType.Input0:
+                case SynchronizerEventType.Input0:
                     return Expression.Call(typeof(Synchronizer), "ProcessInput0", null, expression);
-                case EventType.Input1:
+                case SynchronizerEventType.Input1:
                     return Expression.Call(typeof(Synchronizer), "ProcessInput1", null, expression);
-                case EventType.Input2:
+                case SynchronizerEventType.Input2:
                     return Expression.Call(typeof(Synchronizer), "ProcessInput2", null, expression);
-                case EventType.Input3:
+                case SynchronizerEventType.Input3:
                     return Expression.Call(typeof(Synchronizer), "ProcessInput3", null, expression);
-                case EventType.Input4:
+                case SynchronizerEventType.Input4:
                     return Expression.Call(typeof(Synchronizer), "ProcessInput4", null, expression);
-                case EventType.Input5:
+                case SynchronizerEventType.Input5:
                     return Expression.Call(typeof(Synchronizer), "ProcessInput5", null, expression);
-                case EventType.Input6:
+                case SynchronizerEventType.Input6:
                     return Expression.Call(typeof(Synchronizer), "ProcessInput6", null, expression);
-                case EventType.Input7:
+                case SynchronizerEventType.Input7:
                     return Expression.Call(typeof(Synchronizer), "ProcessInput7", null, expression);
-                case EventType.Input8:
+                case SynchronizerEventType.Input8:
                     return Expression.Call(typeof(Synchronizer), "ProcessInput8", null, expression);
-                case EventType.Output0:
+                case SynchronizerEventType.Output0:
                     return Expression.Call(typeof(Synchronizer), "ProcessOutput0", null, expression);
-                case EventType.Address:
+                case SynchronizerEventType.Address:
                     return Expression.Call(typeof(Synchronizer), "ProcessAddress", null, expression);
 
                 /************************************************************************/
