@@ -12,6 +12,7 @@ namespace Bonsai.Harp
         const int DefaultReadBufferSize = 1048576; // 2^20 = 1 MB
         const byte IdMask = 0x03;
         const byte ErrorMask = 0x08;
+        readonly object readWriteGate = new object();
         readonly IObserver<HarpDataFrame> observer;
         readonly SerialPort serialPort;
         BufferedStream bufferedStream;
@@ -55,7 +56,10 @@ namespace Bonsai.Harp
 
         public void Write(HarpDataFrame input)
         {
-            serialPort.Write(input.Message, 0, input.Message.Length);
+            lock (readWriteGate)
+            {
+                serialPort.Write(input.Message, 0, input.Message.Length);
+            }
         }
 
         static void ProcessThrowException(HarpDataFrame message)
@@ -135,7 +139,11 @@ namespace Bonsai.Harp
             {
                 var bytesToRead = serialPort.BytesToRead;
                 bufferedStream = bufferedStream ?? new BufferedStream(serialPort.BaseStream, serialPort.ReadBufferSize);
-                bufferedStream.PushBytes(bytesToRead);
+                lock (readWriteGate)
+                {
+                    bufferedStream.PushBytes(bytesToRead);
+                }
+
                 while (serialPort.IsOpen && bytesToRead > 0)
                 {
                     // There is a current packet
