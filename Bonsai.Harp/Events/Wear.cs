@@ -184,7 +184,7 @@ namespace Bonsai.Harp.Events
         static bool is_evt37(HarpDataFrame input) { return ((input.Address == 37) && (input.Error == false) && (input.Id == MessageId.Event)); }
 
         static bool is_evt40(HarpDataFrame input) { return ((input.Address == 40) && (input.Error == false) && (input.Id == MessageId.Event)); }
-        static bool is_evt42(HarpDataFrame input) { return ((input.Address == 42) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt42(HarpDataFrame input) { return ((input.Address == 42) && (input.Error == false)); }
 
         static bool is_evt43(HarpDataFrame input) { return ((input.Address == 43) && (input.Error == false) && (input.Id == MessageId.Event)); }
         static bool is_evt44(HarpDataFrame input) { return ((input.Address == 44) && (input.Error == false) && (input.Id == MessageId.Event)); }
