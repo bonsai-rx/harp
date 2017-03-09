@@ -16,3 +16,4 @@ When you clone, fork or branch this repository, you are encouraged to create a f
     *nupkg
     **suo
     **XML
+    **xml
