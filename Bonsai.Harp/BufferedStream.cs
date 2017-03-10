@@ -64,7 +64,7 @@ namespace Bonsai.Harp
         {
             if (offset < 0)
             {
-                readOffset = (readOffset + readBuffer.Length - offset) % readBuffer.Length;
+                readOffset = (readOffset + readBuffer.Length + offset) % readBuffer.Length;
             }
             else readOffset = (readOffset + offset) % readBuffer.Length;
         }
