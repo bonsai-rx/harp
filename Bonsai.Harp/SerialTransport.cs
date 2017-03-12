@@ -167,7 +167,7 @@ namespace Bonsai.Harp
                             }
                             else
                             {
-                                var offset = currentMessage.Length - 2;
+                                var offset = currentMessage.Length - 1;
                                 bufferedStream.Seek(-offset);
                                 bytesToRead += offset;
                             }
