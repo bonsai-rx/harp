@@ -18,6 +18,7 @@ namespace Bonsai.Harp
         byte[] currentMessage;
         bool ignoreErrors;
         int currentOffset;
+        bool notAbleToParse = false;
         int pendingId;
         bool disposed;
 
@@ -186,6 +187,8 @@ namespace Bonsai.Harp
                             // If checksum is valid, emit packet
                             if (sum == checksum && CheckType(currentMessage[4]))
                             {
+                                notAbleToParse = false;
+
                                 var dataFrame = new HarpDataFrame(currentMessage);
                                 if (!ignoreErrors) ProcessThrowException(dataFrame);
                                 observer.OnNext(dataFrame);
@@ -194,6 +197,18 @@ namespace Bonsai.Harp
                             {
                                 var offset = currentMessage.Length - 1;
                                 bufferedStream.Seek(-offset);
+
+                                if (!notAbleToParse)
+                                {
+                                    notAbleToParse = true;
+
+                                    string currentMessageStr = "Not able to parse a Harp Data Frame ";
+                                    currentMessageStr += "(" + DateTime.Now.ToString("hh:mm:ss tt", System.Globalization.DateTimeFormatInfo.InvariantInfo) + ")!";
+                                    currentMessageStr += "\nRaw Harp Data Frame: ";
+                                    currentMessageStr += BitConverter.ToString(currentMessage).Replace("-", ":");
+                                    Console.WriteLine(currentMessageStr);
+                                }                                                                
+
                                 bytesToRead += offset;
                             }
                             currentMessage = null;
