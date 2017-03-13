@@ -58,6 +58,31 @@ namespace Bonsai.Harp
             serialPort.Write(input.Message, 0, input.Message.Length);
         }
 
+        const byte MaskTypeLength = 0x0F;
+
+        static bool CheckType(byte type)
+        {
+            switch ((byte)(type & MaskTypeLength))
+            {
+                case (byte)HarpType.U8:
+                case (byte)HarpType.U16:
+                case (byte)HarpType.U32:
+                case (byte)HarpType.U64:
+                    break;
+                default:
+                    return false;
+            }
+            
+            if ((type & 0x20) == 0x20)
+                return false;
+
+            if ((type & 0x40) == 0x40)
+                if ((type & 0xEF)!= (byte)HarpType.Float)
+                    return false;
+
+            return true;
+        }
+
         static void ProcessThrowException(HarpDataFrame message)
         {
             if (message.Error)
@@ -159,7 +184,7 @@ namespace Bonsai.Harp
                             }
 
                             // If checksum is valid, emit packet
-                            if (sum == checksum)
+                            if (sum == checksum && CheckType(currentMessage[4]))
                             {
                                 var dataFrame = new HarpDataFrame(currentMessage);
                                 if (!ignoreErrors) ProcessThrowException(dataFrame);
