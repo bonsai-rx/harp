@@ -274,9 +274,9 @@ namespace Bonsai.Harp.Events
         /************************************************************************/
         /* Event: MISC                                                          */
         /************************************************************************/
-        static IObservable<int> ProcessAnalogInput(IObservable<HarpDataFrame> source)
+        static IObservable<float> ProcessAnalogInput(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt35).Select(input => { return (int)((UInt16)(BitConverter.ToUInt16(input.Message, 11) & (UInt16)(0x0FFF))); });
+            return source.Where(is_evt35).Select(input => { return (float) ((3.3/1.6)/4096) * ((int)((UInt16)(BitConverter.ToUInt16(input.Message, 11) & (UInt16)(0x0FFF)))); });
         }
         static IObservable<bool> ProcessDigitalInput0(IObservable<HarpDataFrame> source)
         {
