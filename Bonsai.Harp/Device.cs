@@ -141,6 +141,8 @@ namespace Bonsai.Harp
                                 return ("LedController (" + portName + ")");
                             case 1104:
                                 return ("Synchronizer (" + portName + ")");
+                            case 1121:
+                                return ("SimpleAnalogGenerator (" + portName + ")");
 
                             default:
                                 return "NotSpecified";
