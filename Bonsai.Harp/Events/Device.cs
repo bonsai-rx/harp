@@ -16,7 +16,7 @@ namespace Bonsai.Harp.Events
     {
         /* Event: TIMESTAMP_SECOND */
         Timestamp = 0,
-        RegisterTimestammp,
+        RegisterTimestamp,
     }
 
     public class Device : SingleArgumentExpressionBuilder, INamedElement
@@ -43,7 +43,7 @@ namespace Bonsai.Harp.Events
                 /************************************************************************/
                 case DeviceEventType.Timestamp:
                     return Expression.Call(typeof(Device), "ProcessTimestamp", null, expression);
-                case DeviceEventType.RegisterTimestammp:
+                case DeviceEventType.RegisterTimestamp:
                     return Expression.Call(typeof(Device), "ProcessRegisterTimestamp", null, expression);
 
                 /************************************************************************/
