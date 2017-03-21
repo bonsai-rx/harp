@@ -193,21 +193,10 @@ namespace Bonsai.Harp
                 transport.Write(new HarpDataFrame(cmdWriteOpCtrl));
 
                 var sourceDisposable = new SingleAssignmentDisposable();
-                sourceDisposable.Disposable = source.Do(
-                    input => transport.Write(input),
-                    ex => {
-                        //observer.OnError(ex);
-                        cmdWriteOpCtrl = CreateWriteOpCtrlCmd(StateType.Standby, ledState, visualIndicators, false);
-                        transport.Write(new HarpDataFrame(cmdWriteOpCtrl));
-                    },
-                    () =>
-                    {
-                        //observer.OnCompleted();
-                        cmdWriteOpCtrl = CreateWriteOpCtrlCmd(StateType.Standby, ledState, visualIndicators, false);
-                        transport.Write(new HarpDataFrame(cmdWriteOpCtrl));
-                    }
-
-                    ).Subscribe();
+                sourceDisposable.Disposable = source.Subscribe(
+                    transport.Write,
+                    observer.OnError,
+                    observer.OnCompleted);
 
                 var cleanup = Disposable.Create(() =>
                 {
