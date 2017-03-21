@@ -9,17 +9,6 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
-    //public class CreateTimestamp<T>
-    //{
-    //    public IObservable<Timestamped<T>> Process(IObservable<Tuple<T, double>> source)
-    //    {
-    //        return source.Select(input => new Timestamped<T>(input.Item1, input.Item2));
-    //    }
-
-    //}
-
-    
-    
     public class CreateHarpDataFrame : Source<HarpDataFrame>
     {
         HarpDataFrame StaticFrame;
@@ -34,8 +23,7 @@ namespace Bonsai.Harp
         public HarpType DataType { get; set; }
 
         [Description("The value to write.")]
-        //public Double Data { get; set; }
-        public string Data { get; set; }
+        public Double Data { get; set; }
 
         static HarpDataFrame CreateFrame(byte[] value, MessageId msgId, HarpType type, byte reagAdd, byte port)
         {
@@ -121,8 +109,7 @@ namespace Bonsai.Harp
             Operation = MessageId.Write;
             AddressRegister = 32;
             DataType = HarpType.U8;
-            //Data = 0;
-            Data = "0";
+            Data = 0;
         }
 
         public override IObservable<HarpDataFrame> Generate()
@@ -139,8 +126,7 @@ namespace Bonsai.Harp
                         case HarpType.U16:
                         case HarpType.U32:
                         case HarpType.U64:
-                            //UInt64 dataUInt = (UInt64)Data;
-                            UInt64 dataUInt = (UInt64)(Convert.ToUInt64(Data, CultureInfo.InvariantCulture));
+                            UInt64 dataUInt = (UInt64)Data;
                             data = BitConverter.GetBytes(dataUInt);
                             break;
 
@@ -148,14 +134,12 @@ namespace Bonsai.Harp
                         case HarpType.I16:
                         case HarpType.I32:
                         case HarpType.I64:
-                            //Int64 dataInt = (Int64)Data;
-                            Int64 dataInt = (Int64)(Convert.ToInt64(Data, CultureInfo.InvariantCulture));
+                            Int64 dataInt = (Int64)Data;
                             data = BitConverter.GetBytes(dataInt);
                             break;
 
                         case HarpType.Float:
-                            //var dataSingle = (Single)Data;
-                            Single dataSingle = (Single)(Convert.ToSingle(Data, CultureInfo.InvariantCulture));
+                            var dataSingle = (Single)Data;
                             data = BitConverter.GetBytes(dataSingle);
                             break;
 
