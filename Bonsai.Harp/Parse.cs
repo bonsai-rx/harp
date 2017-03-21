@@ -26,37 +26,37 @@ namespace Bonsai.Harp
             {
                 case HarpTypes.U8:
                     return Expression.Call(typeof(Parse), "ProcessU8", null, expression);
-                case HarpTypes.I8:
+                case HarpTypes.S8:
                     return Expression.Call(typeof(Parse), "ProcessI8", null, expression);
                 case HarpTypes.U16:
                     return Expression.Call(typeof(Parse), "ProcessU16", null, expression);
-                case HarpTypes.I16:
+                case HarpTypes.S16:
                     return Expression.Call(typeof(Parse), "ProcessI16", null, expression);
                 case HarpTypes.U32:
                     return Expression.Call(typeof(Parse), "ProcessU32", null, expression);
-                case HarpTypes.I32:
+                case HarpTypes.S32:
                     return Expression.Call(typeof(Parse), "ProcessI32", null, expression);
                 case HarpTypes.U64:
                     return Expression.Call(typeof(Parse), "ProcessU64", null, expression);
-                case HarpTypes.I64:
+                case HarpTypes.S64:
                     return Expression.Call(typeof(Parse), "ProcessI64", null, expression);
                 case HarpTypes.Float:
                     return Expression.Call(typeof(Parse), "ProcessFloat", null, expression);
                 case HarpTypes.Timestamp | HarpTypes.U8:
                     return Expression.Call(typeof(Parse), "ProcessTimestampedU8", null, expression);
-                case HarpTypes.Timestamp | HarpTypes.I8:
+                case HarpTypes.Timestamp | HarpTypes.S8:
                     return Expression.Call(typeof(Parse), "ProcessTimestampedI8", null, expression);
                 case HarpTypes.Timestamp | HarpTypes.U16:
                     return Expression.Call(typeof(Parse), "ProcessTimestampedU16", null, expression);
-                case HarpTypes.Timestamp | HarpTypes.I16:
+                case HarpTypes.Timestamp | HarpTypes.S16:
                     return Expression.Call(typeof(Parse), "ProcessTimestampedI16", null, expression);
                 case HarpTypes.Timestamp | HarpTypes.U32:
                     return Expression.Call(typeof(Parse), "ProcessTimestampedU32", null, expression);
-                case HarpTypes.Timestamp | HarpTypes.I32:
+                case HarpTypes.Timestamp | HarpTypes.S32:
                     return Expression.Call(typeof(Parse), "ProcessTimestampedI32", null, expression);
                 case HarpTypes.Timestamp | HarpTypes.U64:
                     return Expression.Call(typeof(Parse), "ProcessTimestampedU64", null, expression);
-                case HarpTypes.Timestamp | HarpTypes.I64:
+                case HarpTypes.Timestamp | HarpTypes.S64:
                     return Expression.Call(typeof(Parse), "ProcessTimestampedI64", null, expression);
                 case HarpTypes.Timestamp | HarpTypes.Float:
                     return Expression.Call(typeof(Parse), "ProcessTimestampedFloat", null, expression);
@@ -125,14 +125,14 @@ namespace Bonsai.Harp
 
         static sbyte ProcessI8(HarpDataFrame input)
         {
-            CheckForErrors(input, HarpType.I8);
+            CheckForErrors(input, HarpType.S8);
 
             return ((input.Message[4] & (byte)HarpTypes.Timestamp) != 0) ? (sbyte)input.Message[11] : (sbyte)input.Message[5];
         }
 
         static Timestamped<sbyte> ProcessTimestampedI8(HarpDataFrame input)
         {
-            CheckForErrors(input, HarpType.I8);
+            CheckForErrors(input, HarpType.S8);
 
             var timestamp = ParseTimestamp(input);
             var value = ((input.Message[4] & (byte)HarpTypes.Timestamp) != 0) ? (sbyte)input.Message[11] : (sbyte)input.Message[5];
@@ -157,14 +157,14 @@ namespace Bonsai.Harp
 
         static short ProcessI16(HarpDataFrame input)
         {
-            CheckForErrors(input, HarpType.I16);
+            CheckForErrors(input, HarpType.S16);
 
             return ((input.Message[4] & (byte)HarpTypes.Timestamp) != 0) ? BitConverter.ToInt16(input.Message, 11) : BitConverter.ToInt16(input.Message, 5);
         }
 
         static Timestamped<short> ProcessTimestampedI16(HarpDataFrame input)
         {
-            CheckForErrors(input, HarpType.I16);
+            CheckForErrors(input, HarpType.S16);
 
             var timestamp = ParseTimestamp(input);
             var value = ((input.Message[4] & (byte)HarpTypes.Timestamp) != 0) ? BitConverter.ToInt16(input.Message, 11) : BitConverter.ToInt16(input.Message, 5);
@@ -189,14 +189,14 @@ namespace Bonsai.Harp
 
         static int ProcessI32(HarpDataFrame input)
         {
-            CheckForErrors(input, HarpType.I32);
+            CheckForErrors(input, HarpType.S32);
 
             return ((input.Message[4] & (byte)HarpTypes.Timestamp) != 0) ? BitConverter.ToInt32(input.Message, 11) : BitConverter.ToInt32(input.Message, 5);
         }
 
         static Timestamped<int> ProcessTimestampedI32(HarpDataFrame input)
         {
-            CheckForErrors(input, HarpType.I32);
+            CheckForErrors(input, HarpType.S32);
 
             var timestamp = ParseTimestamp(input);
             var value = ((input.Message[4] & (byte)HarpTypes.Timestamp) != 0) ? BitConverter.ToInt32(input.Message, 11) : BitConverter.ToInt32(input.Message, 5);
@@ -221,14 +221,14 @@ namespace Bonsai.Harp
 
         static long ProcessI64(HarpDataFrame input)
         {
-            CheckForErrors(input, HarpType.I64);
+            CheckForErrors(input, HarpType.S64);
 
             return ((input.Message[4] & (byte)HarpTypes.Timestamp) != 0) ? BitConverter.ToInt64(input.Message, 11) : BitConverter.ToInt64(input.Message, 5);
         }
 
         static Timestamped<long> ProcessTimestampedI64(HarpDataFrame input)
         {
-            CheckForErrors(input, HarpType.I64);
+            CheckForErrors(input, HarpType.S64);
 
             var timestamp = ParseTimestamp(input);
             var value = ((input.Message[4] & (byte)HarpTypes.Timestamp) != 0) ? BitConverter.ToInt64(input.Message, 11) : BitConverter.ToInt64(input.Message, 5);

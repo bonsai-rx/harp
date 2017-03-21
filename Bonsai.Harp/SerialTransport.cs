@@ -98,25 +98,25 @@ namespace Bonsai.Harp
                         case HarpTypes.U8:
                             payload = ((byte)(message.Message[11])).ToString();
                             break;
-                        case HarpTypes.I8:
+                        case HarpTypes.S8:
                             payload = ((sbyte)(message.Message[11])).ToString();
                             break;
                         case HarpTypes.U16:
                             payload = (BitConverter.ToUInt16(message.Message, 11)).ToString();
                             break;
-                        case HarpTypes.I16:
+                        case HarpTypes.S16:
                             payload = (BitConverter.ToInt16(message.Message, 11)).ToString();
                             break;
                         case HarpTypes.U32:
                             payload = (BitConverter.ToUInt32(message.Message, 11)).ToString();
                             break;
-                        case HarpTypes.I32:
+                        case HarpTypes.S32:
                             payload = (BitConverter.ToInt32(message.Message, 11)).ToString();
                             break;
                         case HarpTypes.U64:
                             payload = (BitConverter.ToUInt64(message.Message, 11)).ToString();
                             break;
-                        case HarpTypes.I64:
+                        case HarpTypes.S64:
                             payload = (BitConverter.ToInt64(message.Message, 11)).ToString();
                             break;
                         case HarpTypes.Float:
