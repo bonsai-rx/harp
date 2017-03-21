@@ -11,18 +11,22 @@ namespace Bonsai.Harp.Commands
 {
     public enum WearCommandType : byte
     {
-        Start,
-        Stop,
-        WriteLed,
-        WritePosition,
-        WriteAnalog
+        StartAcquisition,
+        StopAcquisition,
+        StartStimulation,
+
+        WritePositionMotor0,
+        WritePositionMotor1,
+
+        WriteOutput0,
+        WriteOutput1
     }
 
     public class Wear : SelectBuilder, INamedElement
     {
         public Wear()
         {
-            Type = WearCommandType.Start;
+            Type = WearCommandType.StartAcquisition;
         }
 
         string INamedElement.Name
@@ -36,39 +40,81 @@ namespace Bonsai.Harp.Commands
         {
             switch (Type)
             {
-                case WearCommandType.Start:
-                    return Expression.Call(typeof(Wear), "ProcessStart", new[] { expression.Type }, expression);
-                case WearCommandType.Stop:
-                    return Expression.Call(typeof(Wear), "ProcessStop", new[] { expression.Type }, expression);
-                case WearCommandType.WriteLed:
-                    if (expression.Type != typeof(byte))
+                case WearCommandType.StartAcquisition:
+                    return Expression.Call(typeof(Wear), "ProcessStartAcquisition", new[] { expression.Type }, expression);
+                case WearCommandType.StopAcquisition:
+                    return Expression.Call(typeof(Wear), "ProcessStopAcquisition", new[] { expression.Type }, expression);
+                case WearCommandType.StartStimulation:
+                    return Expression.Call(typeof(Wear), "ProcessStartAcquisition", new[] { expression.Type }, expression);
+
+
+                case WearCommandType.WritePositionMotor0:
+                    if (expression.Type != typeof(UInt16))
                     {
-                        expression = Expression.Convert(expression, typeof(byte));
+                        expression = Expression.Convert(expression, typeof(UInt16));
                     }
-                    return Expression.Call(typeof(Wear), "ProcessWriteLed", null, expression);
-                case WearCommandType.WritePosition:
-                    break;
-                case WearCommandType.WriteAnalog:
-                    break;
+                    return Expression.Call(typeof(Wear), "ProcessWritePositionMotor0", null, expression);
+                case WearCommandType.WritePositionMotor1:
+                    if (expression.Type != typeof(UInt16))
+                    {
+                        expression = Expression.Convert(expression, typeof(UInt16));
+                    }
+                    return Expression.Call(typeof(Wear), "ProcessWritePositionMotor1", null, expression);
+
+                case WearCommandType.WriteOutput0:
+                    if (expression.Type != typeof(bool))
+                    {
+                        expression = Expression.Convert(expression, typeof(bool));
+                    }
+                    return Expression.Call(typeof(Wear), "ProcessWriteOutput0", null, expression);
+                case WearCommandType.WriteOutput1:
+                    if (expression.Type != typeof(bool))
+                    {
+                        expression = Expression.Convert(expression, typeof(bool));
+                    }
+                    return Expression.Call(typeof(Wear), "ProcessWriteOutput1", null, expression);
+
                 default:
                     break;
             }
             return expression;
         }
 
-        static HarpDataFrame ProcessStart<TSource>(TSource input)
+        static HarpDataFrame ProcessStartAcquisition<TSource>(TSource input)
         {
-            return new HarpDataFrame(0x1, 0x2, 0x3, 0x5);
+            return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 32, 255, (byte)HarpType.U8, 1, 0));
         }
 
-        static HarpDataFrame ProcessWriteLed(byte input)
+        static HarpDataFrame ProcessStopAcquisition<TSource>(TSource input)
         {
-            return new HarpDataFrame(0x1, 0x2, 0x3, input);
+            return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 32, 255, (byte)HarpType.U8, 0, 0));
         }
 
-        static HarpDataFrame ProcessWritePosition(int input)
+        static HarpDataFrame ProcessStartStimulation<TSource>(TSource input)
         {
-            return new HarpDataFrame(0x1, 0x2, 0x3, (byte)(input>>24),(byte)(input>>16),(byte)(input>>8),(byte)input);
+            return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 33, 255, (byte)HarpType.U8, 1, 0));
+        }
+
+
+        static HarpDataFrame ProcessWritePositionMotor0(UInt16 input)
+        {
+            return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 6, 80, 255, (byte)HarpType.U16, (byte)(input & 255), (byte)((input >> 8) & 255), 0));
+        }
+
+        static HarpDataFrame ProcessWritePositionMotor1(UInt16 input)
+        {
+            return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 6, 85, 255, (byte)HarpType.U16, (byte)(input & 255), (byte)((input >> 8) & 255), 0));
+        }
+
+
+        static HarpDataFrame ProcessWriteOutput0(bool input)
+        {
+            return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 38, 255, (byte)HarpType.U8, (byte)(input ? 1 : 0), 0));
+        }
+
+        static HarpDataFrame ProcessWriteOutput1(bool input)
+        {
+            return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 39, 255, (byte)HarpType.U8, (byte)(input ? 1 : 0), 0));
         }
     }
 }
