@@ -10,7 +10,7 @@ namespace Bonsai.Harp
     {
         const byte ErrorMask = 0x08;
 
-        internal HarpDataFrame(byte[] message)
+        internal HarpDataFrame(params byte[] message)
         {
             if (message == null)
             {
