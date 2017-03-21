@@ -42,6 +42,13 @@ namespace Bonsai.Harp
 
         public byte[] Message { get; private set; }
 
+        public static HarpDataFrame UpdateChesksum(HarpDataFrame frame)
+        {
+            var checksum = Checksum(frame);
+            frame.Message[frame.Message.Length - 1] = Checksum(frame);
+            return frame;
+        }
+
         public static byte Checksum(HarpDataFrame frame)
         {
             return Checksum(frame.Message, frame.Message.Length - 1);
