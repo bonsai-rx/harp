@@ -70,6 +70,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BufferedStream.cs" />
+    <Compile Include="Commands\Synchronizer.cs" />
+    <Compile Include="Commands\Device.cs" />
     <Compile Include="Commands\Wear.cs" />
     <Compile Include="Events\Device.cs" />
     <Compile Include="Events\Wear.cs" />
