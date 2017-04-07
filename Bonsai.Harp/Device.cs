@@ -143,6 +143,8 @@ namespace Bonsai.Harp
                                 return ("Synchronizer (" + portName + ")");
                             case 1121:
                                 return ("SimpleAnalogGenerator (" + portName + ")");
+                            case 1136:
+                                return ("Arquimedes (" + portName + ")");
 
                             default:
                                 return "NotSpecified";
