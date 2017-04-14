@@ -45,7 +45,7 @@ namespace Bonsai.Harp.Commands
                 case WearCommandType.StopAcquisition:
                     return Expression.Call(typeof(Wear), "ProcessStopAcquisition", new[] { expression.Type }, expression);
                 case WearCommandType.StartStimulation:
-                    return Expression.Call(typeof(Wear), "ProcessStartAcquisition", new[] { expression.Type }, expression);
+                    return Expression.Call(typeof(Wear), "ProcessStartStimulation", new[] { expression.Type }, expression);
 
 
                 case WearCommandType.WritePositionMotor0:
