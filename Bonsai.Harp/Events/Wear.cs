@@ -402,6 +402,15 @@ namespace Bonsai.Harp.Events
             return source.Where(is_evt40).Select(input => { return new Timestamped<bool>(((input.Message[11] & 1) == 1), ParseTimestamp(input.Message, 5)); });
         }
 
+
+        /************************************************************************/
+        /* Event: START_STIM                                                    */
+        /************************************************************************/
+        static IObservable<Timestamped<bool>> ProcessRegisterStimulationStart(IObservable<HarpDataFrame> source)
+        {
+            return source.Where(is_evt33).Select(input => { return new Timestamped<bool>(((input.Message[11] & 1) == 1), ParseTimestamp(input.Message, 5)); });
+        }
+
         /************************************************************************/
         /* Event: DEV_SELECT                                                    */
         /************************************************************************/
