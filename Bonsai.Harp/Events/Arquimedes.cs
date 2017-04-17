@@ -213,19 +213,19 @@ namespace Bonsai.Harp.Events
         }
         static IObservable<bool> ProcessThreshold0(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 0)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
         }
         static IObservable<bool> ProcessThreshold1(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 1)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
         }
         static IObservable<bool> ProcessThreshold2(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 2)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
         }
         static IObservable<bool> ProcessThreshold3(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 3)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); });
         }
 
         static IObservable<Timestamped<byte>> ProcessRegisterThresholds(IObservable<HarpDataFrame> source)
@@ -257,15 +257,15 @@ namespace Bonsai.Harp.Events
         }
         static IObservable<bool> ProcessInput1(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 0)); });
+            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
         }
         static IObservable<bool> ProcessInput2(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 1)); });
+            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
         }
         static IObservable<bool> ProcessInput3(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 1)); });
+            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
         }
         
         static IObservable<Timestamped<byte>> ProcessRegisterInputs(IObservable<HarpDataFrame> source)
