@@ -66,6 +66,12 @@ namespace Bonsai.Harp.Events
 
         public ArquimedesEventType Type { get; set; }
 
+        private static byte previousThresholdsQuiet = 0;
+        private static byte previousThresholdsTh0 = 0;
+        private static byte previousThresholdsTh1 = 0;
+        private static byte previousThresholdsTh2 = 0;
+        private static byte previousThresholdsTh3 = 0;
+
         public override Expression Build(IEnumerable<Expression> expressions)
         {
             var expression = expressions.First();
@@ -149,6 +155,31 @@ namespace Bonsai.Harp.Events
         static bool is_evt34(HarpDataFrame input) { return ((input.Address == 34) && (input.Error == false) && (input.Id == MessageId.Event)); }
         static bool is_evt55(HarpDataFrame input) { return ((input.Address == 34) && (input.Error == false) && (input.Id == MessageId.Event)); }
 
+        //public static int User { get { return previousThresholds; } }
+
+        static bool compareWithPreviousThreshold(byte thresholds, ref byte previousThreshold, byte thresholdPosition)
+        {
+            bool current  = ((thresholds & (1 << thresholdPosition)) == (1 << thresholdPosition));
+            bool previous = ((previousThreshold & (1 << thresholdPosition)) == (1 << thresholdPosition));
+
+            if (current != previous)
+            {
+                previousThreshold = thresholds;
+                return true;
+            }
+            else
+            {
+                previousThreshold = thresholds;
+                return false;
+            }
+        }
+
+        static bool xmit_quiet(HarpDataFrame input) { if (!is_evt32(input)) return false; return compareWithPreviousThreshold(input.Message[11], ref previousThresholdsQuiet, 0); }
+        static bool xmit_th0  (HarpDataFrame input) { if (!is_evt32(input)) return false; return compareWithPreviousThreshold(input.Message[11], ref previousThresholdsTh0, 1); }
+        static bool xmit_th1  (HarpDataFrame input) { if (!is_evt32(input)) return false; return compareWithPreviousThreshold(input.Message[11], ref previousThresholdsTh1, 2); }
+        static bool xmit_th2  (HarpDataFrame input) { if (!is_evt32(input)) return false; return compareWithPreviousThreshold(input.Message[11], ref previousThresholdsTh2, 3); }
+        static bool xmit_th3  (HarpDataFrame input) { if (!is_evt32(input)) return false; return compareWithPreviousThreshold(input.Message[11], ref previousThresholdsTh3, 4); }
+
         /************************************************************************/
         /* Event: DATA                                                          */
         /************************************************************************/
@@ -169,12 +200,12 @@ namespace Bonsai.Harp.Events
         {
             return Observable.Defer(() =>
             {
-                var buffer = new ushort[1];
+                var buffer = new float[1];
                 return source.Where(is_evt33).Select(input =>
                 {
-                    buffer[0] = BitConverter.ToUInt16(input.Message, 13);
+                    buffer[0] = (float)((3.3 / 1.6) / 2048) * BitConverter.ToUInt16(input.Message, 13);
 
-                    return Mat.FromArray(buffer, 1, 1, Depth.U16, 1);
+                    return Mat.FromArray(buffer, 1, 1, Depth.F32, 1);
                 });
             });
         }
@@ -209,23 +240,23 @@ namespace Bonsai.Harp.Events
 
         static IObservable<bool> ProcessLeverIsQuiet(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
+            return source.Where(/*is_evt32*/xmit_quiet).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
         }
         static IObservable<bool> ProcessThreshold0(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
+            return source.Where(/*is_evt32*/xmit_th0).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
         }
         static IObservable<bool> ProcessThreshold1(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
+            return source.Where(/*is_evt32*/xmit_th1).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
         }
         static IObservable<bool> ProcessThreshold2(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
+            return source.Where(/*is_evt32*/xmit_th2).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
         }
         static IObservable<bool> ProcessThreshold3(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); });
+            return source.Where(/*is_evt32*/xmit_th3).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); });
         }
 
         static IObservable<Timestamped<byte>> ProcessRegisterThresholds(IObservable<HarpDataFrame> source)
