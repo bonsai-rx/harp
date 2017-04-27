@@ -12,7 +12,7 @@ using TResult = System.String;
 
 /* Events are divided into two categories: Bonsai Events and Raw Registers. */
 /*   - Bonsai Events:                                                                                                                      */
-/*                   Should follow Bonsai guidelines and use types like int, bool, float, Mat and string (for Enums like Arquimedes's DEV_SELECT */
+/*                   Should follow Bonsai guidelines and use types like int, bool, float, Mat and string (for Enums like Wear's DEV_SELECT */
 /*   - Raw Registers:                                                                                                                      */
 /*                   Should have the Timestamped output and the value must have the exact same type of the Harp device register.           */
 /*                   An exception can be made to the output type when:                                                                     */
@@ -42,14 +42,14 @@ namespace Bonsai.Harp.Events
         Input3,
 
         /* Event: POS_CURRENT */
-        MotorPosition,
+        LoadPositionPercentage,
 
         /* Raw Registers */
         RegisterLever,
         RegisterAnalogInput,
         RegisterThresholds,
         RegisterInputs,
-        RegisterMotorPosition,
+        RegisterLoadPosition,
     }
 
     public class Arquimedes : SingleArgumentExpressionBuilder, INamedElement
@@ -71,6 +71,9 @@ namespace Bonsai.Harp.Events
         private static byte previousThresholdsTh1 = 0;
         private static byte previousThresholdsTh2 = 0;
         private static byte previousThresholdsTh3 = 0;
+
+        private static bool REG_MOTOR_MAXIMUM_available = false;
+        private static UInt16 REG_MOTOR_MAXIMUM = 3000;
 
         public override Expression Build(IEnumerable<Expression> expressions)
         {
@@ -129,11 +132,11 @@ namespace Bonsai.Harp.Events
                 /************************************************************************/
                 /* Event: POS_CURRENT                                                   */
                 /************************************************************************/
-                case ArquimedesEventType.MotorPosition:
-                    return Expression.Call(typeof(Arquimedes), "ProcessPosition", null, expression);
+                case ArquimedesEventType.LoadPositionPercentage:
+                    return Expression.Call(typeof(Arquimedes), "ProcessLoadPositionPercentage", null, expression);
 
-                case ArquimedesEventType.RegisterMotorPosition:
-                    return Expression.Call(typeof(Arquimedes), "ProcesssMotorPosition", null, expression);
+                case ArquimedesEventType.RegisterLoadPosition:
+                    return Expression.Call(typeof(Arquimedes), "ProcessRegisterLoadPosition", null, expression);
 
                 /************************************************************************/
                 /* Default                                                              */
@@ -153,9 +156,19 @@ namespace Bonsai.Harp.Events
         static bool is_evt32(HarpDataFrame input) { return ((input.Address == 32) && (input.Error == false) && (input.Id == MessageId.Event)); }
         static bool is_evt33(HarpDataFrame input) { return ((input.Address == 33) && (input.Error == false) && (input.Id == MessageId.Event)); }
         static bool is_evt34(HarpDataFrame input) { return ((input.Address == 34) && (input.Error == false) && (input.Id == MessageId.Event)); }
-        static bool is_evt55(HarpDataFrame input) { return ((input.Address == 34) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt55(HarpDataFrame input)
+        {
+            if (input.Address == 60)
+            {
+                REG_MOTOR_MAXIMUM = BitConverter.ToUInt16(input.Message, 11);
+                REG_MOTOR_MAXIMUM_available = true;
+            }
 
-        //public static int User { get { return previousThresholds; } }
+            if (REG_MOTOR_MAXIMUM_available == false)
+                return false;
+
+            return ((input.Address == 55) && (input.Error == false) && (input.Id == MessageId.Event));
+        }
 
         static bool compareWithPreviousThreshold(byte thresholds, ref byte previousThreshold, byte thresholdPosition)
         {
@@ -195,7 +208,7 @@ namespace Bonsai.Harp.Events
                     return Mat.FromArray(buffer, 1, 1, Depth.F32, 1);
                 });
             });
-        }
+        }        
         static IObservable<Mat> ProcessAnalogInput(IObservable<HarpDataFrame> source)
         {
             return Observable.Defer(() =>
@@ -209,7 +222,12 @@ namespace Bonsai.Harp.Events
                 });
             });
         }
-
+        /*
+        static IObservable<float> ProcessAnalogInput(IObservable<HarpDataFrame> source)
+        {
+            return source.Where(is_evt33).Select(input => { return (float)((3.3 / 1.6) / 2048) * BitConverter.ToUInt16(input.Message, 13); });
+        }
+        */
 
         static IObservable<Timestamped<Int16>> ProcessRegisterLever(IObservable<HarpDataFrame> source)
         {
@@ -307,21 +325,27 @@ namespace Bonsai.Harp.Events
         /************************************************************************/
         /* Event: POS_CURRENT                                                   */
         /************************************************************************/
-        static IObservable<Mat> ProcessMotorPosition(IObservable<HarpDataFrame> source)
+        /*
+        static IObservable<Mat> ProcessLoadPositionPercentage(IObservable<HarpDataFrame> source)
         {
             return Observable.Defer(() =>
             {
-                var buffer = new ushort[1];
+                var buffer = new float[1];
                 return source.Where(is_evt55).Select(input =>
                 {
-                    buffer[0] = BitConverter.ToUInt16(input.Message, 11);
+                    buffer[0] = ((float)(BitConverter.ToUInt16(input.Message, 11)) / (float)REG_MOTOR_MAXIMUM) * (float)100.0;
 
-                    return Mat.FromArray(buffer, 1, 1, Depth.U16, 1);
+                    return Mat.FromArray(buffer, 1, 1, Depth.F32, 1);
                 });
             });
         }
+        */
+        static IObservable<float> ProcessLoadPositionPercentage(IObservable<HarpDataFrame> source)
+        {
+            return source.Where(is_evt55).Select(input => { return ((float)(BitConverter.ToUInt16(input.Message, 11)) / (float)REG_MOTOR_MAXIMUM) * (float)100.0; });
+        }
 
-        static IObservable<Timestamped<UInt16>> ProcessRegisterMotorPosition(IObservable<HarpDataFrame> source)
+        static IObservable<Timestamped<UInt16>> ProcessRegisterLoadPosition(IObservable<HarpDataFrame> source)
         {
             return source.Where(is_evt55).Select(input => { return new Timestamped<UInt16>(BitConverter.ToUInt16(input.Message, 11), ParseTimestamp(input.Message, 5)); });
         }
