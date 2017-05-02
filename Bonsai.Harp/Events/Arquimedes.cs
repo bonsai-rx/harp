@@ -34,6 +34,12 @@ namespace Bonsai.Harp.Events
         Threshold2,
         Threshold3,
 
+        TransitionQuiet,
+        TransitionThreshold0,
+        TransitionThreshold1,
+        TransitionThreshold2,
+        TransitionThreshold3,
+
         /* Event: INPUTS */
         Inputs,
         Input0,
@@ -108,6 +114,17 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Arquimedes), "ProcessThreshold2", null, expression);
                 case ArquimedesEventType.Threshold3:
                     return Expression.Call(typeof(Arquimedes), "ProcessThreshold3", null, expression);
+                    
+                case ArquimedesEventType.TransitionQuiet:
+                    return Expression.Call(typeof(Arquimedes), "ProcessTransitionQuiet", null, expression);
+                case ArquimedesEventType.TransitionThreshold0:
+                    return Expression.Call(typeof(Arquimedes), "ProcessTransitionThreshold0", null, expression);
+                case ArquimedesEventType.TransitionThreshold1:
+                    return Expression.Call(typeof(Arquimedes), "ProcessTransitionThreshold1", null, expression);
+                case ArquimedesEventType.TransitionThreshold2:
+                    return Expression.Call(typeof(Arquimedes), "ProcessTransitionThreshold2", null, expression);
+                case ArquimedesEventType.TransitionThreshold3:
+                    return Expression.Call(typeof(Arquimedes), "ProcessTransitionThreshold3", null, expression);
 
                 case ArquimedesEventType.RegisterThresholds:
                     return Expression.Call(typeof(Arquimedes), "ProcessRegisterThresholds", null, expression);
@@ -196,38 +213,14 @@ namespace Bonsai.Harp.Events
         /************************************************************************/
         /* Event: DATA                                                          */
         /************************************************************************/
-        static IObservable<Mat> Processlever(IObservable<HarpDataFrame> source)
+        static IObservable<float> Processlever(IObservable<HarpDataFrame> source)
         {
-            return Observable.Defer(() =>
-            {
-                var buffer = new float[1];
-                return source.Where(is_evt33).Select(input =>
-                {
-                    buffer[0] = BitConverter.ToInt16(input.Message, 11) * (float)0.0219;
-
-                    return Mat.FromArray(buffer, 1, 1, Depth.F32, 1);
-                });
-            });
-        }        
-        static IObservable<Mat> ProcessAnalogInput(IObservable<HarpDataFrame> source)
-        {
-            return Observable.Defer(() =>
-            {
-                var buffer = new float[1];
-                return source.Where(is_evt33).Select(input =>
-                {
-                    buffer[0] = (float)((3.3 / 1.6) / 2048) * BitConverter.ToUInt16(input.Message, 13);
-
-                    return Mat.FromArray(buffer, 1, 1, Depth.F32, 1);
-                });
-            });
+            return source.Where(is_evt33).Select(input => { return BitConverter.ToInt16(input.Message, 11) * (float)0.0219; });
         }
-        /*
         static IObservable<float> ProcessAnalogInput(IObservable<HarpDataFrame> source)
         {
             return source.Where(is_evt33).Select(input => { return (float)((3.3 / 1.6) / 2048) * BitConverter.ToUInt16(input.Message, 13); });
         }
-        */
 
         static IObservable<Timestamped<Int16>> ProcessRegisterLever(IObservable<HarpDataFrame> source)
         {
@@ -258,21 +251,42 @@ namespace Bonsai.Harp.Events
 
         static IObservable<bool> ProcessLeverIsQuiet(IObservable<HarpDataFrame> source)
         {
-            return source.Where(/*is_evt32*/xmit_quiet).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
         }
         static IObservable<bool> ProcessThreshold0(IObservable<HarpDataFrame> source)
         {
-            return source.Where(/*is_evt32*/xmit_th0).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
         }
         static IObservable<bool> ProcessThreshold1(IObservable<HarpDataFrame> source)
         {
-            return source.Where(/*is_evt32*/xmit_th1).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
         }
         static IObservable<bool> ProcessThreshold2(IObservable<HarpDataFrame> source)
         {
-            return source.Where(/*is_evt32*/xmit_th2).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
         }
         static IObservable<bool> ProcessThreshold3(IObservable<HarpDataFrame> source)
+        {
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); });
+        }
+
+        static IObservable<bool> ProcessTransitionQuiet(IObservable<HarpDataFrame> source)
+        {
+            return source.Where(/*is_evt32*/xmit_quiet).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
+        }
+        static IObservable<bool> ProcessTransitionThreshold0(IObservable<HarpDataFrame> source)
+        {
+            return source.Where(/*is_evt32*/xmit_th0).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
+        }
+        static IObservable<bool> ProcessTransitionThreshold1(IObservable<HarpDataFrame> source)
+        {
+            return source.Where(/*is_evt32*/xmit_th1).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
+        }
+        static IObservable<bool> ProcessTransitionThreshold2(IObservable<HarpDataFrame> source)
+        {
+            return source.Where(/*is_evt32*/xmit_th2).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
+        }
+        static IObservable<bool> ProcessTransitionThreshold3(IObservable<HarpDataFrame> source)
         {
             return source.Where(/*is_evt32*/xmit_th3).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); });
         }
@@ -325,21 +339,6 @@ namespace Bonsai.Harp.Events
         /************************************************************************/
         /* Event: POS_CURRENT                                                   */
         /************************************************************************/
-        /*
-        static IObservable<Mat> ProcessLoadPositionPercentage(IObservable<HarpDataFrame> source)
-        {
-            return Observable.Defer(() =>
-            {
-                var buffer = new float[1];
-                return source.Where(is_evt55).Select(input =>
-                {
-                    buffer[0] = ((float)(BitConverter.ToUInt16(input.Message, 11)) / (float)REG_MOTOR_MAXIMUM) * (float)100.0;
-
-                    return Mat.FromArray(buffer, 1, 1, Depth.F32, 1);
-                });
-            });
-        }
-        */
         static IObservable<float> ProcessLoadPositionPercentage(IObservable<HarpDataFrame> source)
         {
             return source.Where(is_evt55).Select(input => { return ((float)(BitConverter.ToUInt16(input.Message, 11)) / (float)REG_MOTOR_MAXIMUM) * (float)100.0; });
