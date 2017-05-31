@@ -27,12 +27,12 @@ namespace Bonsai.Harp.Events
         AnalogInput,
 
         /* Event: THRESHOLDS */
-        Thresholds,
         LeverIsQuiet,
-        Threshold0,
-        Threshold1,
-        Threshold2,
-        Threshold3,
+        Thresholds,        
+        //Threshold0,
+        //Threshold1,
+        //Threshold2,
+        //Threshold3,
 
         TransitionQuiet,
         TransitionThreshold0,
@@ -102,10 +102,11 @@ namespace Bonsai.Harp.Events
                 /************************************************************************/
                 /* Event: THRESHOLDS                                                    */
                 /************************************************************************/
-                case ArquimedesEventType.Thresholds:
-                    return Expression.Call(typeof(Arquimedes), "ProcessThresholds", null, expression);
                 case ArquimedesEventType.LeverIsQuiet:
                     return Expression.Call(typeof(Arquimedes), "ProcessLeverIsQuiet", null, expression);
+                case ArquimedesEventType.Thresholds:
+                    return Expression.Call(typeof(Arquimedes), "ProcessThresholds", null, expression);
+                /*
                 case ArquimedesEventType.Threshold0:
                     return Expression.Call(typeof(Arquimedes), "ProcessThreshold0", null, expression);
                 case ArquimedesEventType.Threshold1:
@@ -114,6 +115,7 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Arquimedes), "ProcessThreshold2", null, expression);
                 case ArquimedesEventType.Threshold3:
                     return Expression.Call(typeof(Arquimedes), "ProcessThreshold3", null, expression);
+                */
                     
                 case ArquimedesEventType.TransitionQuiet:
                     return Expression.Call(typeof(Arquimedes), "ProcessTransitionQuiet", null, expression);
@@ -171,6 +173,7 @@ namespace Bonsai.Harp.Events
         }
 
         static bool is_evt32(HarpDataFrame input) { return ((input.Address == 32) && (input.Error == false) && (input.Id == MessageId.Event)); }
+        static bool is_evt32_And_NotQuiet(HarpDataFrame input) { return ((input.Address == 32) && (input.Error == false) && (input.Id == MessageId.Event) && (input.Message[11] > 1)); }        
         static bool is_evt33(HarpDataFrame input) { return ((input.Address == 33) && (input.Error == false) && (input.Id == MessageId.Event)); }
         static bool is_evt34(HarpDataFrame input) { return ((input.Address == 34) && (input.Error == false) && (input.Id == MessageId.Event)); }
         static bool is_evt55(HarpDataFrame input)
@@ -234,18 +237,17 @@ namespace Bonsai.Harp.Events
         /************************************************************************/
         /* Event: THRESHOLDS                                                    */
         /************************************************************************/
-        static IObservable<Mat> ProcessThresholds(IObservable<HarpDataFrame> source)
+        static IObservable<int> ProcessThresholds(IObservable<HarpDataFrame> source)
         {
-            return Observable.Defer(() =>
-            {
-                var buffer = new byte[5];
-                return source.Where(is_evt32).Select(input =>
+            return source.Where(is_evt32_And_NotQuiet).Select(input => {
+                switch (input.Message[11])
                 {
-                    for (int i = 0; i < buffer.Length; i++)
-                        buffer[i] = (byte)((input.Message[11] >> i) & 1);
-
-                    return Mat.FromArray(buffer, buffer.Length, 1, Depth.U8, 1);
-                });
+                    case 3: return 0;
+                    case 7: return 1;
+                    case 15: return 2;
+                    case 31: return 3;
+                    default: return -1;
+                }
             });
         }
 
@@ -253,6 +255,7 @@ namespace Bonsai.Harp.Events
         {
             return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
         }
+        /*
         static IObservable<bool> ProcessThreshold0(IObservable<HarpDataFrame> source)
         {
             return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
@@ -269,6 +272,7 @@ namespace Bonsai.Harp.Events
         {
             return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); });
         }
+        */
 
         static IObservable<bool> ProcessTransitionQuiet(IObservable<HarpDataFrame> source)
         {
