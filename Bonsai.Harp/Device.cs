@@ -134,7 +134,7 @@ namespace Bonsai.Harp
                             case 1040:
                                 return ("MultiPwmGenerator (" + portName + ")");
                             case 1056:
-                                return ("WearBasestation (" + portName + ")");
+                                return ("Wear (" + portName + ")");
                             case 1072:
                                 return ("12VoltsDrive (" + portName + ")");
                             case 1088:
@@ -142,7 +142,8 @@ namespace Bonsai.Harp
                             case 1104:
                                 return ("Synchronizer (" + portName + ")");
                             case 1121:
-                                return ("SimpleAnalogGenerator (" + portName + ")");
+                                //return ("SimpleAnalogGenerator (" + portName + ")");
+                                return ("(" + portName + ") " + "SimpleAnalogGenerator");
                             case 1136:
                                 return ("Arquimedes (" + portName + ")");
                             case 1152:
