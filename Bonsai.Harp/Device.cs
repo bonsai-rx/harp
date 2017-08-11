@@ -134,7 +134,7 @@ namespace Bonsai.Harp
                                 return ("Poke");
                             case 1040:
                                 //return ("MultiPwmGenerator (" + portName + ")");
-                                return ("MultiPwmGenerator");
+                                return ("MultiPwm");
                             case 1056:
                                 //return ("Wear (" + portName + ")");
                                 return ("WearBasestation");
