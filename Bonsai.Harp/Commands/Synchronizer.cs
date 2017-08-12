@@ -6,19 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
+using System.ComponentModel;
 
 namespace Bonsai.Harp.Commands
 {
     public enum SynchronizerCommandType : byte
     {
-        WriteOutput0
+        Outputs
     }
+
+    [Description(
+        "\n" +
+        "Outputs: Bitmask\n"
+    )]
 
     public class Synchronizer : SelectBuilder, INamedElement
     {
         public Synchronizer()
         {
-            Type = SynchronizerCommandType.WriteOutput0;
+            Type = SynchronizerCommandType.Outputs;
         }
 
         string INamedElement.Name
@@ -32,12 +38,9 @@ namespace Bonsai.Harp.Commands
         {
             switch (Type)
             {
-                case SynchronizerCommandType.WriteOutput0:
-                    if (expression.Type != typeof(bool))
-                    {
-                        expression = Expression.Convert(expression, typeof(bool));
-                    }
-                    return Expression.Call(typeof(Synchronizer), "ProcessWriteOutput0", null, expression);
+                case SynchronizerCommandType.Outputs:
+                    if (expression.Type != typeof(byte)) { expression = Expression.Convert(expression, typeof(byte)); }
+                    return Expression.Call(typeof(Synchronizer), "ProcessOutputs", null, expression);
 
                 default:
                     break;
@@ -45,9 +48,9 @@ namespace Bonsai.Harp.Commands
             return expression;
         }
 
-        static HarpDataFrame ProcessWriteOutput0(bool input)
+        static HarpDataFrame ProcessOutputs(byte input)
         {
-            return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 33, 255, (byte)HarpType.U8, (byte)(input ? 1 : 0), 0));
+            return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 33, 255, (byte)HarpType.U8, input, 0));
         }
     }
 }
