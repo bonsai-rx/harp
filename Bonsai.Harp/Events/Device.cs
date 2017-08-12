@@ -7,8 +7,40 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Text;
-// TODO: replace this with the transform input and output types.
 using TResult = System.String;
+using System.ComponentModel;
+
+/* Events are divided into two categories: Bonsai Events and Raw Registers.                                                                                       */
+/*   - Bonsai Events:                                                                                                                                             */
+/*                   Should follow Bonsai guidelines and use the types int, bool, float, Mat and string (for Enums like Wear's DEV_SELECT                         */
+/*   - Raw Registers:                                                                                                                                             */
+/*                   Should have the Timestamped output and the value must have the exact same type (UInt16, Int16, byte, Int, ...) of the Harp device register.  */
+/*                                                                                                                                                                */
+/* Note: When the device has both digital and analog inputs or outputs use the names DigitalOutput, DigitalInput, AnalogOutput and AnalogInput.                   */
+
+/* Example of Events' descriptions (Bonsai Events):     */
+/*      Bitmask (not recommended, use Mat[] instead)    */
+/*      Groumask                                        */
+/*      Boolean Mat[9]                                  */
+/*      Boolean                                         */
+/*      Boolean (*)                                     */
+/*      Integer                                         */
+/*      Integer Mat[3][9]                               */
+/*      Decimal                                         */
+/*      Decimal (V)                                     */
+/*      Decimal (ºC)                                    */
+/*  (*) Only distinct contiguous elements are propagated. */
+
+/* Example of Events' descriptions (Raw Registers):     */
+/*      Bitmask U8                                      */
+/*      Groupmask U8                                    */
+/*      U16                                             */
+/*      S16                                             */
+/*      U32                                             */
+/*      Float                                           */
+/*      INPUTS register U16                             */
+
+
 
 namespace Bonsai.Harp.Events
 {
@@ -18,6 +50,13 @@ namespace Bonsai.Harp.Events
         Timestamp = 0,
         RegisterTimestamp,
     }
+
+    [Description(
+    "\n" +
+    "Timestamp: Integer\n" +
+    "\n" +
+    "RegisterTimestamp: U32\n"
+    )]
 
     public class Device : SingleArgumentExpressionBuilder, INamedElement
     {
@@ -38,17 +77,11 @@ namespace Bonsai.Harp.Events
             var expression = expressions.First();
             switch (Type)
             {
-                /************************************************************************/
-                /* List of Events                                                       */
-                /************************************************************************/
                 case DeviceEventType.Timestamp:
                     return Expression.Call(typeof(Device), "ProcessTimestamp", null, expression);
                 case DeviceEventType.RegisterTimestamp:
                     return Expression.Call(typeof(Device), "ProcessRegisterTimestamp", null, expression);
 
-                /************************************************************************/
-                /* Default                                                              */
-                /************************************************************************/
                 default:
                     throw new InvalidOperationException("Invalid selection or not supported yet.");
             }
@@ -62,10 +95,7 @@ namespace Bonsai.Harp.Events
         }
 
         static bool is_evt_timestamp(HarpDataFrame input) { return ((input.Address == 8) && (input.Error == false) && (input.Id == MessageId.Event)); }
-
-        /************************************************************************/
-        /* Process Events                                                       */
-        /************************************************************************/
+        
         static IObservable<UInt32> ProcessTimestamp(IObservable<HarpDataFrame> source)
         {
             return source.Where(is_evt_timestamp).Select(input => { return BitConverter.ToUInt32(input.Message, 11); });
