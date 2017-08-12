@@ -7,16 +7,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Text;
-// TODO: replace this with the transform input and output types.
 using TResult = System.String;
-
-/* Events are divided into two categories: Bonsai Events and Raw Registers. */
-/*   - Bonsai Events:                                                                                                                      */
-/*                   Should follow Bonsai guidelines and use types like int, bool, float, Mat and string (for Enums like Wear's DEV_SELECT */
-/*   - Raw Registers:                                                                                                                      */
-/*                   Should have the Timestamped output and the value must have the exact same type of the Harp device register.           */
-/*                   An exception can be made to the output type when:                                                                     */
-/*                           1. The register only have one bit that can be considered as a pure boolena. Can use bool as ouput type.       */
+using System.ComponentModel;
 
 namespace Bonsai.Harp.Events
 {
@@ -33,11 +25,27 @@ namespace Bonsai.Harp.Events
         Input6,
         Input7,
         Input8,
-        Output0,
         Address,
 
         RegisterInputs,
     }
+
+    [Description(
+        "\n" +
+        "Intputs: Integer Mat[9]\n" +
+        "Input0: Boolean\n" +
+        "Input1: Boolean\n" +
+        "Input2: Boolean\n" +
+        "Input3: Boolean\n" +
+        "Input4: Boolean\n" +
+        "Input5: Boolean\n" +
+        "Input6: Boolean\n" +
+        "Input7: Boolean\n" +
+        "Input8: Boolean\n" +
+        "Address: Integer\n" +
+        "\n" +
+        "RegisterInputs: INPUTS register U16\n"
+    )]
 
     public class Synchronizer : SingleArgumentExpressionBuilder, INamedElement
     {
@@ -59,7 +67,7 @@ namespace Bonsai.Harp.Events
             switch (Type)
             {
                 /************************************************************************/
-                /* Event: INPUTS_STATE                                                  */
+                /* Register: INPUTS_STATE                                               */
                 /************************************************************************/
                 case SynchronizerEventType.Inputs:
                     return Expression.Call(typeof(Synchronizer), "ProcessInputs", null, expression);
@@ -67,7 +75,7 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Synchronizer), "ProcessRegisterInputs", null, expression);
 
                 /************************************************************************/
-                /* Event: INPUTS_STATE (boolean and address)                            */
+                /* Register: INPUTS_STATE (boolean and address)                         */
                 /************************************************************************/
                 case SynchronizerEventType.Input0:
                     return Expression.Call(typeof(Synchronizer), "ProcessInput0", null, expression);
@@ -87,8 +95,6 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Synchronizer), "ProcessInput7", null, expression);
                 case SynchronizerEventType.Input8:
                     return Expression.Call(typeof(Synchronizer), "ProcessInput8", null, expression);
-                case SynchronizerEventType.Output0:
-                    return Expression.Call(typeof(Synchronizer), "ProcessOutput0", null, expression);
                 case SynchronizerEventType.Address:
                     return Expression.Call(typeof(Synchronizer), "ProcessAddress", null, expression);
 
@@ -110,7 +116,7 @@ namespace Bonsai.Harp.Events
         static bool is_evt32(HarpDataFrame input) { return ((input.Address == 32) && (input.Error == false) && (input.Id == MessageId.Event)); }
 
         /************************************************************************/
-        /* Event: INPUTS_STATE                                                  */
+        /* Register: INPUTS_STATE                                               */
         /************************************************************************/
         static IObservable<Mat> ProcessInputs(IObservable<HarpDataFrame> source)
         {
@@ -135,7 +141,7 @@ namespace Bonsai.Harp.Events
         }
 
         /************************************************************************/
-        /* Event: INPUTS_STATE (boolean and address)                            */
+        /* Register: INPUTS_STATE                                               */
         /************************************************************************/
         static IObservable<bool> ProcessInput0(IObservable<HarpDataFrame> source)
         {
@@ -172,11 +178,6 @@ namespace Bonsai.Harp.Events
         static IObservable<bool> ProcessInput8(IObservable<HarpDataFrame> source)
         {
             return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 8)) == (1 << 8)); });
-        }
-
-        static IObservable<bool> ProcessOutput0(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[12] & (1 << 5)) == (1 << 5)); });
         }
 
         static IObservable<int> ProcessAddress(IObservable<HarpDataFrame> source)
