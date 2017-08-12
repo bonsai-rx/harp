@@ -7,16 +7,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Text;
-// TODO: replace this with the transform input and output types.
 using TResult = System.String;
-
-/* Events are divided into two categories: Bonsai Events and Raw Registers. */
-/*   - Bonsai Events:                                                                                                                      */
-/*                   Should follow Bonsai guidelines and use types like int, bool, float, Mat and string (for Enums like Wear's DEV_SELECT */
-/*   - Raw Registers:                                                                                                                      */
-/*                   Should have the Timestamped output and the value must have the exact same type of the Harp device register.           */
-/*                   An exception can be made to the output type when:                                                                     */
-/*                           1. The register only have one bit that can be considered as a pure boolena. Can use bool as ouput type.       */
+using System.ComponentModel;
 
 namespace Bonsai.Harp.Events
 {
@@ -32,6 +24,7 @@ namespace Bonsai.Harp.Events
         AnalogInput,
         DigitalInput0,
         DigitalInput1,
+        DigitalInputs,
 
         /* Event: ACQ_STATUS */
         Acquiring,
@@ -61,6 +54,40 @@ namespace Bonsai.Harp.Events
         RegisterRxGood,
     }
 
+    [Description(
+        "\n" +
+        "MotionAll: Integer Mat[9]\n" +
+        "MotionAccelerometer: Integer Mat[3]\n" +
+        "MotionGyroscope: Integer Mat[3]\n" +
+        "MotionMagnetometer: Integer Mat[3]\n" +
+        "\n" +
+        "AnalogInput: Decimal (V)\n" +
+        "DigitalInput0: Boolean (*)\n" +
+        "DigitalInput1: Boolean (*)\n" +
+        "DigitalInputs: Integer Mat[2]\n" +
+        "\n" +
+        "Acquiring: Boolean\n" +
+        "DeviceSelected: Boolean\n" +
+        "SensorTemperature: Decimal (ºC)\n" +
+        "TxRetries: Integer\n" +
+        "Battery: Integer\n" +
+        "RxGood: Boolean\n" +
+        "SensorVersions: Text\n" +
+        "\n" +
+        "RegisterStimulationStart: U8\n" +
+        "RegisterMisc: MISC register U16\n" +
+        "RegisterCamera0: U8\n" +
+        "RegisterCamera1: U8\n" +
+        "RegisterAcquisitionStatus: U8\n" +
+        "RegisterDeviceSelected: Groupmask U8\n" +
+        "RegisterSensorTemperature: U8\n" +
+        "RegisterTxRetries: U16\n" +
+        "RegisterBattery: U8\n" +
+        "RegisterRxGood: U8\n" +
+        "\n" +
+        "(*) Only distinct contiguous elements are propagated."
+    )]
+
     public class Wear : SingleArgumentExpressionBuilder, INamedElement
     {
         public Wear()
@@ -81,7 +108,7 @@ namespace Bonsai.Harp.Events
             switch (Type)
             {
                 /************************************************************************/
-                /* Event: DATA                                                          */
+                /* Register: DATA                                                       */
                 /************************************************************************/
                 case WearEventType.MotionAll:
                     return Expression.Call(typeof(Wear), "ProcessMotionAll", null, expression);
@@ -91,9 +118,9 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Wear), "ProcessMotionGyroscope", null, expression);
                 case WearEventType.MotionMagnetometer:
                     return Expression.Call(typeof(Wear), "ProcessMotionMagnetometer", null, expression);
-                
+
                 /************************************************************************/
-                /* Event: MISC                                                          */
+                /* Register: MISC                                                       */
                 /************************************************************************/
                 case WearEventType.AnalogInput:
                     return Expression.Call(typeof(Wear), "ProcessAnalogInput", null, expression);
@@ -101,12 +128,14 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Wear), "ProcessDigitalInput0", null, expression);
                 case WearEventType.DigitalInput1:
                     return Expression.Call(typeof(Wear), "ProcessDigitalInput1", null, expression);
+                case WearEventType.DigitalInputs:
+                    return Expression.Call(typeof(Wear), "ProcessDigitalInputs", null, expression);
 
                 case WearEventType.RegisterMisc:
                     return Expression.Call(typeof(Wear), "ProcessRegisterMisc", null, expression);
 
                 /************************************************************************/
-                /* Event: ACQ_STATUS                                                    */
+                /* Register: ACQ_STATUS                                                 */
                 /************************************************************************/
                 case WearEventType.Acquiring:
                     return Expression.Call(typeof(Wear), "ProcessAcquiring", null, expression);
@@ -114,13 +143,13 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Wear), "ProcessRegisterAcquisitionStatus", null, expression);
 
                 /************************************************************************/
-                /* Event: START_STIM                                                    */
+                /* Register: START_STIM                                                 */
                 /************************************************************************/
                 case WearEventType.RegisterStimulationStart:
                     return Expression.Call(typeof(Wear), "ProcessRegisterStimulationStart", null, expression);
 
                 /************************************************************************/
-                /* Event: DEV_SELECT                                                    */
+                /* Register: DEV_SELECT                                                 */
                 /************************************************************************/
                 case WearEventType.DeviceSelected:
                     return Expression.Call(typeof(Wear), "ProcessDeviceSelected", null, expression);
@@ -128,7 +157,7 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Wear), "ProcessRegisterDeviceSelected", null, expression);
 
                 /************************************************************************/
-                /* Event: TEMP, BATTERY, TX_RETRIES and RX_GOOD                          */
+                /* Registers: TEMP, BATTERY, TX_RETRIES, RX_GOOD                        */
                 /************************************************************************/
                 case WearEventType.SensorTemperature:
                     return Expression.Call(typeof(Wear), "ProcessSensorTemperature", null, expression);
@@ -149,13 +178,13 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Wear), "ProcessRegisterRxGood", null, expression);
 
                 /************************************************************************/
-                /* Event: ALL VERSIONS                                                  */
+                /* Versions                                                             */
                 /************************************************************************/
                 case WearEventType.SensorVersions:
                     return Expression.Call(typeof(Wear), "ProcessSensorVersions", null, expression);
 
                 /************************************************************************/
-                /* Event: CAM0 and CAM1                                                 */
+                /* Registers: CAM0, CAM1                                                */
                 /************************************************************************/
                 case WearEventType.RegisterCamera0:
                     return Expression.Call(typeof(Wear), "ProcessRegisterCamera0", null, expression);
@@ -201,7 +230,7 @@ namespace Bonsai.Harp.Events
         static bool is_evt54(HarpDataFrame input) { return ((input.Address == 54) && (input.Error == false) && (input.Id == MessageId.Event)); }
 
         /************************************************************************/
-        /* Event: DATA                                                          */
+        /* Register: DATA                                                       */
         /************************************************************************/
         static IObservable<Mat> ProcessMotionAll(IObservable<HarpDataFrame> source)
         {
@@ -272,7 +301,7 @@ namespace Bonsai.Harp.Events
         }
 
         /************************************************************************/
-        /* Event: MISC                                                          */
+        /* Register: MISC                                                       */
         /************************************************************************/
         static IObservable<float> ProcessAnalogInput(IObservable<HarpDataFrame> source)
         {
@@ -280,11 +309,25 @@ namespace Bonsai.Harp.Events
         }
         static IObservable<bool> ProcessDigitalInput0(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt35).Select(input => { return ((input.Message[12] & (1 << 6)) == (1 << 6)); });
+            return source.Where(is_evt35).Select(input => { return ((input.Message[12] & (1 << 6)) == (1 << 6)); }).DistinctUntilChanged();
         }
         static IObservable<bool> ProcessDigitalInput1(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt35).Select(input => { return ((input.Message[12] & (1 << 7)) == (1 << 7)); });
+            return source.Where(is_evt35).Select(input => { return ((input.Message[12] & (1 << 7)) == (1 << 7)); }).DistinctUntilChanged();
+        }
+        static IObservable<Mat> ProcessDigitalInputs(IObservable<HarpDataFrame> source)
+        {
+            return Observable.Defer(() =>
+            {
+                var buffer = new byte[2];
+                return source.Where(is_evt35).Select(input =>
+                {
+                    buffer[0] = (byte)((input.Message[12] >> 0) & 1);
+                    buffer[1] = (byte)((input.Message[12] >> 1) & 1);
+
+                    return Mat.FromArray(buffer, 2, 1, Depth.U8, 1);
+                });
+            });
         }
 
         static IObservable<Timestamped<UInt16>> ProcessRegisterMisc(IObservable<HarpDataFrame> source)
@@ -293,7 +336,7 @@ namespace Bonsai.Harp.Events
         }
 
         /************************************************************************/
-        /* Event: TEMP, BATTERY, TX_RETRIES and RX_GOOD                         */
+        /* Registers: TEMP, BATTERY, TX_RETRIES, RX_GOOD                        */
         /************************************************************************/
         static IObservable<float> ProcessSensorTemperature(IObservable<HarpDataFrame> source)
         {            
@@ -330,7 +373,7 @@ namespace Bonsai.Harp.Events
         }
 
         /************************************************************************/
-        /* Event: ALL VERSIONS                                                  */
+        /* Versions                                                             */
         /************************************************************************/
         static IObservable<string> ProcessSensorVersions(IObservable<HarpDataFrame> source)
         {
@@ -390,29 +433,29 @@ namespace Bonsai.Harp.Events
         }
 
         /************************************************************************/
-        /* Event: ACQ_STATUS                                                    */
+        /* Register: ACQ_STATUS                                                 */
         /************************************************************************/
         static IObservable<bool> ProcessAcquiring(IObservable<HarpDataFrame> source)
         {
             return source.Where(is_evt40).Select(input => { return ((input.Message[11] & 1) == 1); });
         }
 
-        static IObservable<Timestamped<bool>> ProcessRegisterAcquisitionStatus(IObservable<HarpDataFrame> source)
+        static IObservable<Timestamped<byte>> ProcessRegisterAcquisitionStatus(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt40).Select(input => { return new Timestamped<bool>(((input.Message[11] & 1) == 1), ParseTimestamp(input.Message, 5)); });
+            return source.Where(is_evt40).Select(input => { return new Timestamped<byte>(input.Message[11], ParseTimestamp(input.Message, 5)); });
         }
 
 
         /************************************************************************/
-        /* Event: START_STIM                                                    */
+        /* Register: START_STIM                                                 */
         /************************************************************************/
-        static IObservable<Timestamped<bool>> ProcessRegisterStimulationStart(IObservable<HarpDataFrame> source)
+        static IObservable<Timestamped<byte>> ProcessRegisterStimulationStart(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt33).Select(input => { return new Timestamped<bool>(((input.Message[11] & 1) == 1), ParseTimestamp(input.Message, 5)); });
+            return source.Where(is_evt33).Select(input => { return new Timestamped<byte>(input.Message[11], ParseTimestamp(input.Message, 5)); });
         }
 
         /************************************************************************/
-        /* Event: DEV_SELECT                                                    */
+        /* Register: DEV_SELECT                                                 */
         /************************************************************************/
         static IObservable<string> ProcessDeviceSelected(IObservable<HarpDataFrame> source)
         {
@@ -438,7 +481,7 @@ namespace Bonsai.Harp.Events
         }
 
         /************************************************************************/
-        /* Event: CAM0 and CAM1                                                 */
+        /* Registers: CAM0, CAM1                                                */
         /************************************************************************/
         static IObservable<Timestamped<byte>> ProcessRegisterCamera0(IObservable<HarpDataFrame> source)
         {
