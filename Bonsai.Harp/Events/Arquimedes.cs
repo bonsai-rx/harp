@@ -43,7 +43,7 @@ namespace Bonsai.Harp.Events
 
     [Description(
         "\n" +
-        "Lever: Decimal (degrees)" +
+        "Lever: Decimal (degrees)\n" +
         "AnalogInput:  Decimal (V)\n" +
         "\n" +
         "LeverIsQuiet: Boolean\n" +
