@@ -6,17 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
+using System.ComponentModel;
 using System.Text;
-// TODO: replace this with the transform input and output types.
 using TResult = System.String;
-
-/* Events are divided into two categories: Bonsai Events and Raw Registers. */
-/*   - Bonsai Events:                                                                                                                      */
-/*                   Should follow Bonsai guidelines and use types like int, bool, float, Mat and string (for Enums like Wear's DEV_SELECT */
-/*   - Raw Registers:                                                                                                                      */
-/*                   Should have the Timestamped output and the value must have the exact same type of the Harp device register.           */
-/*                   An exception can be made to the output type when:                                                                     */
-/*                           1. The register only have one bit that can be considered as a pure boolean. Can use bool as ouput type.       */
 
 namespace Bonsai.Harp.Events
 {
@@ -30,6 +22,18 @@ namespace Bonsai.Harp.Events
 
         RegisterOutputs,
     }
+
+    [Description(
+        "\n" +
+        "Output0: Boolean (*)\n" +
+        "Output1: Boolean (*)\n" +
+        "Output2: Boolean (*)\n" +
+        "Output3: Boolean (*)\n" +
+        "\n" +
+        "RegisterOutputs: Bitmask U8\n" +
+        "\n" +
+        "(*) Only distinct contiguous elements are propagated."
+    )]
 
     public class MultiPwm : SingleArgumentExpressionBuilder, INamedElement
     {
@@ -51,13 +55,13 @@ namespace Bonsai.Harp.Events
             switch (Type)
             {
                 /************************************************************************/
-                /* Event: INPUTS_STATE                                                  */
+                /* Register: EXEC_STATE                                                 */
                 /************************************************************************/
                 case MultiPwmEventType.RegisterOutputs:
                     return Expression.Call(typeof(MultiPwm), "ProcessRegisterPwmOutputs", null, expression);
 
                 /************************************************************************/
-                /* Event: INPUTS_STATE (boolean and address)                            */
+                /* Register: EXEC_STATE                                                 */
                 /************************************************************************/
                 case MultiPwmEventType.Output0:
                     return Expression.Call(typeof(MultiPwm), "ProcessPwmOutput0", null, expression);
@@ -86,15 +90,7 @@ namespace Bonsai.Harp.Events
         static bool is_evt73(HarpDataFrame input) { return ((input.Address == 73) && (input.Error == false) && (input.Id == MessageId.Event)); }
 
         /************************************************************************/
-        /* Event: INPUTS_STATE                                                  */
-        /************************************************************************/
-        static IObservable<Timestamped<byte>> ProcessRegisterPwmOutputs(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(is_evt73).Select(input => {  return new Timestamped<byte>(input.Message[11], ParseTimestamp(input.Message, 5)); });
-        }
-
-        /************************************************************************/
-        /* Event: EXEC_STATE (boolean)                                          */
+        /* Register: EXEC_STATE                                                 */
         /************************************************************************/
         static IObservable<bool> ProcessPwmOutput0(IObservable<HarpDataFrame> source)
         {
@@ -111,6 +107,14 @@ namespace Bonsai.Harp.Events
         static IObservable<bool> ProcessPwmOutput3(IObservable<HarpDataFrame> source)
         {
             return source.Where(is_evt73).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); }).DistinctUntilChanged();
+        }
+
+        /************************************************************************/
+        /* Register: EXEC_STATE                                                 */
+        /************************************************************************/
+        static IObservable<Timestamped<byte>> ProcessRegisterPwmOutputs(IObservable<HarpDataFrame> source)
+        {
+            return source.Where(is_evt73).Select(input => { return new Timestamped<byte>(input.Message[11], ParseTimestamp(input.Message, 5)); });
         }
     }
 }
