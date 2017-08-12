@@ -73,6 +73,7 @@
     <Compile Include="Commands\Synchronizer.cs" />
     <Compile Include="Commands\Device.cs" />
     <Compile Include="Commands\Arquimedes.cs" />
+    <Compile Include="Commands\MultiPwm.cs" />
     <Compile Include="Commands\Wear.cs" />
     <Compile Include="Events\Device.cs" />
     <Compile Include="Events\Arquimedes.cs" />
@@ -97,7 +98,9 @@
     <None Include="Bonsai.Harp.nuspec">
       <SubType>Designer</SubType>
     </None>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
