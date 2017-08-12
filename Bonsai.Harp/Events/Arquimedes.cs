@@ -7,16 +7,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Text;
-// TODO: replace this with the transform input and output types.
 using TResult = System.String;
-
-/* Events are divided into two categories: Bonsai Events and Raw Registers. */
-/*   - Bonsai Events:                                                                                                                      */
-/*                   Should follow Bonsai guidelines and use types like int, bool, float, Mat and string (for Enums like Wear's DEV_SELECT */
-/*   - Raw Registers:                                                                                                                      */
-/*                   Should have the Timestamped output and the value must have the exact same type of the Harp device register.           */
-/*                   An exception can be made to the output type when:                                                                     */
-/*                           1. The register only have one bit that can be considered as a pure boolena. Can use bool as ouput type.       */
+using System.ComponentModel;
 
 namespace Bonsai.Harp.Events
 {
@@ -28,17 +20,11 @@ namespace Bonsai.Harp.Events
 
         /* Event: THRESHOLDS */
         LeverIsQuiet,
-        Thresholds,        
-        //Threshold0,
-        //Threshold1,
-        //Threshold2,
-        //Threshold3,
-
-        TransitionQuiet,
-        TransitionThreshold0,
-        TransitionThreshold1,
-        TransitionThreshold2,
-        TransitionThreshold3,
+        Thresholds,
+        Threshold0,
+        Threshold1,
+        Threshold2,
+        Threshold3,
 
         /* Event: INPUTS */
         Inputs,
@@ -47,9 +33,6 @@ namespace Bonsai.Harp.Events
         Input2,
         Input3,
 
-        /* Event: POS_CURRENT */
-        LoadPositionPercentage,
-
         /* Raw Registers */
         RegisterLever,
         RegisterAnalogInput,
@@ -57,6 +40,33 @@ namespace Bonsai.Harp.Events
         RegisterInputs,
         RegisterLoadPosition,
     }
+
+    [Description(
+        "\n" +
+        "Lever: Decimal (degrees)" +
+        "AnalogInput:  Decimal (V)\n" +
+        "\n" +
+        "LeverIsQuiet: Boolean\n" +
+        "Thresholds: Groupmask\n" +
+        "Threshold0: Boolean (*)\n" +
+        "Threshold1: Boolean (*)\n" +
+        "Threshold2: Boolean (*)\n" +
+        "Threshold3: Boolean (*)\n" +
+        "\n" +
+        "Inputs: Integer Mat[4]\n" +
+        "Input0: Boolean (*)\n" +
+        "Input1: Boolean (*)\n" +
+        "Input2: Boolean (*)\n" +
+        "Input3: Boolean (*)\n" +
+        "\n" +
+        "RegisterLever: S16\n" +
+        "RegisterAnalogInput: S16\n" +
+        "RegisterThresholds: Bitmask U8\n" +
+        "RegisterInputs: Bitmask U8\n" +
+        "RegisterLoadPosition: U16\n" +
+        "\n" +
+        "(*) Only distinct contiguous elements are propagated."
+    )]
 
     public class Arquimedes : SingleArgumentExpressionBuilder, INamedElement
     {
@@ -87,7 +97,7 @@ namespace Bonsai.Harp.Events
             switch (Type)
             {
                 /************************************************************************/
-                /* Event: DATA                                                          */
+                /* Register: DATA                                                        */
                 /************************************************************************/
                 case ArquimedesEventType.Lever:
                     return Expression.Call(typeof(Arquimedes), "ProcessLever", null, expression);
@@ -100,13 +110,13 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Arquimedes), "ProcessRegisterAnalogInput", null, expression);
 
                 /************************************************************************/
-                /* Event: THRESHOLDS                                                    */
+                /* Register: THRESHOLDS                                                 */
                 /************************************************************************/
-                case ArquimedesEventType.LeverIsQuiet:
-                    return Expression.Call(typeof(Arquimedes), "ProcessLeverIsQuiet", null, expression);
                 case ArquimedesEventType.Thresholds:
                     return Expression.Call(typeof(Arquimedes), "ProcessThresholds", null, expression);
-                /*
+
+                case ArquimedesEventType.LeverIsQuiet:
+                    return Expression.Call(typeof(Arquimedes), "ProcessLeverIsQuiet", null, expression);
                 case ArquimedesEventType.Threshold0:
                     return Expression.Call(typeof(Arquimedes), "ProcessThreshold0", null, expression);
                 case ArquimedesEventType.Threshold1:
@@ -115,24 +125,12 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Arquimedes), "ProcessThreshold2", null, expression);
                 case ArquimedesEventType.Threshold3:
                     return Expression.Call(typeof(Arquimedes), "ProcessThreshold3", null, expression);
-                */
-                    
-                case ArquimedesEventType.TransitionQuiet:
-                    return Expression.Call(typeof(Arquimedes), "ProcessTransitionQuiet", null, expression);
-                case ArquimedesEventType.TransitionThreshold0:
-                    return Expression.Call(typeof(Arquimedes), "ProcessTransitionThreshold0", null, expression);
-                case ArquimedesEventType.TransitionThreshold1:
-                    return Expression.Call(typeof(Arquimedes), "ProcessTransitionThreshold1", null, expression);
-                case ArquimedesEventType.TransitionThreshold2:
-                    return Expression.Call(typeof(Arquimedes), "ProcessTransitionThreshold2", null, expression);
-                case ArquimedesEventType.TransitionThreshold3:
-                    return Expression.Call(typeof(Arquimedes), "ProcessTransitionThreshold3", null, expression);
 
                 case ArquimedesEventType.RegisterThresholds:
                     return Expression.Call(typeof(Arquimedes), "ProcessRegisterThresholds", null, expression);
 
                 /************************************************************************/
-                /* Event: INPUTS                                                          */
+                /* Register: INPUTS                                                     */
                 /************************************************************************/
                 case ArquimedesEventType.Inputs:
                     return Expression.Call(typeof(Arquimedes), "ProcessInputs", null, expression);
@@ -149,11 +147,8 @@ namespace Bonsai.Harp.Events
                     return Expression.Call(typeof(Arquimedes), "ProcessRegisterInputs", null, expression);
 
                 /************************************************************************/
-                /* Event: POS_CURRENT                                                   */
+                /* Register: POS_CURRENT                                                */
                 /************************************************************************/
-                case ArquimedesEventType.LoadPositionPercentage:
-                    return Expression.Call(typeof(Arquimedes), "ProcessLoadPositionPercentage", null, expression);
-
                 case ArquimedesEventType.RegisterLoadPosition:
                     return Expression.Call(typeof(Arquimedes), "ProcessRegisterLoadPosition", null, expression);
 
@@ -190,31 +185,8 @@ namespace Bonsai.Harp.Events
             return ((input.Address == 55) && (input.Error == false) && (input.Id == MessageId.Event));
         }
 
-        static bool compareWithPreviousThreshold(byte thresholds, ref byte previousThreshold, byte thresholdPosition)
-        {
-            bool current  = ((thresholds & (1 << thresholdPosition)) == (1 << thresholdPosition));
-            bool previous = ((previousThreshold & (1 << thresholdPosition)) == (1 << thresholdPosition));
-
-            if (current != previous)
-            {
-                previousThreshold = thresholds;
-                return true;
-            }
-            else
-            {
-                previousThreshold = thresholds;
-                return false;
-            }
-        }
-
-        static bool xmit_quiet(HarpDataFrame input) { if (!is_evt32(input)) return false; return compareWithPreviousThreshold(input.Message[11], ref previousThresholdsQuiet, 0); }
-        static bool xmit_th0  (HarpDataFrame input) { if (!is_evt32(input)) return false; return compareWithPreviousThreshold(input.Message[11], ref previousThresholdsTh0, 1); }
-        static bool xmit_th1  (HarpDataFrame input) { if (!is_evt32(input)) return false; return compareWithPreviousThreshold(input.Message[11], ref previousThresholdsTh1, 2); }
-        static bool xmit_th2  (HarpDataFrame input) { if (!is_evt32(input)) return false; return compareWithPreviousThreshold(input.Message[11], ref previousThresholdsTh2, 3); }
-        static bool xmit_th3  (HarpDataFrame input) { if (!is_evt32(input)) return false; return compareWithPreviousThreshold(input.Message[11], ref previousThresholdsTh3, 4); }
-
         /************************************************************************/
-        /* Event: DATA                                                          */
+        /* Register: DATA                                                       */
         /************************************************************************/
         static IObservable<float> Processlever(IObservable<HarpDataFrame> source)
         {
@@ -233,9 +205,9 @@ namespace Bonsai.Harp.Events
         {
             return source.Where(is_evt33).Select(input => { return new Timestamped<Int16>(BitConverter.ToInt16(input.Message, 13), ParseTimestamp(input.Message, 5)); });
         }
-        
+
         /************************************************************************/
-        /* Event: THRESHOLDS                                                    */
+        /* Register: THRESHOLDS                                                 */
         /************************************************************************/
         static IObservable<int> ProcessThresholds(IObservable<HarpDataFrame> source)
         {
@@ -253,46 +225,24 @@ namespace Bonsai.Harp.Events
 
         static IObservable<bool> ProcessLeverIsQuiet(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)) ? false : true; }).DistinctUntilChanged();
         }
-        /*
+
         static IObservable<bool> ProcessThreshold0(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); }).DistinctUntilChanged();
         }
         static IObservable<bool> ProcessThreshold1(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); }).DistinctUntilChanged();
         }
         static IObservable<bool> ProcessThreshold2(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); }).DistinctUntilChanged();
         }
         static IObservable<bool> ProcessThreshold3(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); });
-        }
-        */
-
-        static IObservable<bool> ProcessTransitionQuiet(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(/*is_evt32*/xmit_quiet).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
-        }
-        static IObservable<bool> ProcessTransitionThreshold0(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(/*is_evt32*/xmit_th0).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
-        }
-        static IObservable<bool> ProcessTransitionThreshold1(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(/*is_evt32*/xmit_th1).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
-        }
-        static IObservable<bool> ProcessTransitionThreshold2(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(/*is_evt32*/xmit_th2).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
-        }
-        static IObservable<bool> ProcessTransitionThreshold3(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(/*is_evt32*/xmit_th3).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); });
+            return source.Where(is_evt32).Select(input => { return ((input.Message[11] & (1 << 4)) == (1 << 4)); }).DistinctUntilChanged();
         }
 
         static IObservable<Timestamped<byte>> ProcessRegisterThresholds(IObservable<HarpDataFrame> source)
@@ -301,7 +251,7 @@ namespace Bonsai.Harp.Events
         }
 
         /************************************************************************/
-        /* Event: INPUTS                                                        */
+        /* Register: INPUTS                                                     */
         /************************************************************************/
         static IObservable<Mat> ProcessInputs(IObservable<HarpDataFrame> source)
         {
@@ -320,19 +270,19 @@ namespace Bonsai.Harp.Events
 
         static IObservable<bool> ProcessInput0(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); });
+            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 0)) == (1 << 0)); }).DistinctUntilChanged();
         }
         static IObservable<bool> ProcessInput1(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); });
+            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 1)) == (1 << 1)); }).DistinctUntilChanged();
         }
         static IObservable<bool> ProcessInput2(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); });
+            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 2)) == (1 << 2)); }).DistinctUntilChanged();
         }
         static IObservable<bool> ProcessInput3(IObservable<HarpDataFrame> source)
         {
-            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); });
+            return source.Where(is_evt34).Select(input => { return ((input.Message[11] & (1 << 3)) == (1 << 3)); }).DistinctUntilChanged();
         }
         
         static IObservable<Timestamped<byte>> ProcessRegisterInputs(IObservable<HarpDataFrame> source)
@@ -341,13 +291,8 @@ namespace Bonsai.Harp.Events
         }
 
         /************************************************************************/
-        /* Event: POS_CURRENT                                                   */
+        /* Register: POS_CURRENT                                                */
         /************************************************************************/
-        static IObservable<float> ProcessLoadPositionPercentage(IObservable<HarpDataFrame> source)
-        {
-            return source.Where(is_evt55).Select(input => { return ((float)(BitConverter.ToUInt16(input.Message, 11)) / (float)REG_MOTOR_MAXIMUM) * (float)100.0; });
-        }
-
         static IObservable<Timestamped<UInt16>> ProcessRegisterLoadPosition(IObservable<HarpDataFrame> source)
         {
             return source.Where(is_evt55).Select(input => { return new Timestamped<UInt16>(BitConverter.ToUInt16(input.Message, 11), ParseTimestamp(input.Message, 5)); });
