@@ -74,6 +74,7 @@
     <Compile Include="Commands\Device.cs" />
     <Compile Include="Commands\Arquimedes.cs" />
     <Compile Include="Commands\MultiPwm.cs" />
+    <Compile Include="Commands\Camera.cs" />
     <Compile Include="Commands\Wear.cs" />
     <Compile Include="Events\Device.cs" />
     <Compile Include="Events\Arquimedes.cs" />
