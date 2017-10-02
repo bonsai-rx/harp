@@ -128,19 +128,19 @@ namespace Bonsai.Harp.Commands
                 /************************************************************************/
                 case CameraCommandType.OutputTrig0:
                     if (expression.Type != typeof(bool)) { expression = Expression.Convert(expression, typeof(bool)); }
-                    return Expression.Call(typeof(Camera), "OutputCamera0", null, expression);
-                case CameraCommandType.OutputTrig1:
-                    if (expression.Type != typeof(bool)) { expression = Expression.Convert(expression, typeof(bool)); }
-                    return Expression.Call(typeof(Camera), "OutputCamera0", null, expression);
+                    return Expression.Call(typeof(Camera), "ProcessOutTrig0", null, expression);
                 case CameraCommandType.OutputSync0:
                     if (expression.Type != typeof(bool)) { expression = Expression.Convert(expression, typeof(bool)); }
-                    return Expression.Call(typeof(Camera), "OutputSync0", null, expression);
+                    return Expression.Call(typeof(Camera), "ProcessOutSync0", null, expression);
+                case CameraCommandType.OutputTrig1:
+                    if (expression.Type != typeof(bool)) { expression = Expression.Convert(expression, typeof(bool)); }
+                    return Expression.Call(typeof(Camera), "ProcessOutTrig1", null, expression);
                 case CameraCommandType.OutputSync1:
                     if (expression.Type != typeof(bool)) { expression = Expression.Convert(expression, typeof(bool)); }
-                    return Expression.Call(typeof(Camera), "OutputSync1", null, expression);
+                    return Expression.Call(typeof(Camera), "ProcessOutSync1", null, expression);
                 case CameraCommandType.Outputs:
                     if (expression.Type != typeof(byte)) { expression = Expression.Convert(expression, typeof(byte)); }
-                    return Expression.Call(typeof(Arquimedes), "ProcessOutputs", null, expression);
+                    return Expression.Call(typeof(Camera), "ProcessOutputs", null, expression);
 
                 default:
                     break;
@@ -221,28 +221,28 @@ namespace Bonsai.Harp.Commands
         /************************************************************************/
         /* Registers: SET_OUTPUTS, CLR_OUTPUTS and OUTPUTS                      */
         /************************************************************************/
-        static HarpDataFrame ProcessOutputCamera0(bool input)
+        static HarpDataFrame ProcessOutTrig0(bool input)
         {
             if (input)
                 return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 36, 255, (byte)HarpType.U8, 1, 0));
             else
                 return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 37, 255, (byte)HarpType.U8, 1, 0));
         }
-        static HarpDataFrame ProcessOutputCamera1(bool input)
+        static HarpDataFrame ProcessOutSync0(bool input)
         {
             if (input)
                 return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 36, 255, (byte)HarpType.U8, 2, 0));
             else
                 return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 37, 255, (byte)HarpType.U8, 2, 0));
         }
-        static HarpDataFrame ProcessOutputSync0(bool input)
+        static HarpDataFrame ProcessOutTrig1(bool input)
         {
             if (input)
                 return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 36, 255, (byte)HarpType.U8, 4, 0));
             else
                 return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 37, 255, (byte)HarpType.U8, 4, 0));
         }
-        static HarpDataFrame ProcessOutputSync1(bool input)
+        static HarpDataFrame ProcessOutSync1(bool input)
         {
             if (input)
                 return HarpDataFrame.UpdateChesksum(new HarpDataFrame(2, 5, 36, 255, (byte)HarpType.U8, 8, 0));
