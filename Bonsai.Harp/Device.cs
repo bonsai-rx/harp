@@ -156,6 +156,9 @@ namespace Bonsai.Harp
                             case 1152:
                                 //return ("ClockSynchronizer (" + portName + ")");
                                 return ("ClockSynchronizer");
+                            case 1168:
+                                //return ("CameraController (" + portName + ")");
+                                return ("Camera");
                             default:
                                 return "NotSpecified";
                         }
