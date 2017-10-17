@@ -159,6 +159,9 @@ namespace Bonsai.Harp
                             case 1168:
                                 //return ("CameraController (" + portName + ")");
                                 return ("Camera");
+                            case 1184:
+                                //return ("PyControl (" + portName + ")");
+                                return ("PyControl");
                             default:
                                 return "NotSpecified";
                         }
