@@ -162,6 +162,9 @@ namespace Bonsai.Harp
                             case 1184:
                                 //return ("PyControl (" + portName + ")");
                                 return ("PyControl");
+                            case 1200:
+                                //return ("PyControl (" + portName + ")");
+                                return ("FlyPad");
                             default:
                                 return "NotSpecified";
                         }
