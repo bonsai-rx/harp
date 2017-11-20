@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Filipe Carvalho, Gonçalo Lopes")]
 [assembly: AssemblyProduct("Bonsai.Harp")]
-[assembly: AssemblyCopyright("Copyright © 2017 Filipe Carvalho and Gonçalo Lopes")]
+[assembly: AssemblyCopyright("Copyright © Filipe Carvalho and Gonçalo Lopes 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
