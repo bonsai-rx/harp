@@ -12,7 +12,7 @@ namespace Bonsai.Harp
        "Converts a byte array into an HarpDataFrame. The byte array must contain a complete and incorrupt packet"
     )]
 
-    public class CastFromArray : Transform<byte[], HarpDataFrame>
+    public class ConvertFromBytes : Transform<byte[], HarpDataFrame>
     {
         public override IObservable<HarpDataFrame> Process(IObservable<byte[]> source)
         {
