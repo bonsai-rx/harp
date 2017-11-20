@@ -11,7 +11,7 @@
     <iconUrl>https://bitbucket.org/horizongir/bonsai.harp/raw/544838db5125877f2dab148472fbd6b6b75a655e/Logo/HarpLogoSmall128x128.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <copyright>The Harp Project Developers © 2017</copyright>
-    <tags>Bonsai Harp Champalimaud Foundation Hardware</tags>
+    <copyright>$author$ © 2017</copyright>
+    <tags>Bonsai Harp Hardware Protocol</tags>
   </metadata>
 </package>
