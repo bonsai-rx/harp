@@ -70,6 +70,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BufferedStream.cs" />
+    <Compile Include="ConvertFromBytes.cs" />
     <Compile Include="Commands\FlyPad.cs" />
     <Compile Include="Commands\Synchronizer.cs" />
     <Compile Include="Commands\Device.cs" />
