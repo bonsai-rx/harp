@@ -71,24 +71,8 @@
   <ItemGroup>
     <Compile Include="BufferedStream.cs" />
     <Compile Include="ConvertFromBytes.cs" />
-    <Compile Include="Commands\FlyPad.cs" />
-    <Compile Include="Commands\Synchronizer.cs" />
-    <Compile Include="Commands\Device.cs" />
-    <Compile Include="Commands\Arquimedes.cs" />
-    <Compile Include="Commands\MultiPwm.cs" />
-    <Compile Include="Commands\Camera.cs" />
-    <Compile Include="Commands\PyControl.cs" />
-    <Compile Include="Commands\Wear.cs" />
-    <Compile Include="Events\Camera.cs" />
-    <Compile Include="Events\Device.cs" />
-    <Compile Include="Events\Arquimedes.cs" />
-    <Compile Include="Events\MultiPwm.cs" />
-    <Compile Include="Events\PyControl.cs" />
-    <Compile Include="Events\FlyPad.cs" />
-    <Compile Include="Events\Wear.cs" />
     <Compile Include="HarpTypes.cs" />
     <Compile Include="CreateHarpDataFrame.cs" />
-    <Compile Include="Events\Synchronizer.cs" />
     <Compile Include="HarpDataFrame.cs" />
     <Compile Include="HarpType.cs" />
     <Compile Include="LedType.cs" />
