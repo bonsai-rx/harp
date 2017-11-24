@@ -130,41 +130,31 @@ namespace Bonsai.Harp
                         switch (BitConverter.ToUInt16(replyReadWhoAmI, 11))
                         {
                             case 1024:
-                                //return ("Poke (" + portName + ")");
                                 return ("Poke");
                             case 1040:
-                                //return ("MultiPwmGenerator (" + portName + ")");
                                 return ("MultiPwm");
                             case 1056:
-                                //return ("Wear (" + portName + ")");
                                 return ("WearBasestation");
                             case 1072:
-                                //return ("12VoltsDrive (" + portName + ")");
                                 return ("12VoltsDrive");
                             case 1088:
-                                //return ("LedController (" + portName + ")");
                                 return ("LedController");
                             case 1104:
-                                //return ("Synchronizer (" + portName + ")");
                                 return ("Synchronizer");
                             case 1121:
-                                //return ("SimpleAnalogGenerator (" + portName + ")");
                                 return ("SimpleAnalogGenerator");
                             case 1136:
-                                //return ("Arquimedes (" + portName + ")");
                                 return ("Arquimedes");
                             case 1152:
-                                //return ("ClockSynchronizer (" + portName + ")");
                                 return ("ClockSynchronizer");
                             case 1168:
-                                //return ("CameraController (" + portName + ")");
                                 return ("Camera");
                             case 1184:
-                                //return ("PyControl (" + portName + ")");
                                 return ("PyControl");
                             case 1200:
-                                //return ("PyControl (" + portName + ")");
                                 return ("FlyPad");
+                            case 1216:
+                                return ("Behavior");
                             default:
                                 return "NotSpecified";
                         }
