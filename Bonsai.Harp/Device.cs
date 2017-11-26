@@ -151,8 +151,6 @@ namespace Bonsai.Harp
                                 return ("Camera");
                             case 1184:
                                 return ("PyControl");
-                            case 1200:
-                                return ("FlyPad");
                             case 1216:
                                 return ("Behavior");
                             default:
