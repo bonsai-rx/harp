@@ -83,6 +83,7 @@
     <Compile Include="PayloadTypeConverter.cs" />
     <Compile Include="PortNameConverter.cs" />
     <Compile Include="Device.cs" />
+    <Compile Include="Registers.cs" />
     <Compile Include="SerialTransport.cs" />
     <Compile Include="StateType.cs" />
     <Compile Include="StreamTransport.cs" />
