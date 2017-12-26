@@ -81,6 +81,7 @@
     <Compile Include="Device.cs" />
     <Compile Include="SerialTransport.cs" />
     <Compile Include="StateType.cs" />
+    <Compile Include="StreamTransport.cs" />
     <Compile Include="Timestamped.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
