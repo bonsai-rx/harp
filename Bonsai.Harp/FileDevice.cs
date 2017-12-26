@@ -36,15 +36,16 @@ namespace Bonsai.Harp
                             var harpObserver = Observer.Create<HarpMessage>(
                                 value =>
                                 {
-                                    if (value.IsTimestamped)
+                                    double timestamp;
+                                    if (value.TryGetTimestamp(out timestamp))
                                     {
-                                        // Packet has timestamp
-                                        var seconds = BitConverter.ToUInt32(value.MessageBytes, 5);
-                                        var microseconds = BitConverter.ToUInt16(value.MessageBytes, 5 + 4);
-                                        double timestamp = (seconds + microseconds * 32e-6) * 1000; // ms
-                                        if (!stopwatch.IsRunning)
+                                        timestamp *= 1000; //ms
+                                        if (!stopwatch.IsRunning ||
+                                            value.MessageType == MessageType.Write &&
+                                            value.Address == Registers.TimestampSecond &&
+                                            value.PayloadType == (PayloadType.Timestamp | Registers.TimestampSecondPayload))
                                         {
-                                            stopwatch.Start();
+                                            stopwatch.Restart();
                                             timestampOffset = timestamp;
                                         }
 
