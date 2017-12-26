@@ -74,6 +74,7 @@
     <Compile Include="DeviceCommand.cs" />
     <Compile Include="DeviceEvent.cs" />
     <Compile Include="FileDevice.cs" />
+    <Compile Include="FilterHarpMessage.cs" />
     <Compile Include="CreateHarpMessage.cs" />
     <Compile Include="HarpMessage.cs" />
     <Compile Include="PayloadType.cs" />
