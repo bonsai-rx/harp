@@ -106,6 +106,33 @@ namespace Bonsai.Harp
 
         public byte[] MessageBytes { get; private set; }
 
+        public double GetTimestamp()
+        {
+            double timestamp;
+            if (!TryGetTimestamp(out timestamp))
+            {
+                throw new InvalidOperationException("This Harp message does not have a timestamped payload.");
+            }
+
+            return timestamp;
+        }
+
+        public bool TryGetTimestamp(out double timestamp)
+        {
+            if (IsTimestamped)
+            {
+                var seconds = BitConverter.ToUInt32(MessageBytes, 5);
+                var microseconds = BitConverter.ToUInt16(MessageBytes, 5 + 4);
+                timestamp = seconds + microseconds * 32e-6;
+                return true;
+            }
+            else
+            {
+                timestamp = default(double);
+                return false;
+            }
+        }
+
         public byte GetChecksum()
         {
             return GetChecksum(MessageBytes, MessageBytes.Length - 1);
