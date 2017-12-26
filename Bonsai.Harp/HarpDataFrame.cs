@@ -54,6 +54,11 @@ namespace Bonsai.Harp
             get { return (Message[0] & ErrorMask) != 0; }
         }
 
+        public bool IsTimestamped
+        {
+            get { return (PayloadType & PayloadType.Timestamp) == PayloadType.Timestamp; }
+        }
+
         public bool IsValid
         {
             get

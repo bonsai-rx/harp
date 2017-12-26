@@ -107,20 +107,18 @@ namespace Bonsai.Harp
 
 
                 string exception;
-
-                PayloadType TypeUsedToRead = (PayloadType)(message.Message[4] & ~((byte)(PayloadType.Timestamp)));
+                var payloadType = message.PayloadType & ~PayloadType.Timestamp;
                 string note = "\n\nNote: If the Payload is an array only the first value is shown here.";
-
                 if (message.Id == MessageId.Write)
                 {
-                    exception = "The device reported an erroneous write command. Check the command details bellow for clues.\nPayload: " + payload + ", Address: " + message.Address + ", Type: " + TypeUsedToRead + "." + note;
+                    exception = "The device reported an erroneous write command. Check the command details bellow for clues.\nPayload: " + payload + ", Address: " + message.Address + ", Type: " + payloadType + "." + note;
                 }
                 else
                 {
                     if (errorOnType)
                         exception = "The device reported an erroneous read command.\nType not correct for address " + message.Address + ".";
                     else
-                        exception = "The device reported an erroneous read command. Check the command details bellow for clues.\nAddress: " + message.Address + ", Type: " + TypeUsedToRead + "." + note;
+                        exception = "The device reported an erroneous read command. Check the command details bellow for clues.\nAddress: " + message.Address + ", Type: " + payloadType + "." + note;
                 }
                 throw new InvalidOperationException(exception);
             }
