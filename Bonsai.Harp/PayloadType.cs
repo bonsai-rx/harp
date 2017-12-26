@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
+    [TypeConverter(typeof(PayloadTypeConverter))]
     public enum PayloadType : byte
     {
         U8 = (0x00 | 0x00 | 1),
