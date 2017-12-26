@@ -96,7 +96,6 @@ namespace Bonsai.Harp
 
         static IObservable<string> ConfAndGetDeviceName(string portName, LedType state_led, LedType visual)
         {
-            
             return Observable.Start(() =>
             {
                 byte checksumReadWhoAmI = 1 + 4 + 0 + 255 + 0x02 - 256;
