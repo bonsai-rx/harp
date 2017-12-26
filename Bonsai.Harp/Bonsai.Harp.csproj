@@ -71,10 +71,9 @@
   <ItemGroup>
     <Compile Include="BufferedStream.cs" />
     <Compile Include="ConvertFromBytes.cs" />
-    <Compile Include="HarpTypes.cs" />
     <Compile Include="CreateHarpDataFrame.cs" />
     <Compile Include="HarpDataFrame.cs" />
-    <Compile Include="HarpType.cs" />
+    <Compile Include="PayloadType.cs" />
     <Compile Include="LedType.cs" />
     <Compile Include="MessageId.cs" />
     <Compile Include="Parse.cs" />

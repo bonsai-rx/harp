@@ -20,6 +20,15 @@ namespace Bonsai.Harp
             Message = message;
         }
 
+        public HarpDataFrame(bool updateChecksum, params byte[] message)
+            : this(message)
+        {
+            if (updateChecksum)
+            {
+                message[message.Length - 1] = GetChecksum(message, message.Length - 1);
+            }
+        }
+
         public MessageId Id
         {
             get { return (MessageId)(Message[0] & ~ErrorMask); }
@@ -35,31 +44,69 @@ namespace Bonsai.Harp
             get { return Message[3]; }
         }
 
+        public PayloadType PayloadType
+        {
+            get { return (PayloadType)Message[4]; }
+        }
+
         public bool Error
         {
             get { return (Message[0] & ErrorMask) != 0; }
         }
 
+        public bool IsValid
+        {
+            get
+            {
+                var messageId = Id;
+                var payloadType = PayloadType;
+                var sizeOfType = (int)payloadType & 0x0F;
+                var payloadArrayLength = (Message.Length - 10) / sizeOfType;
+
+                if ((messageId != MessageId.Write) &&
+                    (messageId != MessageId.Read) &&
+                    (messageId != MessageId.Event) &&
+                    ((byte)messageId != ((byte)MessageId.Write | ErrorMask)) &&
+                    ((byte)messageId != ((byte)MessageId.Read | ErrorMask)))
+                {
+                    return false;
+                }
+
+                /* Check if the size of type is correct */
+                if ((sizeOfType != 1) && (sizeOfType != 2) && (sizeOfType != 4) && (sizeOfType != 8))
+                {
+                    return false;
+                }
+
+                /* Check if the payload length is an integer number */
+                if ((payloadArrayLength % 1) != 0)
+                {
+                    return false;
+                }
+
+                /* Bit 0x20 can't be high */
+                if (((int)payloadType & 0x20) == 0x20)
+                {
+                    return false;
+                }
+
+                if (GetChecksum() != Message[Message.Length - 1])
+                {
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
         public byte[] Message { get; private set; }
 
-        public static HarpDataFrame UpdateChesksum(HarpDataFrame frame)
+        public byte GetChecksum()
         {
-            var checksum = Checksum(frame);
-            frame.Message[frame.Message.Length - 1] = Checksum(frame);
-            return frame;
+            return GetChecksum(Message, Message.Length - 1);
         }
 
-        public static byte Checksum(HarpDataFrame frame)
-        {
-            return Checksum(frame.Message, frame.Message.Length - 1);
-        }
-
-        public static byte Checksum(params byte[] message)
-        {
-            return Checksum(message, message.Length);
-        }
-
-        static byte Checksum(byte[] message, int count)
+        static byte GetChecksum(byte[] message, int count)
         {
             var checksum = (byte)0;
             for (int i = 0; i < message.Length; i++)
