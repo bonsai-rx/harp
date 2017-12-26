@@ -78,6 +78,7 @@
     <Compile Include="LedType.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="Parse.cs" />
+    <Compile Include="PayloadTypeConverter.cs" />
     <Compile Include="PortNameConverter.cs" />
     <Compile Include="Device.cs" />
     <Compile Include="SerialTransport.cs" />
