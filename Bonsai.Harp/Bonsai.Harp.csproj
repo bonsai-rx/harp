@@ -71,6 +71,8 @@
   <ItemGroup>
     <Compile Include="BufferedStream.cs" />
     <Compile Include="ConvertFromMessageBytes.cs" />
+    <Compile Include="DeviceCommand.cs" />
+    <Compile Include="DeviceEvent.cs" />
     <Compile Include="FileDevice.cs" />
     <Compile Include="CreateHarpMessage.cs" />
     <Compile Include="HarpMessage.cs" />
