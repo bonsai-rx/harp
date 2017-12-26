@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
-    [Flags]
-    public enum HarpTypes : byte
+    public enum PayloadType : byte
     {
         U8 = (0x00 | 0x00 | 1),
         S8 = (0x80 | 0x00 | 1),
@@ -18,6 +17,15 @@ namespace Bonsai.Harp
         U64 = (0x00 | 0x00 | 8),
         S64 = (0x80 | 0x00 | 8),
         Float = (0x00 | 0x40 | 4),
-        Timestamp = 0x10
+        Timestamp = 0x10,
+        TimestampedU8 = (Timestamp | U8),
+        TimestampedS8 = (Timestamp | S8),
+        TimestampedU16 = (Timestamp | U16),
+        TimestampedS16 = (Timestamp | S16),
+        TimestampedU32 = (Timestamp | U32),
+        TimestampedS32 = (Timestamp | S32),
+        TimestampedU64 = (Timestamp | U64),
+        TimestampedS64 = (Timestamp | S64),
+        TimestampedFloat = (Timestamp | Float)
     }
 }

@@ -20,12 +20,12 @@ namespace Bonsai.Harp
         public byte AddressRegister { get; set; }
 
         [Description("Type of data.")]
-        public HarpType DataType { get; set; }
+        public PayloadType DataType { get; set; }
 
         [Description("The value to write.")]
         public Double Data { get; set; }
 
-        static HarpDataFrame CreateFrame(byte[] value, MessageId msgId, HarpType type, byte reagAdd, byte port)
+        static HarpDataFrame CreateFrame(byte[] value, MessageId msgId, PayloadType type, byte reagAdd, byte port)
         {
             
             byte checksum;
@@ -40,24 +40,24 @@ namespace Bonsai.Harp
             {
                 switch (type)
                 {
-                    case HarpType.U8:
-                    case HarpType.S8:
+                    case PayloadType.U8:
+                    case PayloadType.S8:
                         checksum = (byte)((byte)msgId + 5 + reagAdd + port + (byte)type + value[0]);
                         frame = new byte[] { (byte)msgId, 5, reagAdd, port, (byte)type, value[0], checksum };
                         break;
-                    case HarpType.U16:
-                    case HarpType.S16:
+                    case PayloadType.U16:
+                    case PayloadType.S16:
                         checksum = (byte)((byte)msgId + 6 + reagAdd + port + (byte)type + value[0] + value[1]);
                         frame = new byte[] { (byte)msgId, 6, reagAdd, port, (byte)type, value[0], value[1], checksum };
                         break;
-                    case HarpType.U32:
-                    case HarpType.S32:
-                    case HarpType.Float:
+                    case PayloadType.U32:
+                    case PayloadType.S32:
+                    case PayloadType.Float:
                         checksum = (byte)((byte)msgId + 8 + reagAdd + port + (byte)type + value[0] + value[1] + value[2] + value[3]);
                         frame = new byte[] { (byte)msgId, 8, reagAdd, port, (byte)type, value[0], value[1], value[2], value[3], checksum };
                         break;
-                    case HarpType.U64:
-                    case HarpType.S64:
+                    case PayloadType.U64:
+                    case PayloadType.S64:
                         checksum = (byte)((byte)msgId + 12 + reagAdd + port + (byte)type + value[0] + value[1] + value[2] + value[3] + value[4] + value[5] + value[6] + value[7]);
                         frame = new byte[] { (byte)msgId, 12, reagAdd, port, (byte)type, value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7], checksum };
                         break;
@@ -69,29 +69,29 @@ namespace Bonsai.Harp
             return new HarpDataFrame(frame);
         }
 
-        static byte[] PrepareSinglePayload(Single input, HarpType dataType)
+        static byte[] PrepareSinglePayload(Single input, PayloadType dataType)
         {
             byte[] data;
 
             switch (dataType)
             {
-                case HarpType.U8:
-                case HarpType.U16:
-                case HarpType.U32:
-                case HarpType.U64:
+                case PayloadType.U8:
+                case PayloadType.U16:
+                case PayloadType.U32:
+                case PayloadType.U64:
                     UInt64 dataUInt = (UInt64)(Convert.ToUInt64(input));
                     data = BitConverter.GetBytes(dataUInt);
                     break;
 
-                case HarpType.S8:
-                case HarpType.S16:
-                case HarpType.S32:
-                case HarpType.S64:
+                case PayloadType.S8:
+                case PayloadType.S16:
+                case PayloadType.S32:
+                case PayloadType.S64:
                     Int64 dataInt = (Int64)(Convert.ToInt64(input));
                     data = BitConverter.GetBytes(dataInt);
                     break;
 
-                case HarpType.Float:
+                case PayloadType.Float:
                     data = BitConverter.GetBytes(input);
                     break;
 
@@ -108,7 +108,7 @@ namespace Bonsai.Harp
             /* Runs when the user put the node on the Bonsai Workflow */
             Operation = MessageId.Write;
             AddressRegister = 32;
-            DataType = HarpType.U8;
+            DataType = PayloadType.U8;
             Data = 0;
         }
 
@@ -122,23 +122,23 @@ namespace Bonsai.Harp
                 {
                     switch (DataType)
                     {
-                        case HarpType.U8:
-                        case HarpType.U16:
-                        case HarpType.U32:
-                        case HarpType.U64:
+                        case PayloadType.U8:
+                        case PayloadType.U16:
+                        case PayloadType.U32:
+                        case PayloadType.U64:
                             UInt64 dataUInt = (UInt64)Data;
                             data = BitConverter.GetBytes(dataUInt);
                             break;
 
-                        case HarpType.S8:
-                        case HarpType.S16:
-                        case HarpType.S32:
-                        case HarpType.S64:
+                        case PayloadType.S8:
+                        case PayloadType.S16:
+                        case PayloadType.S32:
+                        case PayloadType.S64:
                             Int64 dataInt = (Int64)Data;
                             data = BitConverter.GetBytes(dataInt);
                             break;
 
-                        case HarpType.Float:
+                        case PayloadType.Float:
                             var dataSingle = (Single)Data;
                             data = BitConverter.GetBytes(dataSingle);
                             break;

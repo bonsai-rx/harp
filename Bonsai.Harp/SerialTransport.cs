@@ -65,10 +65,10 @@ namespace Bonsai.Harp
         {
             switch ((byte)(type & MaskTypeLength))
             {
-                case (byte)HarpType.U8:
-                case (byte)HarpType.U16:
-                case (byte)HarpType.U32:
-                case (byte)HarpType.U64:
+                case (byte)PayloadType.U8:
+                case (byte)PayloadType.U16:
+                case (byte)PayloadType.U32:
+                case (byte)PayloadType.U64:
                     break;
                 default:
                     return false;
@@ -78,7 +78,7 @@ namespace Bonsai.Harp
                 return false;
 
             if ((type & 0x40) == 0x40)
-                if ((type & 0xEF)!= (byte)HarpType.Float)
+                if ((type & 0xEF) != (byte)PayloadType.Float)
                     return false;
 
             return true;
@@ -93,33 +93,33 @@ namespace Bonsai.Harp
 
                 try
                 {
-                    switch ((HarpTypes)(message.Message[4] & ~0x10))
+                    switch ((PayloadType)(message.Message[4] & ~0x10))
                     {
-                        case HarpTypes.U8:
+                        case PayloadType.U8:
                             payload = ((byte)(message.Message[11])).ToString();
                             break;
-                        case HarpTypes.S8:
+                        case PayloadType.S8:
                             payload = ((sbyte)(message.Message[11])).ToString();
                             break;
-                        case HarpTypes.U16:
+                        case PayloadType.U16:
                             payload = (BitConverter.ToUInt16(message.Message, 11)).ToString();
                             break;
-                        case HarpTypes.S16:
+                        case PayloadType.S16:
                             payload = (BitConverter.ToInt16(message.Message, 11)).ToString();
                             break;
-                        case HarpTypes.U32:
+                        case PayloadType.U32:
                             payload = (BitConverter.ToUInt32(message.Message, 11)).ToString();
                             break;
-                        case HarpTypes.S32:
+                        case PayloadType.S32:
                             payload = (BitConverter.ToInt32(message.Message, 11)).ToString();
                             break;
-                        case HarpTypes.U64:
+                        case PayloadType.U64:
                             payload = (BitConverter.ToUInt64(message.Message, 11)).ToString();
                             break;
-                        case HarpTypes.S64:
+                        case PayloadType.S64:
                             payload = (BitConverter.ToInt64(message.Message, 11)).ToString();
                             break;
-                        case HarpTypes.Float:
+                        case PayloadType.Float:
                             payload = (BitConverter.ToSingle(message.Message, 11)).ToString();
                             break;
 
@@ -137,7 +137,7 @@ namespace Bonsai.Harp
 
                 string exception;
 
-                HarpType TypeUsedToRead = (HarpType)(message.Message[4] & ~((byte)(HarpTypes.Timestamp)));
+                PayloadType TypeUsedToRead = (PayloadType)(message.Message[4] & ~((byte)(PayloadType.Timestamp)));
                 string note = "\n\nNote: If the Payload is an array only the first value is shown here.";
 
                 if (message.Id == MessageId.Write)
