@@ -12,15 +12,16 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
-    public class FileDevice : Source<HarpDataFrame>
+    [Description("Produces a sequence of Harp messages from a previously recorded data file.")]
+    public class FileDevice : Source<HarpMessage>
     {
-        IObservable<HarpDataFrame> source;
+        IObservable<HarpMessage> source;
         readonly object captureLock = new object();
         const int ReadBufferSize = 4096;
 
         public FileDevice()
         {
-            source = Observable.Create<HarpDataFrame>((observer, cancellationToken) =>
+            source = Observable.Create<HarpMessage>((observer, cancellationToken) =>
             {
                 return Task.Factory.StartNew(() =>
                 {
@@ -32,14 +33,14 @@ namespace Bonsai.Harp
                             double timestampOffset = 0;
                             var stopwatch = new Stopwatch();
 
-                            var harpObserver = Observer.Create<HarpDataFrame>(
+                            var harpObserver = Observer.Create<HarpMessage>(
                                 value =>
                                 {
                                     if (value.IsTimestamped)
                                     {
                                         // Packet has timestamp
-                                        var seconds = BitConverter.ToUInt32(value.Message, 5);
-                                        var microseconds = BitConverter.ToUInt16(value.Message, 5 + 4);
+                                        var seconds = BitConverter.ToUInt32(value.MessageBytes, 5);
+                                        var microseconds = BitConverter.ToUInt16(value.MessageBytes, 5 + 4);
                                         double timestamp = (seconds + microseconds * 32e-6) * 1000; // ms
                                         if (!stopwatch.IsRunning)
                                         {
@@ -78,14 +79,14 @@ namespace Bonsai.Harp
             .RefCount();
         }
 
+        [Description("The path to the binary file containing harp messages.")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
-        [Description("The path to the binary file containing harp data frames.")]
         public string FileName { get; set; }
 
         [Description("Indicates whether device errors should be ignored.")]
         public bool IgnoreErrors { get; set; }
 
-        public override IObservable<HarpDataFrame> Generate()
+        public override IObservable<HarpMessage> Generate()
         {
             return source;
         }

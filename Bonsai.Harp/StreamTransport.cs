@@ -13,14 +13,14 @@ namespace Bonsai.Harp
         const byte ErrorMask = 0x08;
         const byte TypeLengthMask = 0x0F;
 
-        readonly IObserver<HarpDataFrame> observer;
+        readonly IObserver<HarpMessage> observer;
         BufferedStream bufferedStream;
         byte[] currentMessage;
         bool notAbleToParse;
         int currentOffset;
         int pendingId;
 
-        public StreamTransport(IObserver<HarpDataFrame> observer)
+        public StreamTransport(IObserver<HarpMessage> observer)
         {
             if (observer == null)
             {
@@ -55,7 +55,7 @@ namespace Bonsai.Harp
             return true;
         }
 
-        static void ProcessThrowException(HarpDataFrame message)
+        static void ProcessThrowException(HarpMessage message)
         {
             if (message.Error)
             {
@@ -64,34 +64,34 @@ namespace Bonsai.Harp
 
                 try
                 {
-                    switch ((PayloadType)(message.Message[4] & ~0x10))
+                    switch ((PayloadType)(message.MessageBytes[4] & ~0x10))
                     {
                         case PayloadType.U8:
-                            payload = ((byte)(message.Message[11])).ToString();
+                            payload = ((byte)(message.MessageBytes[11])).ToString();
                             break;
                         case PayloadType.S8:
-                            payload = ((sbyte)(message.Message[11])).ToString();
+                            payload = ((sbyte)(message.MessageBytes[11])).ToString();
                             break;
                         case PayloadType.U16:
-                            payload = (BitConverter.ToUInt16(message.Message, 11)).ToString();
+                            payload = (BitConverter.ToUInt16(message.MessageBytes, 11)).ToString();
                             break;
                         case PayloadType.S16:
-                            payload = (BitConverter.ToInt16(message.Message, 11)).ToString();
+                            payload = (BitConverter.ToInt16(message.MessageBytes, 11)).ToString();
                             break;
                         case PayloadType.U32:
-                            payload = (BitConverter.ToUInt32(message.Message, 11)).ToString();
+                            payload = (BitConverter.ToUInt32(message.MessageBytes, 11)).ToString();
                             break;
                         case PayloadType.S32:
-                            payload = (BitConverter.ToInt32(message.Message, 11)).ToString();
+                            payload = (BitConverter.ToInt32(message.MessageBytes, 11)).ToString();
                             break;
                         case PayloadType.U64:
-                            payload = (BitConverter.ToUInt64(message.Message, 11)).ToString();
+                            payload = (BitConverter.ToUInt64(message.MessageBytes, 11)).ToString();
                             break;
                         case PayloadType.S64:
-                            payload = (BitConverter.ToInt64(message.Message, 11)).ToString();
+                            payload = (BitConverter.ToInt64(message.MessageBytes, 11)).ToString();
                             break;
                         case PayloadType.Float:
-                            payload = (BitConverter.ToSingle(message.Message, 11)).ToString();
+                            payload = (BitConverter.ToSingle(message.MessageBytes, 11)).ToString();
                             break;
 
                         default:
@@ -109,7 +109,7 @@ namespace Bonsai.Harp
                 string exception;
                 var payloadType = message.PayloadType & ~PayloadType.Timestamp;
                 string note = "\n\nNote: If the Payload is an array only the first value is shown here.";
-                if (message.Id == MessageId.Write)
+                if (message.MessageType == MessageType.Write)
                 {
                     exception = "The device reported an erroneous write command. Check the command details bellow for clues.\nPayload: " + payload + ", Address: " + message.Address + ", Type: " + payloadType + "." + note;
                 }
@@ -157,7 +157,7 @@ namespace Bonsai.Harp
                             {
                                 notAbleToParse = false;
 
-                                var dataFrame = new HarpDataFrame(currentMessage);
+                                var dataFrame = new HarpMessage(currentMessage);
                                 if (!IgnoreErrors) ProcessThrowException(dataFrame);
                                 observer.OnNext(dataFrame);
                             }

@@ -6,52 +6,52 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
-    public class HarpDataFrame
+    public class HarpMessage
     {
         const byte ErrorMask = 0x08;
 
-        public HarpDataFrame(params byte[] message)
+        public HarpMessage(params byte[] messageBytes)
         {
-            if (message == null)
+            if (messageBytes == null)
             {
-                throw new ArgumentNullException("message");
+                throw new ArgumentNullException("messageBytes");
             }
 
-            Message = message;
+            MessageBytes = messageBytes;
         }
 
-        public HarpDataFrame(bool updateChecksum, params byte[] message)
-            : this(message)
+        public HarpMessage(bool updateChecksum, params byte[] messageBytes)
+            : this(messageBytes)
         {
             if (updateChecksum)
             {
-                message[message.Length - 1] = GetChecksum(message, message.Length - 1);
+                messageBytes[messageBytes.Length - 1] = GetChecksum(messageBytes, messageBytes.Length - 1);
             }
         }
 
-        public MessageId Id
+        public MessageType MessageType
         {
-            get { return (MessageId)(Message[0] & ~ErrorMask); }
+            get { return (MessageType)(MessageBytes[0] & ~ErrorMask); }
         }
 
         public int Address
         {
-            get { return Message[2]; }
+            get { return MessageBytes[2]; }
         }
 
         public int Port
         {
-            get { return Message[3]; }
+            get { return MessageBytes[3]; }
         }
 
         public PayloadType PayloadType
         {
-            get { return (PayloadType)Message[4]; }
+            get { return (PayloadType)MessageBytes[4]; }
         }
 
         public bool Error
         {
-            get { return (Message[0] & ErrorMask) != 0; }
+            get { return (MessageBytes[0] & ErrorMask) != 0; }
         }
 
         public bool IsTimestamped
@@ -63,16 +63,16 @@ namespace Bonsai.Harp
         {
             get
             {
-                var messageId = Id;
+                var messageId = MessageType;
                 var payloadType = PayloadType;
                 var sizeOfType = (int)payloadType & 0x0F;
-                var payloadArrayLength = (Message.Length - 10) / sizeOfType;
+                var payloadArrayLength = (MessageBytes.Length - 10) / sizeOfType;
 
-                if ((messageId != MessageId.Write) &&
-                    (messageId != MessageId.Read) &&
-                    (messageId != MessageId.Event) &&
-                    ((byte)messageId != ((byte)MessageId.Write | ErrorMask)) &&
-                    ((byte)messageId != ((byte)MessageId.Read | ErrorMask)))
+                if ((messageId != MessageType.Write) &&
+                    (messageId != MessageType.Read) &&
+                    (messageId != MessageType.Event) &&
+                    ((byte)messageId != ((byte)MessageType.Write | ErrorMask)) &&
+                    ((byte)messageId != ((byte)MessageType.Read | ErrorMask)))
                 {
                     return false;
                 }
@@ -95,7 +95,7 @@ namespace Bonsai.Harp
                     return false;
                 }
 
-                if (GetChecksum() != Message[Message.Length - 1])
+                if (GetChecksum() != MessageBytes[MessageBytes.Length - 1])
                 {
                     return false;
                 }
@@ -104,19 +104,19 @@ namespace Bonsai.Harp
             }
         }
 
-        public byte[] Message { get; private set; }
+        public byte[] MessageBytes { get; private set; }
 
         public byte GetChecksum()
         {
-            return GetChecksum(Message, Message.Length - 1);
+            return GetChecksum(MessageBytes, MessageBytes.Length - 1);
         }
 
-        static byte GetChecksum(byte[] message, int count)
+        static byte GetChecksum(byte[] messageBytes, int count)
         {
             var checksum = (byte)0;
-            for (int i = 0; i < message.Length; i++)
+            for (int i = 0; i < messageBytes.Length; i++)
             {
-                checksum += message[i];
+                checksum += messageBytes[i];
             }
             return checksum;
         }

@@ -70,13 +70,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BufferedStream.cs" />
-    <Compile Include="ConvertFromBytes.cs" />
+    <Compile Include="ConvertFromMessageBytes.cs" />
     <Compile Include="FileDevice.cs" />
-    <Compile Include="CreateHarpDataFrame.cs" />
-    <Compile Include="HarpDataFrame.cs" />
+    <Compile Include="CreateHarpMessage.cs" />
+    <Compile Include="HarpMessage.cs" />
     <Compile Include="PayloadType.cs" />
     <Compile Include="LedType.cs" />
-    <Compile Include="MessageId.cs" />
+    <Compile Include="MessageType.cs" />
     <Compile Include="Parse.cs" />
     <Compile Include="PortNameConverter.cs" />
     <Compile Include="Device.cs" />
