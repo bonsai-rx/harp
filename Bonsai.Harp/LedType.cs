@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
-    public enum LedType : byte
+    public enum LedState : byte
     {
         On = 0,
         Off = 1

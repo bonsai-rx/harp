@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
-    public enum StateType : byte
+    public enum DeviceState : byte
     {
         Active = 0,
         Standby = 1

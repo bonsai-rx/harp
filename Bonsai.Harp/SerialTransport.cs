@@ -13,7 +13,7 @@ namespace Bonsai.Harp
         readonly SerialPort serialPort;
         bool disposed;
 
-        public SerialTransport(string portName, IObserver<HarpDataFrame> observer)
+        public SerialTransport(string portName, IObserver<HarpMessage> observer)
             : base(observer)
         {
             //serialPort = new SerialPort(portName, 2000000, Parity.None, 8, StopBits.One);
@@ -34,9 +34,9 @@ namespace Bonsai.Harp
             serialPort.Open();
         }
 
-        public void Write(HarpDataFrame input)
+        public void Write(HarpMessage input)
         {
-            serialPort.Write(input.Message, 0, input.Message.Length);
+            serialPort.Write(input.MessageBytes, 0, input.MessageBytes.Length);
         }
 
         void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)

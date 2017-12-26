@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
-    public enum MessageId : byte
+    public enum MessageType : byte
     {
         Read = 0x01,
         Write = 0x02,
