@@ -48,12 +48,15 @@ namespace Bonsai.Harp
     {
         /* Event: TIMESTAMP_SECOND */
         Timestamp = 0,
+        MessageTimestamp,
         RegisterTimestamp,
     }
 
     [Description(
     "\n" +
     "Timestamp: Integer\n" +
+    "\n" +
+    "MessageTimestamp: Double\n" +
     "\n" +
     "RegisterTimestamp: U32\n"
     )]
@@ -79,6 +82,8 @@ namespace Bonsai.Harp
             {
                 case DeviceEventType.Timestamp:
                     return Expression.Call(typeof(DeviceEvent), "ProcessTimestamp", null, expression);
+                case DeviceEventType.MessageTimestamp:
+                    return Expression.Call(typeof(DeviceEvent), "ProcessMessageTimestamp", null, expression);
                 case DeviceEventType.RegisterTimestamp:
                     return Expression.Call(typeof(DeviceEvent), "ProcessRegisterTimestamp", null, expression);
 
@@ -88,10 +93,16 @@ namespace Bonsai.Harp
         }
 
         static bool is_evt_timestamp(HarpMessage input) { return ((input.Address == 8) && (input.Error == false) && (input.MessageType == MessageType.Event)); }
-        
+        static bool evt_has_timestamp(HarpMessage input) { return input.IsTimestamped; }
+
         static IObservable<UInt32> ProcessTimestamp(IObservable<HarpMessage> source)
         {
             return source.Where(is_evt_timestamp).Select(input => BitConverter.ToUInt32(input.MessageBytes, 11));
+        }
+
+        static IObservable<double> ProcessMessageTimestamp(IObservable<HarpMessage> source)
+        {
+            return source.Where(evt_has_timestamp).Select(input => input.GetTimestamp());
         }
 
         static IObservable<Timestamped<UInt32>> ProcessRegisterTimestamp(IObservable<HarpMessage> source)
