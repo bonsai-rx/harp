@@ -127,6 +127,9 @@ namespace Bonsai.Harp
                         int a = devicePort.Read(replyWriteOpCtrl, 0, 13);
                         int b = devicePort.Read(replyReadWhoAmI, 0, 14);
 
+                        if ((BitConverter.ToUInt16(replyReadWhoAmI, 11) >= 2048) && (BitConverter.ToUInt16(replyReadWhoAmI, 11) < 2064))
+                            return ("MindReach");
+
                         switch (BitConverter.ToUInt16(replyReadWhoAmI, 11))
                         {
                             case 1024:
@@ -134,7 +137,7 @@ namespace Bonsai.Harp
                             case 1040:
                                 return ("MultiPwm");
                             case 1056:
-                                return ("WearBasestation");
+                                return ("Wear");
                             case 1072:
                                 return ("12VoltsDrive");
                             case 1088:
@@ -144,13 +147,15 @@ namespace Bonsai.Harp
                             case 1121:
                                 return ("SimpleAnalogGenerator");
                             case 1136:
-                                return ("Arquimedes");
+                                return ("Archimedes");
                             case 1152:
                                 return ("ClockSynchronizer");
                             case 1168:
                                 return ("Camera");
                             case 1184:
                                 return ("PyControl");
+                            case 1200:
+                                return ("FlyPad");
                             case 1216:
                                 return ("Behavior");
                             default:
