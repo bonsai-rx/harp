@@ -8,29 +8,29 @@ using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.ComponentModel;
 
-/* Commands should try to convert the input to the used input type.         */
-/*                                                                          */
-/* Words like Set, Clear, Start, Stop, Enable, Disable or Write should be:  */
-/*   - a prefix if the Command doesn't depend on the input (input is any).  */
-/*   - a suffix if the Command doesn't depend on the input (input is any).  */
-/*   - avoided when the Command depend on the input                         */
-
-/* Example of Commands' descriptions            */
-/*      Any                                     */
-/*      Boolean                                 */
-/*      Bitmask                                 */
-/*      Integer                                 */
-/*      Positive integer                        */
-/*      Decimal                                 */
-/*      Positive decimal                        */
-/*      Integer array[9]                        */
-/*      Positive integer array[9]               */
+/* Commands should try to convert the input to the used input type.
+ * The input types should be Bonsai typical types like int, boolean and Float.
+ * 
+ * Use suffix like Set, Clear, Start, Stop, Enable, Disable or don't use any.
+ * Suffix like Write should be avoided.
+ * 
+ * Examples for Commands' input type:
+ *      Any
+ *      Boolean
+ *      Bitmask
+ *      Integer
+ *      Positive integer
+ *      Decimal
+ *      Positive decimal
+ *      Integer array[9]
+ *      Positive integer array[9]
+ */
 
 namespace Bonsai.Harp
 {
     public enum DeviceCommandType : byte
     {
-        WriteTimestamp,
+        Timestamp,
         SynchronizeTimestamp
     }
 
@@ -61,7 +61,7 @@ namespace Bonsai.Harp
                 /************************************************************************/
                 /* Register: R_TIMESTAMP_SECOND                                         */
                 /************************************************************************/
-                case DeviceCommandType.WriteTimestamp:
+                case DeviceCommandType.Timestamp:
                     if (expression.Type != typeof(UInt32))
                     {
                         expression = Expression.Convert(expression, typeof(UInt32));
