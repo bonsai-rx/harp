@@ -14,7 +14,7 @@ using System.ComponentModel;
 /*   - Bonsai Events:                                                                                                                                             */
 /*                   Should follow Bonsai guidelines and use the types int, bool, float, Mat and string (for Enums like Wear's DEV_SELECT                         */
 /*   - Raw Registers:                                                                                                                                             */
-/*                   Should have the Timestamped output and the value must have the exact same type (UInt16, Int16, byte, Int, ...) of the Harp device register.  */
+/*                   Should have the Timestamped<T> output and the T must have the exact same type (UInt16, Int16, byte, Int, ...) of the Harp device register.   */
 /*                                                                                                                                                                */
 /* Note: When the device has both digital and analog inputs or outputs use the names DigitalOutput, DigitalInput, AnalogOutput and AnalogInput.                   */
 
@@ -48,17 +48,14 @@ namespace Bonsai.Harp
     {
         /* Event: TIMESTAMP_SECOND */
         Timestamp = 0,
-        MessageTimestamp,
-        RegisterTimestamp,
+        MessageTimestamp
     }
 
     [Description(
     "\n" +
     "Timestamp: Integer\n" +
     "\n" +
-    "MessageTimestamp: Double\n" +
-    "\n" +
-    "RegisterTimestamp: U32\n"
+    "MessageTimestamp: Double\n"
     )]
 
     public class DeviceEvent : SingleArgumentExpressionBuilder, INamedElement
@@ -84,8 +81,6 @@ namespace Bonsai.Harp
                     return Expression.Call(typeof(DeviceEvent), "ProcessTimestamp", null, expression);
                 case DeviceEventType.MessageTimestamp:
                     return Expression.Call(typeof(DeviceEvent), "ProcessMessageTimestamp", null, expression);
-                case DeviceEventType.RegisterTimestamp:
-                    return Expression.Call(typeof(DeviceEvent), "ProcessRegisterTimestamp", null, expression);
 
                 default:
                     throw new InvalidOperationException("Invalid selection or not supported yet.");
@@ -103,11 +98,6 @@ namespace Bonsai.Harp
         static IObservable<double> ProcessMessageTimestamp(IObservable<HarpMessage> source)
         {
             return source.Where(evt_has_timestamp).Select(input => input.GetTimestamp());
-        }
-
-        static IObservable<Timestamped<UInt32>> ProcessRegisterTimestamp(IObservable<HarpMessage> source)
-        {
-            return source.Where(is_evt_timestamp).Select(input => new Timestamped<UInt32>(BitConverter.ToUInt32(input.MessageBytes, 11), input.GetTimestamp()));
         }
     }
 }
