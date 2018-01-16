@@ -287,7 +287,7 @@ namespace Bonsai.Harp
                         Console.WriteLine("");
 
                         /* Return device name if available */
-                        if (nameAvailable == true)
+                        if ((nameAvailable == true) && (deviceName[0] != 0))
                         {
                             return deviceName;
                         }
