@@ -41,7 +41,15 @@ namespace Bonsai.Harp
 
         void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            ReceiveData(serialPort.BaseStream, serialPort.ReadBufferSize, serialPort.BytesToRead);
+            try
+            {
+                ReceiveData(serialPort.BaseStream, serialPort.ReadBufferSize, serialPort.BytesToRead);
+            }
+
+            catch (Exception exception)
+            {
+                //Console.WriteLine("{0} Exception caught.", exception);
+            }
         }
 
         public void Close()
