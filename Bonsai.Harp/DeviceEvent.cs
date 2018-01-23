@@ -47,13 +47,13 @@ namespace Bonsai.Harp
     public enum DeviceEventType : byte
     {
         /* Event: TIMESTAMP_SECOND */
-        Timestamp = 0,
+        AliveTimestamp = 0,
         MessageTimestamp
     }
 
     [Description(
     "\n" +
-    "Timestamp: Integer\n" +
+    "AliveTimestamp: Integer\n" +
     "\n" +
     "MessageTimestamp: Double\n"
     )]
@@ -62,7 +62,7 @@ namespace Bonsai.Harp
     {
         public DeviceEvent()
         {
-            Type = DeviceEventType.Timestamp;
+            Type = DeviceEventType.AliveTimestamp;
         }
 
         string INamedElement.Name
@@ -77,8 +77,8 @@ namespace Bonsai.Harp
             var expression = expressions.First();
             switch (Type)
             {
-                case DeviceEventType.Timestamp:
-                    return Expression.Call(typeof(DeviceEvent), "ProcessTimestamp", null, expression);
+                case DeviceEventType.AliveTimestamp:
+                    return Expression.Call(typeof(DeviceEvent), "ProcessAlive", null, expression);
                 case DeviceEventType.MessageTimestamp:
                     return Expression.Call(typeof(DeviceEvent), "ProcessMessageTimestamp", null, expression);
 
@@ -87,10 +87,10 @@ namespace Bonsai.Harp
             }
         }
 
-        static bool is_evt_timestamp(HarpMessage input) { return ((input.Address == 8) && (input.Error == false) && (input.MessageType == MessageType.Event)); }
-        static bool evt_has_timestamp(HarpMessage input) { return input.IsTimestamped; }
+        static bool is_evt_timestamp(HarpMessage input) { return ((input.Address == 8) && (input.Error == false) && (input.MessageType == MessageType.Event) && (input.PayloadType == PayloadType.TimestampedU32)); }
+        static bool evt_has_timestamp(HarpMessage input) { return ((input.IsTimestamped) && (input.MessageType == MessageType.Event)); }
 
-        static IObservable<UInt32> ProcessTimestamp(IObservable<HarpMessage> source)
+        static IObservable<UInt32> ProcessAlive(IObservable<HarpMessage> source)
         {
             return source.Where(is_evt_timestamp).Select(input => BitConverter.ToUInt32(input.MessageBytes, 11));
         }
