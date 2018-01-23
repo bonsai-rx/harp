@@ -94,8 +94,13 @@ namespace Bonsai.Harp
                 {
                     return false;
                 }
-
-                if (GetChecksum() != MessageBytes[MessageBytes.Length - 1])
+                
+                var checksum = (byte)0;
+                for (int i = 0; i < MessageBytes.Length - 1; i++)
+                {
+                    checksum += MessageBytes[i];
+                }
+                if (checksum != MessageBytes[MessageBytes.Length - 1])
                 {
                     return false;
                 }
