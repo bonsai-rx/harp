@@ -19,7 +19,8 @@ namespace Bonsai.Harp
         string portName;
         LedState ledState;
         LedState visualIndicators;
-        AliveType alive;
+        EnableType alive;
+        EnableType replies;
 
         public Device()
         {
@@ -27,8 +28,9 @@ namespace Bonsai.Harp
             DeviceState = DeviceState.Active;
             LedState = LedState.On;
             VisualIndicators = LedState.On;
-            ReadAllRegisters = true;
-            AliveEvent = AliveType.Enable;
+            DumpRegisters = true;
+            AliveEvent = EnableType.Enable;
+            CommandReplies = EnableType.Enable;
         }
 
 
@@ -50,7 +52,7 @@ namespace Bonsai.Harp
         public DeviceState DeviceState { get; set; }
 
         [Description("Specifies whether the device should send the content of all registers during initialization.")]
-        public bool ReadAllRegisters { get; set; }
+        public bool DumpRegisters { get; set; }
 
         [Description("Specifies the state of the device LED.")]
         public LedState LedState
@@ -80,7 +82,7 @@ namespace Bonsai.Harp
         }
 
         [Description("Specifies if the Device sends the Timestamp Event each second.")]
-        public AliveType AliveEvent
+        public EnableType AliveEvent
         {
             get { return alive; }
 
@@ -90,18 +92,30 @@ namespace Bonsai.Harp
             }
         }
 
+        [Description("Specifies if the Device replies to commands.")]
+        EnableType CommandReplies
+        {
+            get { return replies; }
+
+            set
+            {
+                replies = value;
+            }
+        }
+
         [Description("Specifies whether error messages parsed during acquisition should be ignored or create an exception.")]
         public bool IgnoreErrors { get; set; }        
 
-        static byte[] CreateWriteOpCtrlCmd(DeviceState stateMode, LedState operationLED, LedState visualEN, AliveType aliveEn, bool dumpRegisters)
+        static byte[] CreateWriteOpCtrlCmd(DeviceState stateMode, LedState operationLED, LedState visualEN, EnableType aliveEn, EnableType cmdReplies, bool dumpRegisters)
         {
             byte checksumWriteOpCtrl = 2 + 5 + 10 + 0x01 + 255 - 256;
             var cmdWriteOpCtrl = new byte[] { 2, 5, 10, 255, 0x01, 0, checksumWriteOpCtrl };
 
-            cmdWriteOpCtrl[5]    = (aliveEn == AliveType.Enable) ? (byte)0x80 : (byte)0;
-            cmdWriteOpCtrl[5]   += (operationLED == LedState.On) ? (byte)0x40 : (byte)0;
-            cmdWriteOpCtrl[5]   += (visualEN == LedState.On) ? (byte)0x20 : (byte)0;
-            cmdWriteOpCtrl[5]   += dumpRegisters ? (byte)0x08 : (byte)0;
+            cmdWriteOpCtrl[5]    = (aliveEn == EnableType.Enable)     ? (byte)0x80 : (byte)0;
+            cmdWriteOpCtrl[5]   += (operationLED == LedState.On)     ? (byte)0x40 : (byte)0;
+            cmdWriteOpCtrl[5]   += (visualEN == LedState.On)         ? (byte)0x20 : (byte)0;
+            cmdWriteOpCtrl[5]   += (cmdReplies == EnableType.Enable)  ? (byte)0    : (byte)0x10;
+            cmdWriteOpCtrl[5]   += dumpRegisters                     ? (byte)0x08 : (byte)0;
             cmdWriteOpCtrl[5]   += (stateMode == DeviceState.Active) ? (byte)0x01 : (byte)0;
             checksumWriteOpCtrl += cmdWriteOpCtrl[5];
             cmdWriteOpCtrl[6]    = checksumWriteOpCtrl;
@@ -109,12 +123,12 @@ namespace Bonsai.Harp
             return cmdWriteOpCtrl;
         }
 
-        static IObservable<string> ConfAndGetDeviceName(string portName, LedState state_led, LedState visual, AliveType alive)
+        static IObservable<string> ConfAndGetDeviceName(string portName, LedState state_led, LedState visual, EnableType alive)
         {
             return Observable.Start(() =>
             {
                 /* Commands */
-                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, state_led, visual, alive, false);
+                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, state_led, visual, alive, EnableType.Enable, false);
                 var cmdReadWhoAmI               = new HarpMessage(true, 1, 4, 0,  255, (byte)PayloadType.U16, 0);
                 var cmdReadMajorHardwareVersion = new HarpMessage(true, 1, 4, 1,  255, (byte)PayloadType.U8,  0);
                 var cmdReadMinorHardwareVersion = new HarpMessage(true, 1, 4, 2,  255, (byte)PayloadType.U8,  0);
@@ -283,7 +297,7 @@ namespace Bonsai.Harp
                         Console.WriteLine("Fw: " + rplReadMajorFirmwareVersion[11] + "." + rplReadMinorFirmwareVersion[11]);
                         Console.WriteLine("Timestamp(s): " + timestamp);
                         if (nameAvailable == true)
-                            Console.WriteLine("DeviceName: " + deviceName);
+                            Console.WriteLine("UserDeviceName: " + deviceName);
                         Console.WriteLine("");
 
                         /* Return device name if available */
@@ -345,13 +359,13 @@ namespace Bonsai.Harp
                 transport.IgnoreErrors = IgnoreErrors;
                 transport.Open();
                 
-                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState, ledState, visualIndicators, alive, ReadAllRegisters);
+                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState, ledState, visualIndicators, alive, replies, DumpRegisters);
                 transport.Write(new HarpMessage(cmdWriteOpCtrl));
 
                 var cleanup = Disposable.Create(() =>
                 {
                     //Console.WriteLine("!");
-                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, ledState, visualIndicators, alive, false);
+                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, ledState, visualIndicators, alive, replies, false);
                     transport.Write(new HarpMessage(cmdWriteOpCtrl));
                 });
 
@@ -369,7 +383,7 @@ namespace Bonsai.Harp
                 transport.IgnoreErrors = IgnoreErrors;
                 transport.Open();
 
-                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState, ledState, visualIndicators, alive, ReadAllRegisters);
+                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState, ledState, visualIndicators, alive, replies, DumpRegisters);
                 transport.Write(new HarpMessage(cmdWriteOpCtrl));
 
                 var sourceDisposable = new SingleAssignmentDisposable();
@@ -381,7 +395,7 @@ namespace Bonsai.Harp
                 var cleanup = Disposable.Create(() =>
                 {
                     //Console.WriteLine("!");
-                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, ledState, visualIndicators, alive, false);
+                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, ledState, visualIndicators, alive, replies, false);
                     transport.Write(new HarpMessage(cmdWriteOpCtrl));
                 });
 
