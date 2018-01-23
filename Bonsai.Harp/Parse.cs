@@ -43,6 +43,8 @@ namespace Bonsai.Harp
                     return Expression.Call(typeof(Parse), "ProcessI64", null, expression);
                 case PayloadType.Float:
                     return Expression.Call(typeof(Parse), "ProcessFloat", null, expression);
+                case PayloadType.Timestamp:
+                    return Expression.Call(typeof(Parse), "ProcessTimestamp", null, expression);
                 case PayloadType.TimestampedU8:
                     return Expression.Call(typeof(Parse), "ProcessTimestampedU8", null, expression);
                 case PayloadType.TimestampedS8:
@@ -84,27 +86,32 @@ namespace Bonsai.Harp
         {
             if (input.Error)
             {
-                throw new InvalidOperationException("Harp Data Frame arrived with error.");
+                throw new InvalidOperationException("Harp Message has an error.");
             }
 
             if (input.IsTimestamped)
             {
                 if (input.MessageBytes[1] == 10)
                 {
-                    throw new InvalidOperationException("Harp Data Frame arrived without payload.");
+                    throw new InvalidOperationException("Harp Message don't have payload.");
                 }
             }
             else
             {
                 if (input.MessageBytes[1] == 4)
                 {
-                    throw new InvalidOperationException("Harp Data Frame arrived without payload.");
+                    throw new InvalidOperationException("Harp Message don't have payload.");
                 }
             }
 
             if ((input.PayloadType & ~PayloadType.Timestamp) != typeExpected)
             {
                 throw new InvalidOperationException("Type mismatch.");
+            }
+
+            if (!input.IsValid)
+            {
+                throw new InvalidOperationException("Harp Message is not valid.");
             }
 
             return false;
@@ -234,6 +241,27 @@ namespace Bonsai.Harp
             var timestamp = ParseTimestamp(input);
             var value = input.IsTimestamped ? BitConverter.ToSingle(input.MessageBytes, 11) : BitConverter.ToSingle(input.MessageBytes, 5);
             return new Timestamped<float>(value, timestamp);
+        }
+
+        static double ProcessTimestamp(HarpMessage input)
+        {
+            if (input.Error)
+            {
+                throw new InvalidOperationException("Harp Message has an error.");
+            }
+
+            if (!input.IsTimestamped)
+            {
+                throw new InvalidOperationException("Harp Message don't have timestamp.");
+            }
+
+            if (!input.IsValid)
+            {
+                throw new InvalidOperationException("Harp Message is not valid.");
+            }
+
+            var timestamp = ParseTimestamp(input);
+            return timestamp;
         }
     }
 }
