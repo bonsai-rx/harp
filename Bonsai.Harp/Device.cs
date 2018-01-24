@@ -19,7 +19,7 @@ namespace Bonsai.Harp
         string portName;
         LedState ledState;
         LedState visualIndicators;
-        EnableType alive;
+        EnableType heartbeat;
         EnableType replies;
 
         public Device()
@@ -29,7 +29,7 @@ namespace Bonsai.Harp
             LedState = LedState.On;
             VisualIndicators = LedState.On;
             DumpRegisters = true;
-            AliveEvent = EnableType.Enable;
+            Heartbeat = EnableType.Enable;
             CommandReplies = EnableType.Enable;
         }
 
@@ -44,7 +44,7 @@ namespace Bonsai.Harp
                 portName = value;
 
                 // This code is run (asynchronously) only when the port name changes
-                ConfAndGetDeviceName(portName, ledState, visualIndicators, alive).Subscribe(deviceName => name = deviceName);
+                ConfAndGetDeviceName(portName, ledState, visualIndicators, heartbeat).Subscribe(deviceName => name = deviceName);
             }
         }
 
@@ -64,7 +64,7 @@ namespace Bonsai.Harp
                 ledState = value;
 
                 // This code is run (asynchronously) only when the state led changes
-                ConfAndGetDeviceName(portName, ledState, visualIndicators, alive).Subscribe(deviceName => name = deviceName);
+                ConfAndGetDeviceName(portName, ledState, visualIndicators, heartbeat).Subscribe(deviceName => name = deviceName);
             }
         }
 
@@ -77,18 +77,18 @@ namespace Bonsai.Harp
                 visualIndicators = value;
 
                 // This code is run (asynchronously) only when the visual changes
-                ConfAndGetDeviceName(portName, ledState, visualIndicators, alive).Subscribe(deviceName => name = deviceName);
+                ConfAndGetDeviceName(portName, ledState, visualIndicators, heartbeat).Subscribe(deviceName => name = deviceName);
             }
         }
 
         [Description("Specifies if the Device sends the Timestamp Event each second.")]
-        public EnableType AliveEvent
+        public EnableType Heartbeat
         {
-            get { return alive; }
+            get { return heartbeat; }
 
             set
             {
-                alive = value;
+                heartbeat = value;
             }
         }
 
@@ -106,29 +106,29 @@ namespace Bonsai.Harp
         [Description("Specifies whether error messages parsed during acquisition should be ignored or create an exception.")]
         public bool IgnoreErrors { get; set; }        
 
-        static byte[] CreateWriteOpCtrlCmd(DeviceState stateMode, LedState operationLED, LedState visualEN, EnableType aliveEn, EnableType cmdReplies, bool dumpRegisters)
+        static byte[] CreateWriteOpCtrlCmd(DeviceState stateMode, LedState operationLED, LedState visualEN, EnableType heartbeatEn, EnableType cmdReplies, bool dumpRegisters)
         {
             byte checksumWriteOpCtrl = 2 + 5 + 10 + 0x01 + 255 - 256;
             var cmdWriteOpCtrl = new byte[] { 2, 5, 10, 255, 0x01, 0, checksumWriteOpCtrl };
 
-            cmdWriteOpCtrl[5]    = (aliveEn == EnableType.Enable)     ? (byte)0x80 : (byte)0;
-            cmdWriteOpCtrl[5]   += (operationLED == LedState.On)     ? (byte)0x40 : (byte)0;
-            cmdWriteOpCtrl[5]   += (visualEN == LedState.On)         ? (byte)0x20 : (byte)0;
+            cmdWriteOpCtrl[5]    = (heartbeatEn == EnableType.Enable) ? (byte)0x80 : (byte)0;
+            cmdWriteOpCtrl[5]   += (operationLED == LedState.On)      ? (byte)0x40 : (byte)0;
+            cmdWriteOpCtrl[5]   += (visualEN == LedState.On)          ? (byte)0x20 : (byte)0;
             cmdWriteOpCtrl[5]   += (cmdReplies == EnableType.Enable)  ? (byte)0    : (byte)0x10;
-            cmdWriteOpCtrl[5]   += dumpRegisters                     ? (byte)0x08 : (byte)0;
-            cmdWriteOpCtrl[5]   += (stateMode == DeviceState.Active) ? (byte)0x01 : (byte)0;
+            cmdWriteOpCtrl[5]   += dumpRegisters                      ? (byte)0x08 : (byte)0;
+            cmdWriteOpCtrl[5]   += (stateMode == DeviceState.Active)  ? (byte)0x01 : (byte)0;
             checksumWriteOpCtrl += cmdWriteOpCtrl[5];
             cmdWriteOpCtrl[6]    = checksumWriteOpCtrl;
 
             return cmdWriteOpCtrl;
         }
 
-        static IObservable<string> ConfAndGetDeviceName(string portName, LedState state_led, LedState visual, EnableType alive)
+        static IObservable<string> ConfAndGetDeviceName(string portName, LedState state_led, LedState visual, EnableType heartbeatEn)
         {
             return Observable.Start(() =>
             {
                 /* Commands */
-                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, state_led, visual, alive, EnableType.Enable, false);
+                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, state_led, visual, heartbeatEn, EnableType.Enable, false);
                 var cmdReadWhoAmI               = new HarpMessage(true, 1, 4, 0,  255, (byte)PayloadType.U16, 0);
                 var cmdReadMajorHardwareVersion = new HarpMessage(true, 1, 4, 1,  255, (byte)PayloadType.U8,  0);
                 var cmdReadMinorHardwareVersion = new HarpMessage(true, 1, 4, 2,  255, (byte)PayloadType.U8,  0);
@@ -359,13 +359,13 @@ namespace Bonsai.Harp
                 transport.IgnoreErrors = IgnoreErrors;
                 transport.Open();
                 
-                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState, ledState, visualIndicators, alive, replies, DumpRegisters);
+                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState, ledState, visualIndicators, heartbeat, replies, DumpRegisters);
                 transport.Write(new HarpMessage(cmdWriteOpCtrl));
 
                 var cleanup = Disposable.Create(() =>
                 {
                     //Console.WriteLine("!");
-                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, ledState, visualIndicators, alive, replies, false);
+                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, ledState, visualIndicators, heartbeat, replies, false);
                     transport.Write(new HarpMessage(cmdWriteOpCtrl));
                 });
 
@@ -383,7 +383,7 @@ namespace Bonsai.Harp
                 transport.IgnoreErrors = IgnoreErrors;
                 transport.Open();
 
-                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState, ledState, visualIndicators, alive, replies, DumpRegisters);
+                var cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState, ledState, visualIndicators, heartbeat, replies, DumpRegisters);
                 transport.Write(new HarpMessage(cmdWriteOpCtrl));
 
                 var sourceDisposable = new SingleAssignmentDisposable();
@@ -395,7 +395,7 @@ namespace Bonsai.Harp
                 var cleanup = Disposable.Create(() =>
                 {
                     //Console.WriteLine("!");
-                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, ledState, visualIndicators, alive, replies, false);
+                    cmdWriteOpCtrl = CreateWriteOpCtrlCmd(DeviceState.Standby, ledState, visualIndicators, heartbeat, replies, false);
                     transport.Write(new HarpMessage(cmdWriteOpCtrl));
                 });
 
