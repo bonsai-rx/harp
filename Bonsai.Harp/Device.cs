@@ -29,7 +29,7 @@ namespace Bonsai.Harp
             LedState = LedState.On;
             VisualIndicators = LedState.On;
             DumpRegisters = true;
-            Heartbeat = EnableType.Enable;
+            Heartbeat = EnableType.Disable;
             CommandReplies = EnableType.Enable;
         }
 
