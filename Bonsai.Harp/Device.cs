@@ -269,7 +269,23 @@ namespace Bonsai.Harp
                                     replySize = devicePort.Read(rplReadDeviceName, 1, rplReadDeviceName.Length - 1);
 
                                     var deviceNameRegister = new byte[25];
-                                    Array.Copy(rplReadDeviceName, 11, deviceNameRegister, 0, 25);                                                                        
+                                    Array.Copy(rplReadDeviceName, 11, deviceNameRegister, 0, 25);
+
+                                    /* Write bytes to 0 after the first byte equal to 0 */
+                                    Boolean firstZeroWasFoundIndex = false;
+                                    for (byte i = 0; i < deviceNameRegister.Length; i++)
+                                    {
+                                        if ((byte)deviceNameRegister[i] == 0)
+                                        {
+                                            firstZeroWasFoundIndex = true;
+                                        }
+                                        if (firstZeroWasFoundIndex)
+                                        {
+                                            deviceNameRegister[i] = 0;
+                                        }
+                                    }
+
+                                    /* Initialize deviceName */
                                     deviceName = System.Text.Encoding.Default.GetString(deviceNameRegister);
                                 }
                             }
