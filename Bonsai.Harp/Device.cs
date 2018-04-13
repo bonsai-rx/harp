@@ -354,6 +354,8 @@ namespace Bonsai.Harp
                                 return ("FlyPad");
                             case 1216:
                                 return ("Behavior");
+                            case 1232:
+                                return ("LoadCells");
                             default:
                                 return "NotSpecified";
                         }
