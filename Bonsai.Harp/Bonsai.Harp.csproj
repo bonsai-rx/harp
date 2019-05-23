@@ -96,15 +96,19 @@
     <None Include="Bonsai.Harp.nuspec">
       <SubType>Designer</SubType>
     </None>
+    <EmbeddedResource Include="MulticastTimestamp.bonsai" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <EmbeddedResource Include="TimestampSubject.bonsai" />
+    <EmbeddedResource Include="WithLatestTimestamp.bonsai" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <StartAction>Program</StartAction>
     <StartProgram>$(registry:HKEY_CURRENT_USER\Software\Goncalo Lopes\Bonsai@InstallDir)Bonsai.exe</StartProgram>
+    <!--<StartProgram>C:\Users\Filipe Carvalho\Desktop\Bonsai-2.4-preview\Bonsai64.exe</StartProgram>-->
     <StartArguments>--lib:"$(TargetDir)."</StartArguments>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
