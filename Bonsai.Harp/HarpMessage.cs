@@ -95,12 +95,7 @@ namespace Bonsai.Harp
                     return false;
                 }
                 
-                var checksum = (byte)0;
-                for (int i = 0; i < MessageBytes.Length - 1; i++)
-                {
-                    checksum += MessageBytes[i];
-                }
-                if (checksum != MessageBytes[MessageBytes.Length - 1])
+                if (GetChecksum() != MessageBytes[MessageBytes.Length - 1])
                 {
                     return false;
                 }
@@ -146,7 +141,7 @@ namespace Bonsai.Harp
         static byte GetChecksum(byte[] messageBytes, int count)
         {
             var checksum = (byte)0;
-            for (int i = 0; i < messageBytes.Length; i++)
+            for (int i = 0; i < count; i++)
             {
                 checksum += messageBytes[i];
             }
