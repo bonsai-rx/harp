@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Express 15 for Windows Desktop
+VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A0048C6E-E29B-40FE-A3F4-1F6943C71970}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A0048C
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Harp", "Bonsai.Harp\Bonsai.Harp.csproj", "{4794A074-C5B6-4A4A-BA69-B35087E429F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bonsai.Harp.Tests", "Bonsai.Harp.Tests\Bonsai.Harp.Tests.csproj", "{7E2BF5CA-F84D-4EBD-9F52-AD4EC21562E6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,8 +25,15 @@ Global
 		{4794A074-C5B6-4A4A-BA69-B35087E429F3}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{4794A074-C5B6-4A4A-BA69-B35087E429F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4794A074-C5B6-4A4A-BA69-B35087E429F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E2BF5CA-F84D-4EBD-9F52-AD4EC21562E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E2BF5CA-F84D-4EBD-9F52-AD4EC21562E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E2BF5CA-F84D-4EBD-9F52-AD4EC21562E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E2BF5CA-F84D-4EBD-9F52-AD4EC21562E6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5515CCF7-F359-4839-A1CC-FFFEEC06FB95}
 	EndGlobalSection
 EndGlobal
