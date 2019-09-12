@@ -8,8 +8,8 @@ namespace Bonsai.Harp
 {
     public class HarpMessage
     {
-        const int PayloadOffset = 5;
-        const int TimestampedOffset = PayloadOffset + 6;
+        const int BaseOffset = 5;
+        const int TimestampedOffset = BaseOffset + 6;
         const int ChecksumSize = 1;
         const int DevicePort = 0xFF;
         const byte ErrorMask = 0x08;
@@ -110,6 +110,11 @@ namespace Bonsai.Harp
 
         public byte[] MessageBytes { get; private set; }
 
+        private int PayloadOffset
+        {
+            get { return IsTimestamped ? TimestampedOffset : BaseOffset; }
+        }
+
         public double GetTimestamp()
         {
             double timestamp;
@@ -125,8 +130,8 @@ namespace Bonsai.Harp
         {
             if (IsTimestamped)
             {
-                var seconds = BitConverter.ToUInt32(MessageBytes, 5);
-                var microseconds = BitConverter.ToUInt16(MessageBytes, 5 + 4);
+                var seconds = BitConverter.ToUInt32(MessageBytes, BaseOffset);
+                var microseconds = BitConverter.ToUInt16(MessageBytes, BaseOffset + 4);
                 timestamp = seconds + microseconds * 32e-6;
                 return true;
             }
@@ -160,16 +165,6 @@ namespace Bonsai.Harp
         void GetPayload(Array value, int index)
         {
             Buffer.BlockCopy(MessageBytes, PayloadOffset, value, index, PayloadLength);
-        }
-
-        int TimestampedLength
-        {
-            get { return MessageBytes.Length - TimestampedOffset - ChecksumSize; }
-        }
-
-        void GetTimestampedPayload(Array value, int index)
-        {
-            Buffer.BlockCopy(MessageBytes, TimestampedOffset, value, index, TimestampedLength);
         }
 
         public byte GetPayloadByte()
@@ -361,205 +356,16 @@ namespace Bonsai.Harp
             GetPayload(value, index * sizeof(float));
         }
 
-        public byte GetPayloadTimestampedByte()
-        {
-            return MessageBytes[TimestampedOffset];
-        }
-
-        public void GetPayloadTimestampedByte(out byte[] value)
-        {
-            value = new byte[TimestampedLength];
-            GetPayloadTimestampedByte(value);
-        }
-
-        public void GetPayloadTimestampedByte(byte[] value)
-        {
-            GetTimestampedPayload(value, 0);
-        }
-
-        public void GetPayloadTimestampedByte(byte[] value, int index)
-        {
-            GetTimestampedPayload(value, index);
-        }
-
-        public sbyte GetPayloadTimestampedSByte()
-        {
-            return (sbyte)MessageBytes[TimestampedOffset];
-        }
-
-        public void GetPayloadTimestampedSByte(out sbyte[] value)
-        {
-            value = new sbyte[TimestampedLength];
-            GetPayloadTimestampedSByte(value);
-        }
-
-        public void GetPayloadTimestampedSByte(sbyte[] value)
-        {
-            GetTimestampedPayload(value, 0);
-        }
-
-        public void GetPayloadTimestampedSByte(sbyte[] value, int index)
-        {
-            GetTimestampedPayload(value, index);
-        }
-
-        public ushort GetPayloadTimestampedUInt16()
-        {
-            return BitConverter.ToUInt16(MessageBytes, TimestampedOffset);
-        }
-
-        public void GetPayloadTimestampedUInt16(out ushort[] value)
-        {
-            value = new ushort[TimestampedLength / sizeof(ushort)];
-            GetPayloadTimestampedUInt16(value);
-        }
-
-        public void GetPayloadTimestampedUInt16(ushort[] value)
-        {
-            GetTimestampedPayload(value, 0);
-        }
-
-        public void GetPayloadTimestampedUInt16(ushort[] value, int index)
-        {
-            GetTimestampedPayload(value, index * sizeof(ushort));
-        }
-
-        public short GetPayloadTimestampedInt16()
-        {
-            return BitConverter.ToInt16(MessageBytes, TimestampedOffset);
-        }
-
-        public void GetPayloadTimestampedInt16(out short[] value)
-        {
-            value = new short[TimestampedLength / sizeof(short)];
-            GetPayloadTimestampedInt16(value);
-        }
-
-        public void GetPayloadTimestampedInt16(short[] value)
-        {
-            GetTimestampedPayload(value, 0);
-        }
-
-        public void GetPayloadTimestampedInt16(short[] value, int index)
-        {
-            GetTimestampedPayload(value, index * sizeof(short));
-        }
-
-        public uint GetPayloadTimestampedUInt32()
-        {
-            return BitConverter.ToUInt32(MessageBytes, TimestampedOffset);
-        }
-
-        public void GetPayloadTimestampedUInt32(out uint[] value)
-        {
-            value = new uint[TimestampedLength / sizeof(uint)];
-            GetPayloadTimestampedUInt32(value);
-        }
-
-        public void GetPayloadTimestampedUInt32(uint[] value)
-        {
-            GetTimestampedPayload(value, 0);
-        }
-
-        public void GetPayloadTimestampedUInt32(uint[] value, int index)
-        {
-            GetTimestampedPayload(value, index * sizeof(uint));
-        }
-
-        public int GetPayloadTimestampedInt32()
-        {
-            return BitConverter.ToInt32(MessageBytes, TimestampedOffset);
-        }
-
-        public void GetPayloadTimestampedInt32(out int[] value)
-        {
-            value = new int[TimestampedLength / sizeof(int)];
-            GetPayloadTimestampedInt32(value);
-        }
-
-        public void GetPayloadTimestampedInt32(int[] value)
-        {
-            GetTimestampedPayload(value, 0);
-        }
-
-        public void GetPayloadTimestampedInt32(int[] value, int index)
-        {
-            GetTimestampedPayload(value, index * sizeof(int));
-        }
-
-        public ulong GetPayloadTimestampedUInt64()
-        {
-            return BitConverter.ToUInt64(MessageBytes, TimestampedOffset);
-        }
-
-        public void GetPayloadTimestampedUInt64(out ulong[] value)
-        {
-            value = new ulong[TimestampedLength / sizeof(ulong)];
-            GetPayloadTimestampedUInt64(value);
-        }
-
-        public void GetPayloadTimestampedUInt64(ulong[] value)
-        {
-            GetTimestampedPayload(value, 0);
-        }
-
-        public void GetPayloadTimestampedUInt64(ulong[] value, int index)
-        {
-            GetTimestampedPayload(value, index * sizeof(ulong));
-        }
-
-        public long GetPayloadTimestampedInt64()
-        {
-            return BitConverter.ToInt64(MessageBytes, TimestampedOffset);
-        }
-
-        public void GetPayloadTimestampedInt64(out long[] value)
-        {
-            value = new long[TimestampedLength / sizeof(long)];
-            GetPayloadTimestampedInt64(value);
-        }
-
-        public void GetPayloadTimestampedInt64(long[] value)
-        {
-            GetTimestampedPayload(value, 0);
-        }
-
-        public void GetPayloadTimestampedInt64(long[] value, int index)
-        {
-            GetTimestampedPayload(value, index * sizeof(long));
-        }
-
-        public float GetPayloadTimestampedSingle()
-        {
-            return BitConverter.ToSingle(MessageBytes, TimestampedOffset);
-        }
-
-        public void GetPayloadTimestampedSingle(out float[] value)
-        {
-            value = new float[TimestampedLength / sizeof(float)];
-            GetPayloadTimestampedSingle(value);
-        }
-
-        public void GetPayloadTimestampedSingle(float[] value)
-        {
-            GetTimestampedPayload(value, 0);
-        }
-
-        public void GetPayloadTimestampedSingle(float[] value, int index)
-        {
-            GetTimestampedPayload(value, index * sizeof(float));
-        }
-
         static HarpMessage FromBytes(double timestamp, params byte[] messageBytes)
         {
             var seconds = (uint)timestamp;
             var microseconds = (ushort)Math.Round((timestamp - seconds) / 32e-6);
-            messageBytes[PayloadOffset + 0] = (byte)seconds;
-            messageBytes[PayloadOffset + 1] = (byte)(seconds >> 8);
-            messageBytes[PayloadOffset + 2] = (byte)(seconds >> 16);
-            messageBytes[PayloadOffset + 3] = (byte)(seconds >> 24);
-            messageBytes[PayloadOffset + 4] = (byte)microseconds;
-            messageBytes[PayloadOffset + 5] = (byte)(microseconds >> 8);
+            messageBytes[BaseOffset + 0] = (byte)seconds;
+            messageBytes[BaseOffset + 1] = (byte)(seconds >> 8);
+            messageBytes[BaseOffset + 2] = (byte)(seconds >> 16);
+            messageBytes[BaseOffset + 3] = (byte)(seconds >> 24);
+            messageBytes[BaseOffset + 4] = (byte)microseconds;
+            messageBytes[BaseOffset + 5] = (byte)(microseconds >> 8);
             return FromBytes(messageBytes);
         }
 
@@ -573,12 +379,12 @@ namespace Bonsai.Harp
         static HarpMessage FromArray(MessageType messageType, int address, int port, PayloadType payloadType, Array values)
         {
             var payloadSize = values.Length * (0xF & (byte)payloadType);
-            var messageBytes = new byte[PayloadOffset + payloadSize + ChecksumSize];
+            var messageBytes = new byte[BaseOffset + payloadSize + ChecksumSize];
             messageBytes[0] = (byte)messageType;
             messageBytes[2] = (byte)address;
             messageBytes[3] = (byte)port;
             messageBytes[4] = (byte)payloadType;
-            Buffer.BlockCopy(values, 0, messageBytes, PayloadOffset, payloadSize);
+            Buffer.BlockCopy(values, 0, messageBytes, BaseOffset, payloadSize);
             return FromBytes(messageBytes);
         }
 

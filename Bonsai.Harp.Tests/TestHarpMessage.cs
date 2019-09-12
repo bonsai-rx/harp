@@ -40,144 +40,126 @@ namespace Bonsai.Harp.Tests
         void AssertPayload(byte expected, HarpMessage message)
         {
             AssertIsValid(message);
-            if (!message.IsTimestamped) Assert.AreEqual(expected, message.GetPayloadByte());
-            else Assert.AreEqual(expected, message.GetPayloadTimestampedByte());
+            Assert.AreEqual(expected, message.GetPayloadByte());
         }
 
         void AssertPayload(byte[] expected, HarpMessage message)
         {
             byte[] payload;
             AssertIsValid(message);
-            if (!message.IsTimestamped) message.GetPayloadByte(out payload);
-            else message.GetPayloadTimestampedByte(out payload);
+            message.GetPayloadByte(out payload);
             AssertArrayEqual(expected, payload);
         }
 
         void AssertPayload(sbyte expected, HarpMessage message)
         {
             AssertIsValid(message);
-            if (!message.IsTimestamped) Assert.AreEqual(expected, message.GetPayloadSByte());
-            else Assert.AreEqual(expected, message.GetPayloadTimestampedSByte());
+            Assert.AreEqual(expected, message.GetPayloadSByte());
         }
 
         void AssertPayload(sbyte[] expected, HarpMessage message)
         {
             sbyte[] payload;
             AssertIsValid(message);
-            if (!message.IsTimestamped) message.GetPayloadSByte(out payload);
-            else message.GetPayloadTimestampedSByte(out payload);
+            message.GetPayloadSByte(out payload);
             AssertArrayEqual(expected, payload);
         }
 
         void AssertPayload(ushort expected, HarpMessage message)
         {
             AssertIsValid(message);
-            if (!message.IsTimestamped) Assert.AreEqual(expected, message.GetPayloadUInt16());
-            else Assert.AreEqual(expected, message.GetPayloadTimestampedUInt16());
+            Assert.AreEqual(expected, message.GetPayloadUInt16());
         }
 
         void AssertPayload(ushort[] expected, HarpMessage message)
         {
             ushort[] payload;
             AssertIsValid(message);
-            if (!message.IsTimestamped) message.GetPayloadUInt16(out payload);
-            else message.GetPayloadTimestampedUInt16(out payload);
+            message.GetPayloadUInt16(out payload);
             AssertArrayEqual(expected, payload);
         }
 
         void AssertPayload(short expected, HarpMessage message)
         {
             AssertIsValid(message);
-            if (!message.IsTimestamped) Assert.AreEqual(expected, message.GetPayloadInt16());
-            else Assert.AreEqual(expected, message.GetPayloadTimestampedInt16());
+            Assert.AreEqual(expected, message.GetPayloadInt16());
         }
 
         void AssertPayload(short[] expected, HarpMessage message)
         {
             short[] payload;
             AssertIsValid(message);
-            if (!message.IsTimestamped) message.GetPayloadInt16(out payload);
-            else message.GetPayloadTimestampedInt16(out payload);
+            message.GetPayloadInt16(out payload);
             AssertArrayEqual(expected, payload);
         }
 
         void AssertPayload(uint expected, HarpMessage message)
         {
             AssertIsValid(message);
-            if (!message.IsTimestamped) Assert.AreEqual(expected, message.GetPayloadUInt32());
-            else Assert.AreEqual(expected, message.GetPayloadTimestampedUInt32());
+            Assert.AreEqual(expected, message.GetPayloadUInt32());
         }
 
         void AssertPayload(uint[] expected, HarpMessage message)
         {
             uint[] payload;
             AssertIsValid(message);
-            if (!message.IsTimestamped) message.GetPayloadUInt32(out payload);
-            else message.GetPayloadTimestampedUInt32(out payload);
+            message.GetPayloadUInt32(out payload);
             AssertArrayEqual(expected, payload);
         }
 
         void AssertPayload(int expected, HarpMessage message)
         {
             AssertIsValid(message);
-            if (!message.IsTimestamped) Assert.AreEqual(expected, message.GetPayloadInt32());
-            else Assert.AreEqual(expected, message.GetPayloadTimestampedInt32());
+            Assert.AreEqual(expected, message.GetPayloadInt32());
         }
 
         void AssertPayload(int[] expected, HarpMessage message)
         {
             int[] payload;
             AssertIsValid(message);
-            if (!message.IsTimestamped) message.GetPayloadInt32(out payload);
-            else message.GetPayloadTimestampedInt32(out payload);
+            message.GetPayloadInt32(out payload);
             AssertArrayEqual(expected, payload);
         }
 
         void AssertPayload(ulong expected, HarpMessage message)
         {
             AssertIsValid(message);
-            if (!message.IsTimestamped) Assert.AreEqual(expected, message.GetPayloadUInt64());
-            else Assert.AreEqual(expected, message.GetPayloadTimestampedUInt64());
+            Assert.AreEqual(expected, message.GetPayloadUInt64());
         }
 
         void AssertPayload(ulong[] expected, HarpMessage message)
         {
             ulong[] payload;
             AssertIsValid(message);
-            if (!message.IsTimestamped) message.GetPayloadUInt64(out payload);
-            else message.GetPayloadTimestampedUInt64(out payload);
+            message.GetPayloadUInt64(out payload);
             AssertArrayEqual(expected, payload);
         }
 
         void AssertPayload(long expected, HarpMessage message)
         {
             AssertIsValid(message);
-            if (!message.IsTimestamped) Assert.AreEqual(expected, message.GetPayloadInt64());
-            else Assert.AreEqual(expected, message.GetPayloadTimestampedInt64());
+            Assert.AreEqual(expected, message.GetPayloadInt64());
         }
 
         void AssertPayload(long[] expected, HarpMessage message)
         {
             long[] payload;
             AssertIsValid(message);
-            if (!message.IsTimestamped) message.GetPayloadInt64(out payload);
-            else message.GetPayloadTimestampedInt64(out payload);
+            message.GetPayloadInt64(out payload);
             AssertArrayEqual(expected, payload);
         }
 
         void AssertPayload(float expected, HarpMessage message)
         {
             AssertIsValid(message);
-            if (!message.IsTimestamped) Assert.AreEqual(expected, message.GetPayloadSingle());
-            else Assert.AreEqual(expected, message.GetPayloadTimestampedSingle());
+            Assert.AreEqual(expected, message.GetPayloadSingle());
         }
 
         void AssertPayload(float[] expected, HarpMessage message)
         {
             float[] payload;
             AssertIsValid(message);
-            if (!message.IsTimestamped) message.GetPayloadSingle(out payload);
-            else message.GetPayloadTimestampedSingle(out payload);
+            message.GetPayloadSingle(out payload);
             AssertArrayEqual(expected, payload);
         }
 
