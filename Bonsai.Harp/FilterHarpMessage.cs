@@ -1,5 +1,4 @@
-﻿using OpenCV.Net;
-using Bonsai;
+﻿using Bonsai;
 using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
