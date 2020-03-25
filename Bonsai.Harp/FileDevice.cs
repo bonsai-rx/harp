@@ -21,6 +21,7 @@ namespace Bonsai.Harp
 
         public FileDevice()
         {
+            PlaybackRate = 1;
             source = Observable.Create<HarpMessage>((observer, cancellationToken) =>
             {
                 return Task.Factory.StartNew(() =>
@@ -37,9 +38,10 @@ namespace Bonsai.Harp
                                 value =>
                                 {
                                     double timestamp;
-                                    if (value.TryGetTimestamp(out timestamp))
+                                    var playbackRate = PlaybackRate;
+                                    if (playbackRate.HasValue && value.TryGetTimestamp(out timestamp))
                                     {
-                                        timestamp *= 1000; //ms
+                                        timestamp *= 1000.0 / playbackRate.Value; //ms
                                         if (!stopwatch.IsRunning ||
                                             value.MessageType == MessageType.Write &&
                                             value.Address == Registers.TimestampSecond &&
@@ -86,6 +88,9 @@ namespace Bonsai.Harp
 
         [Description("Indicates whether device errors should be ignored.")]
         public bool IgnoreErrors { get; set; }
+
+        [Description("The optional rate multiplier to either slowdown or speedup the playback. If no rate is specified, playback will be done as fast as possible.")]
+        public double? PlaybackRate { get; set; }
 
         public override IObservable<HarpMessage> Generate()
         {
