@@ -1,7 +1,0 @@
-syntax: glob
-.vs
-*.suo
-bin
-packages
-Bonsai.Harp/bin
-Bonsai.Harp/obj
