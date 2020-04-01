@@ -162,9 +162,29 @@ namespace Bonsai.Harp
             get { return MessageBytes.Length - PayloadOffset - ChecksumSize; }
         }
 
-        void GetPayload(Array value, int index)
+        void GetPayloadOffset(out int payloadOffset, out int payloadLength)
         {
-            Buffer.BlockCopy(MessageBytes, PayloadOffset, value, index, PayloadLength);
+            payloadOffset = PayloadOffset;
+            payloadLength = MessageBytes.Length - payloadOffset - ChecksumSize;
+        }
+
+        public unsafe TArray[] GetPayload<TArray>() where TArray : unmanaged
+        {
+            GetPayloadOffset(out int payloadOffset, out int payloadLength);
+            var value = new TArray[payloadLength / sizeof(TArray)];
+            Buffer.BlockCopy(MessageBytes, payloadOffset, value, 0, payloadLength);
+            return value;
+        }
+
+        public unsafe void GetPayload<TArray>(TArray[] value) where TArray : unmanaged
+        {
+            GetPayload(value, 0);
+        }
+
+        public unsafe void GetPayload<TArray>(TArray[] value, int index) where TArray : unmanaged
+        {
+            GetPayloadOffset(out int payloadOffset, out int payloadLength);
+            Buffer.BlockCopy(MessageBytes, payloadOffset, value, index * sizeof(TArray), payloadLength);
         }
 
         public byte GetPayloadByte()
@@ -172,41 +192,9 @@ namespace Bonsai.Harp
             return MessageBytes[PayloadOffset];
         }
 
-        public void GetPayloadByte(out byte[] value)
-        {
-            value = new byte[PayloadLength];
-            GetPayloadByte(value);
-        }
-
-        public void GetPayloadByte(byte[] value)
-        {
-            GetPayload(value, 0);
-        }
-
-        public void GetPayloadByte(byte[] value, int index)
-        {
-            GetPayload(value, index);
-        }
-
         public sbyte GetPayloadSByte()
         {
             return (sbyte)MessageBytes[PayloadOffset];
-        }
-
-        public void GetPayloadSByte(out sbyte[] value)
-        {
-            value = new sbyte[PayloadLength];
-            GetPayloadSByte(value);
-        }
-
-        public void GetPayloadSByte(sbyte[] value)
-        {
-            GetPayload(value, 0);
-        }
-
-        public void GetPayloadSByte(sbyte[] value, int index)
-        {
-            GetPayload(value, index);
         }
 
         public ushort GetPayloadUInt16()
@@ -214,41 +202,9 @@ namespace Bonsai.Harp
             return BitConverter.ToUInt16(MessageBytes, PayloadOffset);
         }
 
-        public void GetPayloadUInt16(out ushort[] value)
-        {
-            value = new ushort[PayloadLength / sizeof(ushort)];
-            GetPayloadUInt16(value);
-        }
-
-        public void GetPayloadUInt16(ushort[] value)
-        {
-            GetPayload(value, 0);
-        }
-
-        public void GetPayloadUInt16(ushort[] value, int index)
-        {
-            GetPayload(value, index * sizeof(ushort));
-        }
-
         public short GetPayloadInt16()
         {
             return BitConverter.ToInt16(MessageBytes, PayloadOffset);
-        }
-
-        public void GetPayloadInt16(out short[] value)
-        {
-            value = new short[PayloadLength / sizeof(short)];
-            GetPayloadInt16(value);
-        }
-
-        public void GetPayloadInt16(short[] value)
-        {
-            GetPayload(value, 0);
-        }
-
-        public void GetPayloadInt16(short[] value, int index)
-        {
-            GetPayload(value, index * sizeof(short));
         }
 
         public uint GetPayloadUInt32()
@@ -256,41 +212,9 @@ namespace Bonsai.Harp
             return BitConverter.ToUInt32(MessageBytes, PayloadOffset);
         }
 
-        public void GetPayloadUInt32(out uint[] value)
-        {
-            value = new uint[PayloadLength / sizeof(uint)];
-            GetPayloadUInt32(value);
-        }
-
-        public void GetPayloadUInt32(uint[] value)
-        {
-            GetPayload(value, 0);
-        }
-
-        public void GetPayloadUInt32(uint[] value, int index)
-        {
-            GetPayload(value, index * sizeof(uint));
-        }
-
         public int GetPayloadInt32()
         {
             return BitConverter.ToInt32(MessageBytes, PayloadOffset);
-        }
-
-        public void GetPayloadInt32(out int[] value)
-        {
-            value = new int[PayloadLength / sizeof(int)];
-            GetPayloadInt32(value);
-        }
-
-        public void GetPayloadInt32(int[] value)
-        {
-            GetPayload(value, 0);
-        }
-
-        public void GetPayloadInt32(int[] value, int index)
-        {
-            GetPayload(value, index * sizeof(int));
         }
 
         public ulong GetPayloadUInt64()
@@ -298,62 +222,14 @@ namespace Bonsai.Harp
             return BitConverter.ToUInt64(MessageBytes, PayloadOffset);
         }
 
-        public void GetPayloadUInt64(out ulong[] value)
-        {
-            value = new ulong[PayloadLength / sizeof(ulong)];
-            GetPayloadUInt64(value);
-        }
-
-        public void GetPayloadUInt64(ulong[] value)
-        {
-            GetPayload(value, 0);
-        }
-
-        public void GetPayloadUInt64(ulong[] value, int index)
-        {
-            GetPayload(value, index * sizeof(ulong));
-        }
-
         public long GetPayloadInt64()
         {
             return BitConverter.ToInt64(MessageBytes, PayloadOffset);
         }
 
-        public void GetPayloadInt64(out long[] value)
-        {
-            value = new long[PayloadLength / sizeof(long)];
-            GetPayloadInt64(value);
-        }
-
-        public void GetPayloadInt64(long[] value)
-        {
-            GetPayload(value, 0);
-        }
-
-        public void GetPayloadInt64(long[] value, int index)
-        {
-            GetPayload(value, index * sizeof(long));
-        }
-
         public float GetPayloadSingle()
         {
             return BitConverter.ToSingle(MessageBytes, PayloadOffset);
-        }
-
-        public void GetPayloadSingle(out float[] value)
-        {
-            value = new float[PayloadLength / sizeof(float)];
-            GetPayloadSingle(value);
-        }
-
-        public void GetPayloadSingle(float[] value)
-        {
-            GetPayload(value, 0);
-        }
-
-        public void GetPayloadSingle(float[] value, int index)
-        {
-            GetPayload(value, index * sizeof(float));
         }
 
         static HarpMessage FromBytes(double timestamp, params byte[] messageBytes)
