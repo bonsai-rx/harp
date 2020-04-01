@@ -158,7 +158,7 @@ namespace Bonsai.Harp.Tests
         public void FromByte_Value_PayloadHasValue()
         {
             byte value = 23;
-            var message = HarpMessage.FromByte(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromByte(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -166,7 +166,7 @@ namespace Bonsai.Harp.Tests
         public void FromByte_Array_PayloadHasValue()
         {
             var value = new byte[] { 23, 17 };
-            var message = HarpMessage.FromByte(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromByte(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -174,7 +174,7 @@ namespace Bonsai.Harp.Tests
         public void FromSByte_Value_PayloadHasValue()
         {
             sbyte value = -3;
-            var message = HarpMessage.FromSByte(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromSByte(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -182,7 +182,7 @@ namespace Bonsai.Harp.Tests
         public void FromSByte_Array_PayloadHasValue()
         {
             var value = new sbyte[] { 4, -23 };
-            var message = HarpMessage.FromSByte(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromSByte(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -190,7 +190,7 @@ namespace Bonsai.Harp.Tests
         public void FromUInt16_Value_PayloadHasValue()
         {
             ushort value = 1024;
-            var message = HarpMessage.FromUInt16(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromUInt16(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -198,7 +198,7 @@ namespace Bonsai.Harp.Tests
         public void FromUInt16_Array_PayloadHasValue()
         {
             var value = new ushort[] { 512, 2048 };
-            var message = HarpMessage.FromUInt16(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromUInt16(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -206,7 +206,7 @@ namespace Bonsai.Harp.Tests
         public void FromInt16_Value_PayloadHasValue()
         {
             short value = 1024;
-            var message = HarpMessage.FromInt16(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromInt16(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -214,7 +214,7 @@ namespace Bonsai.Harp.Tests
         public void FromInt16_Array_PayloadHasValue()
         {
             var value = new short[] { 512, -2048 };
-            var message = HarpMessage.FromInt16(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromInt16(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -222,7 +222,7 @@ namespace Bonsai.Harp.Tests
         public void FromUInt32_Value_PayloadHasValue()
         {
             uint value = 123456789;
-            var message = HarpMessage.FromUInt32(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromUInt32(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -230,7 +230,7 @@ namespace Bonsai.Harp.Tests
         public void FromUInt32_Array_PayloadHasValue()
         {
             var value = new uint[] { uint.MaxValue / 2, 123456789 };
-            var message = HarpMessage.FromUInt32(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromUInt32(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -238,7 +238,7 @@ namespace Bonsai.Harp.Tests
         public void FromInt32_Value_PayloadHasValue()
         {
             int value = -123456789;
-            var message = HarpMessage.FromInt32(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromInt32(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -246,7 +246,7 @@ namespace Bonsai.Harp.Tests
         public void FromInt32_Array_PayloadHasValue()
         {
             var value = new int[] { int.MaxValue / 2, -123456789 };
-            var message = HarpMessage.FromInt32(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromInt32(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -254,7 +254,7 @@ namespace Bonsai.Harp.Tests
         public void FromUInt64_Value_PayloadHasValue()
         {
             ulong value = int.MaxValue * 2u;
-            var message = HarpMessage.FromUInt64(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromUInt64(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -262,7 +262,7 @@ namespace Bonsai.Harp.Tests
         public void FromUInt64_Array_PayloadHasValue()
         {
             var value = new ulong[] { int.MaxValue * 2u, 123456789 };
-            var message = HarpMessage.FromUInt64(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromUInt64(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -270,7 +270,7 @@ namespace Bonsai.Harp.Tests
         public void FromInt64_Value_PayloadHasValue()
         {
             long value = -int.MaxValue * 2u;
-            var message = HarpMessage.FromInt64(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromInt64(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -278,7 +278,7 @@ namespace Bonsai.Harp.Tests
         public void FromInt64_Array_PayloadHasValue()
         {
             var value = new long[] { int.MaxValue * -2u, 123456789 };
-            var message = HarpMessage.FromInt64(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromInt64(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -286,7 +286,7 @@ namespace Bonsai.Harp.Tests
         public void FromSingle_Value_PayloadHasValue()
         {
             float value = (float)Math.E;
-            var message = HarpMessage.FromSingle(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromSingle(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -294,7 +294,7 @@ namespace Bonsai.Harp.Tests
         public void FromSingle_Array_PayloadHasValue()
         {
             var value = new float[] { (float)Math.PI, 1 / 3f };
-            var message = HarpMessage.FromSingle(MessageType.Write, DefaultAddress, value);
+            var message = HarpMessage.FromSingle(DefaultAddress, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -303,7 +303,7 @@ namespace Bonsai.Harp.Tests
         {
             byte value = 23;
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromByte(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromByte(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -312,7 +312,7 @@ namespace Bonsai.Harp.Tests
         {
             var value = new byte[] { 23, 17 };
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromByte(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromByte(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -321,7 +321,7 @@ namespace Bonsai.Harp.Tests
         {
             sbyte value = -3;
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromSByte(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromSByte(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -330,7 +330,7 @@ namespace Bonsai.Harp.Tests
         {
             var value = new sbyte[] { 4, -23 };
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromSByte(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromSByte(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -339,7 +339,7 @@ namespace Bonsai.Harp.Tests
         {
             ushort value = 1024;
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromUInt16(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromUInt16(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -348,7 +348,7 @@ namespace Bonsai.Harp.Tests
         {
             var value = new ushort[] { 512, 2048 };
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromUInt16(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromUInt16(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -357,7 +357,7 @@ namespace Bonsai.Harp.Tests
         {
             short value = 1024;
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromInt16(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromInt16(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -366,7 +366,7 @@ namespace Bonsai.Harp.Tests
         {
             var value = new short[] { 512, -2048 };
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromInt16(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromInt16(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -375,7 +375,7 @@ namespace Bonsai.Harp.Tests
         {
             uint value = 123456789;
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromUInt32(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromUInt32(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -384,7 +384,7 @@ namespace Bonsai.Harp.Tests
         {
             var value = new uint[] { uint.MaxValue / 2, 123456789 };
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromUInt32(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromUInt32(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -393,7 +393,7 @@ namespace Bonsai.Harp.Tests
         {
             int value = -123456789;
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromInt32(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromInt32(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -402,7 +402,7 @@ namespace Bonsai.Harp.Tests
         {
             var value = new int[] { int.MaxValue / 2, -123456789 };
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromInt32(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromInt32(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -411,7 +411,7 @@ namespace Bonsai.Harp.Tests
         {
             ulong value = int.MaxValue * 2u;
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromUInt64(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromUInt64(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -420,7 +420,7 @@ namespace Bonsai.Harp.Tests
         {
             var value = new ulong[] { int.MaxValue * 2u, 123456789 };
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromUInt64(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromUInt64(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -429,7 +429,7 @@ namespace Bonsai.Harp.Tests
         {
             long value = -int.MaxValue * 2u;
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromInt64(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromInt64(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -438,7 +438,7 @@ namespace Bonsai.Harp.Tests
         {
             var value = new long[] { int.MaxValue * -2u, 123456789 };
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromInt64(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromInt64(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -447,7 +447,7 @@ namespace Bonsai.Harp.Tests
         {
             float value = (float)Math.E;
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromSingle(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromSingle(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
 
@@ -456,7 +456,7 @@ namespace Bonsai.Harp.Tests
         {
             var value = new float[] { (float)Math.PI, 1 / 3f };
             var timestamp = GetTimestamp();
-            var message = HarpMessage.FromSingle(MessageType.Write, DefaultAddress, timestamp, value);
+            var message = HarpMessage.FromSingle(DefaultAddress, timestamp, MessageType.Write, value);
             AssertPayload(value, message);
         }
     }
