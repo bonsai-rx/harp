@@ -45,9 +45,8 @@ namespace Bonsai.Harp.Tests
 
         void AssertPayload(byte[] expected, HarpMessage message)
         {
-            byte[] payload;
             AssertIsValid(message);
-            message.GetPayloadByte(out payload);
+            var payload = message.GetPayload<byte>();
             AssertArrayEqual(expected, payload);
         }
 
@@ -59,9 +58,8 @@ namespace Bonsai.Harp.Tests
 
         void AssertPayload(sbyte[] expected, HarpMessage message)
         {
-            sbyte[] payload;
             AssertIsValid(message);
-            message.GetPayloadSByte(out payload);
+            var payload = message.GetPayload<sbyte>();
             AssertArrayEqual(expected, payload);
         }
 
@@ -73,9 +71,8 @@ namespace Bonsai.Harp.Tests
 
         void AssertPayload(ushort[] expected, HarpMessage message)
         {
-            ushort[] payload;
             AssertIsValid(message);
-            message.GetPayloadUInt16(out payload);
+            var payload = message.GetPayload<ushort>();
             AssertArrayEqual(expected, payload);
         }
 
@@ -87,9 +84,8 @@ namespace Bonsai.Harp.Tests
 
         void AssertPayload(short[] expected, HarpMessage message)
         {
-            short[] payload;
             AssertIsValid(message);
-            message.GetPayloadInt16(out payload);
+            var payload = message.GetPayload<short>();
             AssertArrayEqual(expected, payload);
         }
 
@@ -101,9 +97,8 @@ namespace Bonsai.Harp.Tests
 
         void AssertPayload(uint[] expected, HarpMessage message)
         {
-            uint[] payload;
             AssertIsValid(message);
-            message.GetPayloadUInt32(out payload);
+            var payload = message.GetPayload<uint>();
             AssertArrayEqual(expected, payload);
         }
 
@@ -115,9 +110,8 @@ namespace Bonsai.Harp.Tests
 
         void AssertPayload(int[] expected, HarpMessage message)
         {
-            int[] payload;
             AssertIsValid(message);
-            message.GetPayloadInt32(out payload);
+            var payload = message.GetPayload<int>();
             AssertArrayEqual(expected, payload);
         }
 
@@ -129,9 +123,8 @@ namespace Bonsai.Harp.Tests
 
         void AssertPayload(ulong[] expected, HarpMessage message)
         {
-            ulong[] payload;
             AssertIsValid(message);
-            message.GetPayloadUInt64(out payload);
+            var payload = message.GetPayload<ulong>();
             AssertArrayEqual(expected, payload);
         }
 
@@ -143,9 +136,8 @@ namespace Bonsai.Harp.Tests
 
         void AssertPayload(long[] expected, HarpMessage message)
         {
-            long[] payload;
             AssertIsValid(message);
-            message.GetPayloadInt64(out payload);
+            var payload = message.GetPayload<long>();
             AssertArrayEqual(expected, payload);
         }
 
@@ -157,9 +149,8 @@ namespace Bonsai.Harp.Tests
 
         void AssertPayload(float[] expected, HarpMessage message)
         {
-            float[] payload;
             AssertIsValid(message);
-            message.GetPayloadSingle(out payload);
+            var payload = message.GetPayload<float>();
             AssertArrayEqual(expected, payload);
         }
 
