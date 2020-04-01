@@ -276,22 +276,22 @@ namespace Bonsai.Harp
             return FromBytes(timestamp, messageBytes);
         }
 
-        public static HarpMessage FromByte(MessageType messageType, int address, byte value)
+        public static HarpMessage FromByte(int address, MessageType messageType, byte value)
         {
-            return FromByte(messageType, address, DevicePort, value);
+            return FromByte(address, DevicePort, messageType, value);
         }
 
-        public static HarpMessage FromByte(MessageType messageType, int address, int port, byte value)
+        public static HarpMessage FromByte(int address, int port, MessageType messageType, byte value)
         {
             return FromBytes((byte)messageType, 0, (byte)address, (byte)port, (byte)PayloadType.U8, value, 0);
         }
 
-        public static HarpMessage FromByte(MessageType messageType, int address, double timestamp, byte value)
+        public static HarpMessage FromByte(int address, double timestamp, MessageType messageType, byte value)
         {
-            return FromByte(messageType, address, DevicePort, timestamp, value);
+            return FromByte(address, DevicePort, timestamp, messageType, value);
         }
 
-        public static HarpMessage FromByte(MessageType messageType, int address, int port, double timestamp, byte value)
+        public static HarpMessage FromByte(int address, int port, double timestamp, MessageType messageType, byte value)
         {
             return FromBytes(
                 timestamp,
@@ -304,42 +304,42 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromByte(MessageType messageType, int address, params byte[] values)
+        public static HarpMessage FromByte(int address, MessageType messageType, params byte[] values)
         {
-            return FromByte(messageType, address, DevicePort, values);
+            return FromByte(address, DevicePort, messageType, values);
         }
 
-        public static HarpMessage FromByte(MessageType messageType, int address, int port, params byte[] values)
+        public static HarpMessage FromByte(int address, int port, MessageType messageType, params byte[] values)
         {
             return FromArray(messageType, address, port, PayloadType.U8, values);
         }
 
-        public static HarpMessage FromByte(MessageType messageType, int address, double timestamp, params byte[] values)
+        public static HarpMessage FromByte(int address, double timestamp, MessageType messageType, params byte[] values)
         {
-            return FromByte(messageType, address, DevicePort, timestamp, values);
+            return FromByte(address, DevicePort, timestamp, messageType, values);
         }
 
-        public static HarpMessage FromByte(MessageType messageType, int address, int port, double timestamp, params byte[] values)
+        public static HarpMessage FromByte(int address, int port, double timestamp, MessageType messageType, params byte[] values)
         {
             return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedU8, values);
         }
 
-        public static HarpMessage FromSByte(MessageType messageType, int address, sbyte value)
+        public static HarpMessage FromSByte(int address, MessageType messageType, sbyte value)
         {
-            return FromSByte(messageType, address, DevicePort, value);
+            return FromSByte(address, DevicePort, messageType, value);
         }
 
-        public static HarpMessage FromSByte(MessageType messageType, int address, int port, sbyte value)
+        public static HarpMessage FromSByte(int address, int port, MessageType messageType, sbyte value)
         {
             return FromBytes((byte)messageType, 0, (byte)address, (byte)port, (byte)PayloadType.U8, (byte)value, 0);
         }
 
-        public static HarpMessage FromSByte(MessageType messageType, int address, double timestamp, sbyte value)
+        public static HarpMessage FromSByte(int address, double timestamp, MessageType messageType, sbyte value)
         {
-            return FromSByte(messageType, address, DevicePort, timestamp, value);
+            return FromSByte(address, DevicePort, timestamp, messageType, value);
         }
 
-        public static HarpMessage FromSByte(MessageType messageType, int address, int port, double timestamp, sbyte value)
+        public static HarpMessage FromSByte(int address, int port, double timestamp, MessageType messageType, sbyte value)
         {
             return FromBytes(
                 timestamp,
@@ -352,42 +352,42 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromSByte(MessageType messageType, int address, params sbyte[] values)
+        public static HarpMessage FromSByte(int address, MessageType messageType, params sbyte[] values)
         {
-            return FromSByte(messageType, address, DevicePort, values);
+            return FromSByte(address, DevicePort, messageType, values);
         }
 
-        public static HarpMessage FromSByte(MessageType messageType, int address, int port, params sbyte[] values)
+        public static HarpMessage FromSByte(int address, int port, MessageType messageType, params sbyte[] values)
         {
             return FromArray(messageType, address, port, PayloadType.U8, values);
         }
 
-        public static HarpMessage FromSByte(MessageType messageType, int address, double timestamp, params sbyte[] values)
+        public static HarpMessage FromSByte(int address, double timestamp, MessageType messageType, params sbyte[] values)
         {
-            return FromSByte(messageType, address, DevicePort, timestamp, values);
+            return FromSByte(address, DevicePort, timestamp, messageType, values);
         }
 
-        public static HarpMessage FromSByte(MessageType messageType, int address, int port, double timestamp, params sbyte[] values)
+        public static HarpMessage FromSByte(int address, int port, double timestamp, MessageType messageType, params sbyte[] values)
         {
             return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedU8, values);
         }
 
-        public static HarpMessage FromUInt16(MessageType messageType, int address, ushort value)
+        public static HarpMessage FromUInt16(int address, MessageType messageType, ushort value)
         {
-            return FromUInt16(messageType, address, DevicePort, value);
+            return FromUInt16(address, DevicePort, messageType, value);
         }
 
-        public static HarpMessage FromUInt16(MessageType messageType, int address, int port, ushort value)
+        public static HarpMessage FromUInt16(int address, int port, MessageType messageType, ushort value)
         {
             return FromBytes((byte)messageType, 0, (byte)address, (byte)port, (byte)PayloadType.U16, (byte)value, (byte)(value >> 8), 0);
         }
 
-        public static HarpMessage FromUInt16(MessageType messageType, int address, double timestamp, ushort value)
+        public static HarpMessage FromUInt16(int address, double timestamp, MessageType messageType, ushort value)
         {
-            return FromUInt16(messageType, address, DevicePort, timestamp, value);
+            return FromUInt16(address, DevicePort, timestamp, messageType, value);
         }
 
-        public static HarpMessage FromUInt16(MessageType messageType, int address, int port, double timestamp, ushort value)
+        public static HarpMessage FromUInt16(int address, int port, double timestamp, MessageType messageType, ushort value)
         {
             return FromBytes(
                 timestamp,
@@ -401,42 +401,42 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromUInt16(MessageType messageType, int address, params ushort[] values)
+        public static HarpMessage FromUInt16(int address, MessageType messageType, params ushort[] values)
         {
-            return FromUInt16(messageType, address, DevicePort, values);
+            return FromUInt16(address, DevicePort, messageType, values);
         }
 
-        public static HarpMessage FromUInt16(MessageType messageType, int address, int port, params ushort[] values)
+        public static HarpMessage FromUInt16(int address, int port, MessageType messageType, params ushort[] values)
         {
             return FromArray(messageType, address, port, PayloadType.U16, values);
         }
 
-        public static HarpMessage FromUInt16(MessageType messageType, int address, double timestamp, params ushort[] values)
+        public static HarpMessage FromUInt16(int address, double timestamp, MessageType messageType, params ushort[] values)
         {
-            return FromUInt16(messageType, address, DevicePort, timestamp, values);
+            return FromUInt16(address, DevicePort, timestamp, messageType, values);
         }
 
-        public static HarpMessage FromUInt16(MessageType messageType, int address, int port, double timestamp, params ushort[] values)
+        public static HarpMessage FromUInt16(int address, int port, double timestamp, MessageType messageType, params ushort[] values)
         {
             return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedU16, values);
         }
 
-        public static HarpMessage FromInt16(MessageType messageType, int address, short value)
+        public static HarpMessage FromInt16(int address, MessageType messageType, short value)
         {
-            return FromInt16(messageType, address, DevicePort, value);
+            return FromInt16(address, DevicePort, messageType, value);
         }
 
-        public static HarpMessage FromInt16(MessageType messageType, int address, int port, short value)
+        public static HarpMessage FromInt16(int address, int port, MessageType messageType, short value)
         {
             return FromBytes((byte)messageType, 0, (byte)address, (byte)port, (byte)PayloadType.S16, (byte)value, (byte)(value >> 8), 0);
         }
 
-        public static HarpMessage FromInt16(MessageType messageType, int address, double timestamp, short value)
+        public static HarpMessage FromInt16(int address, double timestamp, MessageType messageType, short value)
         {
-            return FromInt16(messageType, address, DevicePort, timestamp, value);
+            return FromInt16(address, DevicePort, timestamp, messageType, value);
         }
 
-        public static HarpMessage FromInt16(MessageType messageType, int address, int port, double timestamp, short value)
+        public static HarpMessage FromInt16(int address, int port, double timestamp, MessageType messageType, short value)
         {
             return FromBytes(
                 timestamp,
@@ -450,32 +450,32 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromInt16(MessageType messageType, int address, params short[] values)
+        public static HarpMessage FromInt16(int address, MessageType messageType, params short[] values)
         {
-            return FromInt16(messageType, address, DevicePort, values);
+            return FromInt16(address, DevicePort, messageType, values);
         }
 
-        public static HarpMessage FromInt16(MessageType messageType, int address, int port, params short[] values)
+        public static HarpMessage FromInt16(int address, int port, MessageType messageType, params short[] values)
         {
             return FromArray(messageType, address, port, PayloadType.S16, values);
         }
 
-        public static HarpMessage FromInt16(MessageType messageType, int address, double timestamp, params short[] values)
+        public static HarpMessage FromInt16(int address, double timestamp, MessageType messageType, params short[] values)
         {
-            return FromInt16(messageType, address, DevicePort, timestamp, values);
+            return FromInt16(address, DevicePort, timestamp, messageType, values);
         }
 
-        public static HarpMessage FromInt16(MessageType messageType, int address, int port, double timestamp, params short[] values)
+        public static HarpMessage FromInt16(int address, int port, double timestamp, MessageType messageType, params short[] values)
         {
             return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedS16, values);
         }
 
-        public static HarpMessage FromUInt32(MessageType messageType, int address, uint value)
+        public static HarpMessage FromUInt32(int address, MessageType messageType, uint value)
         {
-            return FromUInt32(messageType, address, DevicePort, value);
+            return FromUInt32(address, DevicePort, messageType, value);
         }
 
-        public static HarpMessage FromUInt32(MessageType messageType, int address, int port, uint value)
+        public static HarpMessage FromUInt32(int address, int port, MessageType messageType, uint value)
         {
             return FromBytes(
                 (byte)messageType, 0,
@@ -489,12 +489,12 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromUInt32(MessageType messageType, int address, double timestamp, uint value)
+        public static HarpMessage FromUInt32(int address, double timestamp, MessageType messageType, uint value)
         {
-            return FromUInt32(messageType, address, DevicePort, timestamp, value);
+            return FromUInt32(address, DevicePort, timestamp, messageType, value);
         }
 
-        public static HarpMessage FromUInt32(MessageType messageType, int address, int port, double timestamp, uint value)
+        public static HarpMessage FromUInt32(int address, int port, double timestamp, MessageType messageType, uint value)
         {
             return FromBytes(
                 timestamp,
@@ -510,32 +510,32 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromUInt32(MessageType messageType, int address, params uint[] values)
+        public static HarpMessage FromUInt32(int address, MessageType messageType, params uint[] values)
         {
-            return FromUInt32(messageType, address, DevicePort, values);
+            return FromUInt32(address, DevicePort, messageType, values);
         }
 
-        public static HarpMessage FromUInt32(MessageType messageType, int address, int port, params uint[] values)
+        public static HarpMessage FromUInt32(int address, int port, MessageType messageType, params uint[] values)
         {
             return FromArray(messageType, address, port, PayloadType.U32, values);
         }
 
-        public static HarpMessage FromUInt32(MessageType messageType, int address, double timestamp, params uint[] values)
+        public static HarpMessage FromUInt32(int address, double timestamp, MessageType messageType, params uint[] values)
         {
-            return FromUInt32(messageType, address, DevicePort, timestamp, values);
+            return FromUInt32(address, DevicePort, timestamp, messageType, values);
         }
 
-        public static HarpMessage FromUInt32(MessageType messageType, int address, int port, double timestamp, params uint[] values)
+        public static HarpMessage FromUInt32(int address, int port, double timestamp, MessageType messageType, params uint[] values)
         {
             return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedU32, values);
         }
 
-        public static HarpMessage FromInt32(MessageType messageType, int address, int value)
+        public static HarpMessage FromInt32(int address, MessageType messageType, int value)
         {
-            return FromInt32(messageType, address, DevicePort, value);
+            return FromInt32(address, DevicePort, messageType, value);
         }
 
-        public static HarpMessage FromInt32(MessageType messageType, int address, int port, int value)
+        public static HarpMessage FromInt32(int address, int port, MessageType messageType, int value)
         {
             return FromBytes(
                 (byte)messageType, 0,
@@ -549,12 +549,12 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromInt32(MessageType messageType, int address, double timestamp, int value)
+        public static HarpMessage FromInt32(int address, double timestamp, MessageType messageType, int value)
         {
-            return FromInt32(messageType, address, DevicePort, timestamp, value);
+            return FromInt32(address, DevicePort, timestamp, messageType, value);
         }
 
-        public static HarpMessage FromInt32(MessageType messageType, int address, int port, double timestamp, int value)
+        public static HarpMessage FromInt32(int address, int port, double timestamp, MessageType messageType, int value)
         {
             return FromBytes(
                 timestamp,
@@ -570,32 +570,32 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromInt32(MessageType messageType, int address, params int[] values)
+        public static HarpMessage FromInt32(int address, MessageType messageType, params int[] values)
         {
-            return FromInt32(messageType, address, DevicePort, values);
+            return FromInt32(address, DevicePort, messageType, values);
         }
 
-        public static HarpMessage FromInt32(MessageType messageType, int address, int port, params int[] values)
+        public static HarpMessage FromInt32(int address, int port, MessageType messageType, params int[] values)
         {
             return FromArray(messageType, address, port, PayloadType.S32, values);
         }
 
-        public static HarpMessage FromInt32(MessageType messageType, int address, double timestamp, params int[] values)
+        public static HarpMessage FromInt32(int address, double timestamp, MessageType messageType, params int[] values)
         {
-            return FromInt32(messageType, address, DevicePort, timestamp, values);
+            return FromInt32(address, DevicePort, timestamp, messageType, values);
         }
 
-        public static HarpMessage FromInt32(MessageType messageType, int address, int port, double timestamp, params int[] values)
+        public static HarpMessage FromInt32(int address, int port, double timestamp, MessageType messageType, params int[] values)
         {
             return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedS32, values);
         }
 
-        public static HarpMessage FromUInt64(MessageType messageType, int address, ulong value)
+        public static HarpMessage FromUInt64(int address, MessageType messageType, ulong value)
         {
-            return FromUInt64(messageType, address, DevicePort, value);
+            return FromUInt64(address, DevicePort, messageType, value);
         }
 
-        public static HarpMessage FromUInt64(MessageType messageType, int address, int port, ulong value)
+        public static HarpMessage FromUInt64(int address, int port, MessageType messageType, ulong value)
         {
             return FromBytes(
                 (byte)messageType, 0,
@@ -613,12 +613,12 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromUInt64(MessageType messageType, int address, double timestamp, ulong value)
+        public static HarpMessage FromUInt64(int address, double timestamp, MessageType messageType, ulong value)
         {
-            return FromUInt64(messageType, address, DevicePort, timestamp, value);
+            return FromUInt64(address, DevicePort, timestamp, messageType, value);
         }
 
-        public static HarpMessage FromUInt64(MessageType messageType, int address, int port, double timestamp, ulong value)
+        public static HarpMessage FromUInt64(int address, int port, double timestamp, MessageType messageType, ulong value)
         {
             return FromBytes(
                 timestamp,
@@ -638,32 +638,32 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromUInt64(MessageType messageType, int address, params ulong[] values)
+        public static HarpMessage FromUInt64(int address, MessageType messageType, params ulong[] values)
         {
-            return FromUInt64(messageType, address, DevicePort, values);
+            return FromUInt64(address, DevicePort, messageType, values);
         }
 
-        public static HarpMessage FromUInt64(MessageType messageType, int address, int port, params ulong[] values)
+        public static HarpMessage FromUInt64(int address, int port, MessageType messageType, params ulong[] values)
         {
             return FromArray(messageType, address, port, PayloadType.U64, values);
         }
 
-        public static HarpMessage FromUInt64(MessageType messageType, int address, double timestamp, params ulong[] values)
+        public static HarpMessage FromUInt64(int address, double timestamp, MessageType messageType, params ulong[] values)
         {
-            return FromUInt64(messageType, address, DevicePort, timestamp, values);
+            return FromUInt64(address, DevicePort, timestamp, messageType, values);
         }
 
-        public static HarpMessage FromUInt64(MessageType messageType, int address, int port, double timestamp, params ulong[] values)
+        public static HarpMessage FromUInt64(int address, int port, double timestamp, MessageType messageType, params ulong[] values)
         {
             return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedU64, values);
         }
 
-        public static HarpMessage FromInt64(MessageType messageType, int address, long value)
+        public static HarpMessage FromInt64(int address, MessageType messageType, long value)
         {
-            return FromInt64(messageType, address, DevicePort, value);
+            return FromInt64(address, DevicePort, messageType, value);
         }
 
-        public static HarpMessage FromInt64(MessageType messageType, int address, int port, long value)
+        public static HarpMessage FromInt64(int address, int port, MessageType messageType, long value)
         {
             return FromBytes(
                 (byte)messageType, 0,
@@ -681,12 +681,12 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromInt64(MessageType messageType, int address, double timestamp, long value)
+        public static HarpMessage FromInt64(int address, double timestamp, MessageType messageType, long value)
         {
-            return FromInt64(messageType, address, DevicePort, timestamp, value);
+            return FromInt64(address, DevicePort, timestamp, messageType, value);
         }
 
-        public static HarpMessage FromInt64(MessageType messageType, int address, int port, double timestamp, long value)
+        public static HarpMessage FromInt64(int address, int port, double timestamp, MessageType messageType, long value)
         {
             return FromBytes(
                 timestamp,
@@ -706,42 +706,42 @@ namespace Bonsai.Harp
                 0);
         }
 
-        public static HarpMessage FromInt64(MessageType messageType, int address, params long[] values)
+        public static HarpMessage FromInt64(int address, MessageType messageType, params long[] values)
         {
-            return FromInt64(messageType, address, DevicePort, values);
+            return FromInt64(address, DevicePort, messageType, values);
         }
 
-        public static HarpMessage FromInt64(MessageType messageType, int address, int port, params long[] values)
+        public static HarpMessage FromInt64(int address, int port, MessageType messageType, params long[] values)
         {
             return FromArray(messageType, address, port, PayloadType.S64, values);
         }
 
-        public static HarpMessage FromInt64(MessageType messageType, int address, double timestamp, params long[] values)
+        public static HarpMessage FromInt64(int address, double timestamp, MessageType messageType, params long[] values)
         {
-            return FromInt64(messageType, address, DevicePort, timestamp, values);
+            return FromInt64(address, DevicePort, timestamp, messageType, values);
         }
 
-        public static HarpMessage FromInt64(MessageType messageType, int address, int port, double timestamp, params long[] values)
+        public static HarpMessage FromInt64(int address, int port, double timestamp, MessageType messageType, params long[] values)
         {
             return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedS64, values);
         }
 
-        public static HarpMessage FromSingle(MessageType messageType, int address, params float[] values)
+        public static HarpMessage FromSingle(int address, MessageType messageType, params float[] values)
         {
-            return FromSingle(messageType, address, DevicePort, values);
+            return FromSingle(address, DevicePort, messageType, values);
         }
 
-        public static HarpMessage FromSingle(MessageType messageType, int address, int port, params float[] values)
+        public static HarpMessage FromSingle(int address, int port, MessageType messageType, params float[] values)
         {
             return FromArray(messageType, address, port, PayloadType.Float, values);
         }
 
-        public static HarpMessage FromSingle(MessageType messageType, int address, double timestamp, params float[] values)
+        public static HarpMessage FromSingle(int address, double timestamp, MessageType messageType, params float[] values)
         {
-            return FromSingle(messageType, address, DevicePort, timestamp, values);
+            return FromSingle(address, DevicePort, timestamp, messageType, values);
         }
 
-        public static HarpMessage FromSingle(MessageType messageType, int address, int port, double timestamp, params float[] values)
+        public static HarpMessage FromSingle(int address, int port, double timestamp, MessageType messageType, params float[] values)
         {
             return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedFloat, values);
         }
