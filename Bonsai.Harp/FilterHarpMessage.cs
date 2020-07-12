@@ -1,12 +1,6 @@
-﻿using Bonsai;
-using Bonsai.Expressions;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reactive.Linq;
-using System.Text;
-using TResult = System.String;
 using System.ComponentModel;
 
 namespace Bonsai.Harp

@@ -1,12 +1,9 @@
-﻿using Bonsai;
-using Bonsai.Expressions;
+﻿using Bonsai.Expressions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reactive.Linq;
-using System.Text;
-using TResult = System.String;
 using System.ComponentModel;
 
 /* Events are divided into two categories: Bonsai Events and Raw Registers.                                                                                       */

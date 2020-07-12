@@ -1,14 +1,9 @@
-﻿using Bonsai;
-using System;
+﻿using System;
 using System.Threading;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.IO.Ports;
-using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Text;
 
 namespace Bonsai.Harp
 {
