@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Harp
 {
-    [Description("Parse Harp messages and extracts the data payload.")]
+    [Description("Extracts the payload data from Harp messages.")]
     public class Parse : SelectBuilder
     {
         public Parse()
@@ -13,7 +13,7 @@ namespace Bonsai.Harp
             Type = PayloadType.U8;
         }
 
-        [Description("The type of payload to parse.")]
+        [Description("The type of payload data to parse.")]
         public PayloadType Type { get; set; }
 
         protected override Expression BuildSelector(Expression expression)
@@ -21,220 +21,186 @@ namespace Bonsai.Harp
             switch (Type)
             {
                 case PayloadType.U8:
-                    return Expression.Call(typeof(Parse), "ProcessU8", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessU8), null, expression);
                 case PayloadType.S8:
-                    return Expression.Call(typeof(Parse), "ProcessI8", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessS8), null, expression);
                 case PayloadType.U16:
-                    return Expression.Call(typeof(Parse), "ProcessU16", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessU16), null, expression);
                 case PayloadType.S16:
-                    return Expression.Call(typeof(Parse), "ProcessI16", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessS16), null, expression);
                 case PayloadType.U32:
-                    return Expression.Call(typeof(Parse), "ProcessU32", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessU32), null, expression);
                 case PayloadType.S32:
-                    return Expression.Call(typeof(Parse), "ProcessI32", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessS32), null, expression);
                 case PayloadType.U64:
-                    return Expression.Call(typeof(Parse), "ProcessU64", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessU64), null, expression);
                 case PayloadType.S64:
-                    return Expression.Call(typeof(Parse), "ProcessI64", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessS64), null, expression);
                 case PayloadType.Float:
-                    return Expression.Call(typeof(Parse), "ProcessFloat", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessFloat), null, expression);
                 case PayloadType.Timestamp:
-                    return Expression.Call(typeof(Parse), "ProcessTimestamp", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessTimestamp), null, expression);
                 case PayloadType.TimestampedU8:
-                    return Expression.Call(typeof(Parse), "ProcessTimestampedU8", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessTimestampedU8), null, expression);
                 case PayloadType.TimestampedS8:
-                    return Expression.Call(typeof(Parse), "ProcessTimestampedI8", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessTimestampedS8), null, expression);
                 case PayloadType.TimestampedU16:
-                    return Expression.Call(typeof(Parse), "ProcessTimestampedU16", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessTimestampedU16), null, expression);
                 case PayloadType.TimestampedS16:
-                    return Expression.Call(typeof(Parse), "ProcessTimestampedI16", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessTimestampedS16), null, expression);
                 case PayloadType.TimestampedU32:
-                    return Expression.Call(typeof(Parse), "ProcessTimestampedU32", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessTimestampedU32), null, expression);
                 case PayloadType.TimestampedS32:
-                    return Expression.Call(typeof(Parse), "ProcessTimestampedI32", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessTimestampedS32), null, expression);
                 case PayloadType.TimestampedU64:
-                    return Expression.Call(typeof(Parse), "ProcessTimestampedU64", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessTimestampedU64), null, expression);
                 case PayloadType.TimestampedS64:
-                    return Expression.Call(typeof(Parse), "ProcessTimestampedI64", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessTimestampedS64), null, expression);
                 case PayloadType.TimestampedFloat:
-                    return Expression.Call(typeof(Parse), "ProcessTimestampedFloat", null, expression);
+                    return Expression.Call(typeof(Parse), nameof(ProcessTimestampedFloat), null, expression);
                 default:
-                    throw new InvalidOperationException("Invalid harp data type.");
+                    throw new InvalidOperationException("Invalid Harp payload type.");
             }
         }
 
-        static double ParseTimestamp(HarpMessage input)
-        {
-            if (input.IsTimestamped)
-            {
-                var seconds = BitConverter.ToUInt32(input.MessageBytes, 5);
-                var microseconds = BitConverter.ToUInt16(input.MessageBytes, 5 + 4);
-                return seconds + microseconds * 32e-6;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
-        static bool CheckForErrors(HarpMessage input, PayloadType typeExpected)
+        static void CheckErrors(HarpMessage input, PayloadType typeExpected)
         {
             if (input.Error)
             {
-                throw new InvalidOperationException("Harp Message has an error.");
-            }
-
-            if (input.IsTimestamped)
-            {
-                if (input.MessageBytes[1] == 10)
-                {
-                    throw new InvalidOperationException("Harp Message don't have payload.");
-                }
-            }
-            else
-            {
-                if (input.MessageBytes[1] == 4)
-                {
-                    throw new InvalidOperationException("Harp Message don't have payload.");
-                }
-            }
-
-            if ((input.PayloadType & ~PayloadType.Timestamp) != typeExpected)
-            {
-                throw new InvalidOperationException("Type mismatch.");
+                throw new InvalidOperationException("The Harp message is an error report.");
             }
 
             if (!input.IsValid)
             {
-                throw new InvalidOperationException("Harp Message is not valid.");
+                throw new InvalidOperationException("The Harp message is not valid.");
             }
 
-            return false;
+            var payloadLength = input.GetPayload().Count;
+            if (payloadLength == 0)
+            {
+                throw new InvalidOperationException("The Harp message doesn't have a payload.");
+            }
+
+            if ((input.PayloadType & ~PayloadType.Timestamp) != typeExpected)
+            {
+                throw new InvalidOperationException("Payload type mismatch.");
+            }
         }
 
         static byte ProcessU8(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.U8);
-            return input.IsTimestamped ? input.MessageBytes[11] : input.MessageBytes[5];
+            CheckErrors(input, PayloadType.U8);
+            return input.GetPayloadByte();
         }
 
         static Timestamped<byte> ProcessTimestampedU8(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.U8);
-            var timestamp = ParseTimestamp(input);            
-            var value = input.IsTimestamped ? input.MessageBytes[11] : input.MessageBytes[5];
+            CheckErrors(input, PayloadType.U8);
+            var value = input.GetPayloadByte(out double timestamp);
             return new Timestamped<byte>(value, timestamp);
         }
 
-        static sbyte ProcessI8(HarpMessage input)
+        static sbyte ProcessS8(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.S8);
-            return input.IsTimestamped ? (sbyte)input.MessageBytes[11] : (sbyte)input.MessageBytes[5];
+            CheckErrors(input, PayloadType.S8);
+            return input.GetPayloadSByte();
         }
 
-        static Timestamped<sbyte> ProcessTimestampedI8(HarpMessage input)
+        static Timestamped<sbyte> ProcessTimestampedS8(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.S8);
-            var timestamp = ParseTimestamp(input);
-            var value = input.IsTimestamped ? (sbyte)input.MessageBytes[11] : (sbyte)input.MessageBytes[5];
+            CheckErrors(input, PayloadType.S8);
+            var value = input.GetPayloadSByte(out double timestamp);
             return new Timestamped<sbyte>(value, timestamp);
         }
 
         static ushort ProcessU16(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.U16);
-            return input.IsTimestamped ? BitConverter.ToUInt16(input.MessageBytes, 11) : BitConverter.ToUInt16(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.U16);
+            return input.GetPayloadUInt16();
         }
 
         static Timestamped<ushort> ProcessTimestampedU16(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.U16);
-            var timestamp = ParseTimestamp(input);
-            var value = input.IsTimestamped ? BitConverter.ToUInt16(input.MessageBytes, 11) : BitConverter.ToUInt16(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.U16);
+            var value = input.GetPayloadUInt16(out double timestamp);
             return new Timestamped<ushort>(value, timestamp);
         }
 
-        static short ProcessI16(HarpMessage input)
+        static short ProcessS16(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.S16);
-            return input.IsTimestamped ? BitConverter.ToInt16(input.MessageBytes, 11) : BitConverter.ToInt16(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.S16);
+            return input.GetPayloadInt16();
         }
 
-        static Timestamped<short> ProcessTimestampedI16(HarpMessage input)
+        static Timestamped<short> ProcessTimestampedS16(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.S16);
-            var timestamp = ParseTimestamp(input);
-            var value = input.IsTimestamped ? BitConverter.ToInt16(input.MessageBytes, 11) : BitConverter.ToInt16(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.S16);
+            var value = input.GetPayloadInt16(out double timestamp);
             return new Timestamped<short>(value, timestamp);
         }
 
         static uint ProcessU32(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.U32);
-            return input.IsTimestamped ? BitConverter.ToUInt32(input.MessageBytes, 11) : BitConverter.ToUInt32(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.U32);
+            return input.GetPayloadUInt32();
         }
 
         static Timestamped<uint> ProcessTimestampedU32(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.U32);
-            var timestamp = ParseTimestamp(input);
-            var value = input.IsTimestamped ? BitConverter.ToUInt32(input.MessageBytes, 11) : BitConverter.ToUInt32(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.U32);
+            var value = input.GetPayloadUInt32(out double timestamp);
             return new Timestamped<uint>(value, timestamp);
         }
 
-        static int ProcessI32(HarpMessage input)
+        static int ProcessS32(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.S32);
-            return input.IsTimestamped ? BitConverter.ToInt32(input.MessageBytes, 11) : BitConverter.ToInt32(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.S32);
+            return input.GetPayloadInt32();
         }
 
-        static Timestamped<int> ProcessTimestampedI32(HarpMessage input)
+        static Timestamped<int> ProcessTimestampedS32(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.S32);
-            var timestamp = ParseTimestamp(input);
-            var value = input.IsTimestamped ? BitConverter.ToInt32(input.MessageBytes, 11) : BitConverter.ToInt32(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.S32);
+            var value = input.GetPayloadInt32(out double timestamp);
             return new Timestamped<int>(value, timestamp);
         }
 
         static ulong ProcessU64(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.U64);
-            return input.IsTimestamped ? BitConverter.ToUInt64(input.MessageBytes, 11) : BitConverter.ToUInt64(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.U64);
+            return input.GetPayloadUInt64();
         }
 
         static Timestamped<ulong> ProcessTimestampedU64(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.U64);
-            var timestamp = ParseTimestamp(input);
-            var value = input.IsTimestamped ? BitConverter.ToUInt64(input.MessageBytes, 11) : BitConverter.ToUInt64(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.U64);
+            var value = input.GetPayloadUInt64(out double timestamp);
             return new Timestamped<ulong>(value, timestamp);
         }
 
-        static long ProcessI64(HarpMessage input)
+        static long ProcessS64(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.S64);
-            return input.IsTimestamped ? BitConverter.ToInt64(input.MessageBytes, 11) : BitConverter.ToInt64(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.S64);
+            return input.GetPayloadInt64();
         }
 
-        static Timestamped<long> ProcessTimestampedI64(HarpMessage input)
+        static Timestamped<long> ProcessTimestampedS64(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.S64);
-            var timestamp = ParseTimestamp(input);
-            var value = input.IsTimestamped ? BitConverter.ToInt64(input.MessageBytes, 11) : BitConverter.ToInt64(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.S64);
+            var value = input.GetPayloadInt64(out double timestamp);
             return new Timestamped<long>(value, timestamp);
         }
 
         static float ProcessFloat(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.Float);
-            return input.IsTimestamped ? BitConverter.ToSingle(input.MessageBytes, 11): BitConverter.ToSingle(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.Float);
+            return input.GetPayloadSingle();
         }
 
         static Timestamped<float> ProcessTimestampedFloat(HarpMessage input)
         {
-            CheckForErrors(input, PayloadType.Float);
-            var timestamp = ParseTimestamp(input);
-            var value = input.IsTimestamped ? BitConverter.ToSingle(input.MessageBytes, 11) : BitConverter.ToSingle(input.MessageBytes, 5);
+            CheckErrors(input, PayloadType.Float);
+            var value = input.GetPayloadSingle(out double timestamp);
             return new Timestamped<float>(value, timestamp);
         }
 
@@ -242,21 +208,15 @@ namespace Bonsai.Harp
         {
             if (input.Error)
             {
-                throw new InvalidOperationException("Harp Message has an error.");
-            }
-
-            if (!input.IsTimestamped)
-            {
-                throw new InvalidOperationException("Harp Message don't have timestamp.");
+                throw new InvalidOperationException("The Harp message is an error report.");
             }
 
             if (!input.IsValid)
             {
-                throw new InvalidOperationException("Harp Message is not valid.");
+                throw new InvalidOperationException("The Harp message is not valid.");
             }
 
-            var timestamp = ParseTimestamp(input);
-            return timestamp;
+            return input.GetTimestamp();
         }
     }
 }

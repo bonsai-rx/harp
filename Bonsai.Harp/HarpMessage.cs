@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Bonsai.Harp
 {
@@ -113,8 +113,7 @@ namespace Bonsai.Harp
 
         public double GetTimestamp()
         {
-            double timestamp;
-            if (!TryGetTimestamp(out timestamp))
+            if (!TryGetTimestamp(out double timestamp))
             {
                 throw new InvalidOperationException("This Harp message does not have a timestamped payload.");
             }
@@ -133,7 +132,7 @@ namespace Bonsai.Harp
             }
             else
             {
-                timestamp = default(double);
+                timestamp = default;
                 return false;
             }
         }
@@ -153,15 +152,27 @@ namespace Bonsai.Harp
             return checksum;
         }
 
-        int PayloadLength
+        int GetPayloadLength(int payloadOffset)
         {
-            get { return MessageBytes.Length - PayloadOffset - ChecksumSize; }
+            return MessageBytes.Length - payloadOffset - ChecksumSize;
         }
 
         void GetPayloadOffset(out int payloadOffset, out int payloadLength)
         {
             payloadOffset = PayloadOffset;
-            payloadLength = MessageBytes.Length - payloadOffset - ChecksumSize;
+            payloadLength = GetPayloadLength(payloadOffset);
+        }
+
+        public ArraySegment<byte> GetPayload()
+        {
+            GetPayloadOffset(out int payloadOffset, out int payloadLength);
+            return new ArraySegment<byte>(MessageBytes, payloadOffset, payloadLength);
+        }
+
+        public ArraySegment<byte> GetPayload(out double timestamp)
+        {
+            timestamp = GetTimestamp();
+            return new ArraySegment<byte>(MessageBytes, TimestampedOffset, GetPayloadLength(TimestampedOffset));
         }
 
         public unsafe TArray[] GetPayload<TArray>() where TArray : unmanaged
@@ -172,9 +183,23 @@ namespace Bonsai.Harp
             return value;
         }
 
+        public unsafe TArray[] GetPayload<TArray>(out double timestamp) where TArray : unmanaged
+        {
+            timestamp = GetTimestamp();
+            var payloadLength = GetPayloadLength(TimestampedOffset);
+            var value = new TArray[payloadLength / sizeof(TArray)];
+            Buffer.BlockCopy(MessageBytes, TimestampedOffset, value, 0, payloadLength);
+            return value;
+        }
+
         public unsafe void GetPayload<TArray>(TArray[] value) where TArray : unmanaged
         {
             GetPayload(value, 0);
+        }
+
+        public unsafe void GetPayload<TArray>(TArray[] value, out double timestamp) where TArray : unmanaged
+        {
+            GetPayload(value, 0, out timestamp);
         }
 
         public unsafe void GetPayload<TArray>(TArray[] value, int index) where TArray : unmanaged
@@ -183,9 +208,22 @@ namespace Bonsai.Harp
             Buffer.BlockCopy(MessageBytes, payloadOffset, value, index * sizeof(TArray), payloadLength);
         }
 
+        public unsafe void GetPayload<TArray>(TArray[] value, int index, out double timestamp) where TArray : unmanaged
+        {
+            timestamp = GetTimestamp();
+            var payloadLength = GetPayloadLength(TimestampedOffset);
+            Buffer.BlockCopy(MessageBytes, TimestampedOffset, value, index * sizeof(TArray), payloadLength);
+        }
+
         public byte GetPayloadByte()
         {
             return MessageBytes[PayloadOffset];
+        }
+
+        public byte GetPayloadByte(out double timestamp)
+        {
+            timestamp = GetTimestamp();
+            return MessageBytes[TimestampedOffset];
         }
 
         public sbyte GetPayloadSByte()
@@ -193,9 +231,21 @@ namespace Bonsai.Harp
             return (sbyte)MessageBytes[PayloadOffset];
         }
 
+        public sbyte GetPayloadSByte(out double timestamp)
+        {
+            timestamp = GetTimestamp();
+            return (sbyte)MessageBytes[TimestampedOffset];
+        }
+
         public ushort GetPayloadUInt16()
         {
             return BitConverter.ToUInt16(MessageBytes, PayloadOffset);
+        }
+
+        public ushort GetPayloadUInt16(out double timestamp)
+        {
+            timestamp = GetTimestamp();
+            return BitConverter.ToUInt16(MessageBytes, TimestampedOffset);
         }
 
         public short GetPayloadInt16()
@@ -203,9 +253,21 @@ namespace Bonsai.Harp
             return BitConverter.ToInt16(MessageBytes, PayloadOffset);
         }
 
+        public short GetPayloadInt16(out double timestamp)
+        {
+            timestamp = GetTimestamp();
+            return BitConverter.ToInt16(MessageBytes, TimestampedOffset);
+        }
+
         public uint GetPayloadUInt32()
         {
             return BitConverter.ToUInt32(MessageBytes, PayloadOffset);
+        }
+
+        public uint GetPayloadUInt32(out double timestamp)
+        {
+            timestamp = GetTimestamp();
+            return BitConverter.ToUInt32(MessageBytes, TimestampedOffset);
         }
 
         public int GetPayloadInt32()
@@ -213,9 +275,21 @@ namespace Bonsai.Harp
             return BitConverter.ToInt32(MessageBytes, PayloadOffset);
         }
 
+        public int GetPayloadInt32(out double timestamp)
+        {
+            timestamp = GetTimestamp();
+            return BitConverter.ToInt32(MessageBytes, TimestampedOffset);
+        }
+
         public ulong GetPayloadUInt64()
         {
             return BitConverter.ToUInt64(MessageBytes, PayloadOffset);
+        }
+
+        public ulong GetPayloadUInt64(out double timestamp)
+        {
+            timestamp = GetTimestamp();
+            return BitConverter.ToUInt64(MessageBytes, TimestampedOffset);
         }
 
         public long GetPayloadInt64()
@@ -223,9 +297,21 @@ namespace Bonsai.Harp
             return BitConverter.ToInt64(MessageBytes, PayloadOffset);
         }
 
+        public long GetPayloadInt64(out double timestamp)
+        {
+            timestamp = GetTimestamp();
+            return BitConverter.ToInt64(MessageBytes, TimestampedOffset);
+        }
+
         public float GetPayloadSingle()
         {
             return BitConverter.ToSingle(MessageBytes, PayloadOffset);
+        }
+
+        public float GetPayloadSingle(out double timestamp)
+        {
+            timestamp = GetTimestamp();
+            return BitConverter.ToSingle(MessageBytes, TimestampedOffset);
         }
 
         static HarpMessage FromBytes(double timestamp, params byte[] messageBytes)
