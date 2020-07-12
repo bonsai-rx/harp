@@ -1,5 +1,5 @@
 .vs
 .suo
+.nuget
 bin
 obj
-packages
