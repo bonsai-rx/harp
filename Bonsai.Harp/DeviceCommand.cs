@@ -1,11 +1,6 @@
 ﻿using Bonsai.Expressions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq.Expressions;
-using System.Reactive.Linq;
 using System.ComponentModel;
 
 /* Commands should try to convert the input to the used input type.
