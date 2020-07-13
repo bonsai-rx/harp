@@ -16,9 +16,35 @@ namespace Bonsai.Harp
         [Description("The type of payload data to parse.")]
         public PayloadType Type { get; set; }
 
+        [Description("Indicates whether the payload is an array.")]
+        public bool IsArray { get; set; }
+
         protected override Expression BuildSelector(Expression expression)
         {
-            switch (Type)
+            var payloadType = Type;
+            if (IsArray && payloadType != PayloadType.Timestamp)
+            {
+                Type arrayType;
+                var baseType = (payloadType & ~PayloadType.Timestamp);
+                var timestamped = (payloadType & PayloadType.Timestamp) == PayloadType.Timestamp;
+                var methodName = timestamped ? nameof(ProcessTimestampedArray) : nameof(ProcessArray);
+                switch (baseType)
+                {
+                    case PayloadType.U8: arrayType = typeof(byte); break;
+                    case PayloadType.S8: arrayType = typeof(sbyte); break;
+                    case PayloadType.U16: arrayType = typeof(ushort); break;
+                    case PayloadType.S16: arrayType = typeof(short); break;
+                    case PayloadType.U32: arrayType = typeof(uint); break;
+                    case PayloadType.S32: arrayType = typeof(int); break;
+                    case PayloadType.U64: arrayType = typeof(ulong); break;
+                    case PayloadType.S64: arrayType = typeof(long); break;
+                    case PayloadType.Float: arrayType = typeof(float); break;
+                    default: throw new InvalidOperationException("Invalid Harp payload array type.");
+                }
+                return Expression.Call(typeof(Parse), methodName, new[] { arrayType }, expression);
+            }
+
+            switch (payloadType)
             {
                 case PayloadType.U8:
                     return Expression.Call(typeof(Parse), nameof(ProcessU8), null, expression);
@@ -85,6 +111,17 @@ namespace Bonsai.Harp
             {
                 throw new InvalidOperationException("Payload type mismatch.");
             }
+        }
+
+        static TArray[] ProcessArray<TArray>(HarpMessage input) where TArray : unmanaged
+        {
+            return input.GetPayload<TArray>();
+        }
+
+        static Timestamped<TArray[]> ProcessTimestampedArray<TArray>(HarpMessage input) where TArray : unmanaged
+        {
+            var value = input.GetPayload<TArray>(out double timestamp);
+            return new Timestamped<TArray[]>(value, timestamp);
         }
 
         static byte ProcessU8(HarpMessage input)
