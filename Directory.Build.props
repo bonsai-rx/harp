@@ -4,7 +4,7 @@
     <Authors>Filipe Carvalho, Gonçalo Lopes</Authors>
     <Copyright>Copyright © Filipe Carvalho, Gonçalo Lopes 2017-2020</Copyright>
     <ProjectUrl>https://github.com/bonsai-rx/harp</ProjectUrl>
-    <PackageLicenseUrl>https://bonsai-rx.org/license</PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/bonsai-rx/harp/blob/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl>https://github.com/bonsai-rx/harp/blob/master/Resources/Harp.png</PackageIconUrl>
     <IncludeSymbols Condition="'$(Configuration)'=='Release'">true</IncludeSymbols>
     <GeneratePackageOnBuild Condition="'$(Configuration)'=='Release'">true</GeneratePackageOnBuild>
