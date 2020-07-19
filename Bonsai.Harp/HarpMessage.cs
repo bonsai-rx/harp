@@ -334,27 +334,27 @@ namespace Bonsai.Harp
             return new HarpMessage(messageBytes);
         }
 
-        static HarpMessage FromArray(MessageType messageType, int address, int port, PayloadType payloadType, Array values)
+        static HarpMessage FromPayload(int address, int port, MessageType messageType, PayloadType payloadType, Array payload)
         {
-            var payloadSize = values.Length * (0xF & (byte)payloadType);
+            var payloadSize = payload.Length * (0xF & (byte)payloadType);
             var messageBytes = new byte[BaseOffset + payloadSize + ChecksumSize];
             messageBytes[0] = (byte)messageType;
             messageBytes[2] = (byte)address;
             messageBytes[3] = (byte)port;
             messageBytes[4] = (byte)payloadType;
-            Buffer.BlockCopy(values, 0, messageBytes, BaseOffset, payloadSize);
+            Buffer.BlockCopy(payload, 0, messageBytes, BaseOffset, payloadSize);
             return FromBytes(messageBytes);
         }
 
-        static HarpMessage FromArray(MessageType messageType, int address, int port, double timestamp, PayloadType payloadType, Array values)
+        static HarpMessage FromPayload(int address, int port, double timestamp, MessageType messageType, PayloadType payloadType, Array payload)
         {
-            var payloadSize = values.Length * (0xF & (byte)payloadType);
+            var payloadSize = payload.Length * (0xF & (byte)payloadType);
             var messageBytes = new byte[TimestampedOffset + payloadSize + ChecksumSize];
             messageBytes[0] = (byte)messageType;
             messageBytes[2] = (byte)address;
             messageBytes[3] = (byte)port;
             messageBytes[4] = (byte)payloadType;
-            Buffer.BlockCopy(values, 0, messageBytes, TimestampedOffset, payloadSize);
+            Buffer.BlockCopy(payload, 0, messageBytes, TimestampedOffset, payloadSize);
             return FromBytes(timestamp, messageBytes);
         }
 
@@ -393,7 +393,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromByte(int address, int port, MessageType messageType, params byte[] values)
         {
-            return FromArray(messageType, address, port, PayloadType.U8, values);
+            return FromPayload(address, port, messageType, PayloadType.U8, values);
         }
 
         public static HarpMessage FromByte(int address, double timestamp, MessageType messageType, params byte[] values)
@@ -403,7 +403,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromByte(int address, int port, double timestamp, MessageType messageType, params byte[] values)
         {
-            return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedU8, values);
+            return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedU8, values);
         }
 
         public static HarpMessage FromSByte(int address, MessageType messageType, sbyte value)
@@ -441,7 +441,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromSByte(int address, int port, MessageType messageType, params sbyte[] values)
         {
-            return FromArray(messageType, address, port, PayloadType.U8, values);
+            return FromPayload(address, port, messageType, PayloadType.U8, values);
         }
 
         public static HarpMessage FromSByte(int address, double timestamp, MessageType messageType, params sbyte[] values)
@@ -451,7 +451,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromSByte(int address, int port, double timestamp, MessageType messageType, params sbyte[] values)
         {
-            return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedU8, values);
+            return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedU8, values);
         }
 
         public static HarpMessage FromUInt16(int address, MessageType messageType, ushort value)
@@ -490,7 +490,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromUInt16(int address, int port, MessageType messageType, params ushort[] values)
         {
-            return FromArray(messageType, address, port, PayloadType.U16, values);
+            return FromPayload(address, port, messageType, PayloadType.U16, values);
         }
 
         public static HarpMessage FromUInt16(int address, double timestamp, MessageType messageType, params ushort[] values)
@@ -500,7 +500,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromUInt16(int address, int port, double timestamp, MessageType messageType, params ushort[] values)
         {
-            return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedU16, values);
+            return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedU16, values);
         }
 
         public static HarpMessage FromInt16(int address, MessageType messageType, short value)
@@ -539,7 +539,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromInt16(int address, int port, MessageType messageType, params short[] values)
         {
-            return FromArray(messageType, address, port, PayloadType.S16, values);
+            return FromPayload(address, port, messageType, PayloadType.S16, values);
         }
 
         public static HarpMessage FromInt16(int address, double timestamp, MessageType messageType, params short[] values)
@@ -549,7 +549,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromInt16(int address, int port, double timestamp, MessageType messageType, params short[] values)
         {
-            return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedS16, values);
+            return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedS16, values);
         }
 
         public static HarpMessage FromUInt32(int address, MessageType messageType, uint value)
@@ -599,7 +599,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromUInt32(int address, int port, MessageType messageType, params uint[] values)
         {
-            return FromArray(messageType, address, port, PayloadType.U32, values);
+            return FromPayload(address, port, messageType, PayloadType.U32, values);
         }
 
         public static HarpMessage FromUInt32(int address, double timestamp, MessageType messageType, params uint[] values)
@@ -609,7 +609,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromUInt32(int address, int port, double timestamp, MessageType messageType, params uint[] values)
         {
-            return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedU32, values);
+            return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedU32, values);
         }
 
         public static HarpMessage FromInt32(int address, MessageType messageType, int value)
@@ -659,7 +659,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromInt32(int address, int port, MessageType messageType, params int[] values)
         {
-            return FromArray(messageType, address, port, PayloadType.S32, values);
+            return FromPayload(address, port, messageType, PayloadType.S32, values);
         }
 
         public static HarpMessage FromInt32(int address, double timestamp, MessageType messageType, params int[] values)
@@ -669,7 +669,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromInt32(int address, int port, double timestamp, MessageType messageType, params int[] values)
         {
-            return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedS32, values);
+            return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedS32, values);
         }
 
         public static HarpMessage FromUInt64(int address, MessageType messageType, ulong value)
@@ -727,7 +727,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromUInt64(int address, int port, MessageType messageType, params ulong[] values)
         {
-            return FromArray(messageType, address, port, PayloadType.U64, values);
+            return FromPayload(address, port, messageType, PayloadType.U64, values);
         }
 
         public static HarpMessage FromUInt64(int address, double timestamp, MessageType messageType, params ulong[] values)
@@ -737,7 +737,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromUInt64(int address, int port, double timestamp, MessageType messageType, params ulong[] values)
         {
-            return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedU64, values);
+            return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedU64, values);
         }
 
         public static HarpMessage FromInt64(int address, MessageType messageType, long value)
@@ -795,7 +795,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromInt64(int address, int port, MessageType messageType, params long[] values)
         {
-            return FromArray(messageType, address, port, PayloadType.S64, values);
+            return FromPayload(address, port, messageType, PayloadType.S64, values);
         }
 
         public static HarpMessage FromInt64(int address, double timestamp, MessageType messageType, params long[] values)
@@ -805,7 +805,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromInt64(int address, int port, double timestamp, MessageType messageType, params long[] values)
         {
-            return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedS64, values);
+            return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedS64, values);
         }
 
         public static HarpMessage FromSingle(int address, MessageType messageType, params float[] values)
@@ -815,7 +815,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromSingle(int address, int port, MessageType messageType, params float[] values)
         {
-            return FromArray(messageType, address, port, PayloadType.Float, values);
+            return FromPayload(address, port, messageType, PayloadType.Float, values);
         }
 
         public static HarpMessage FromSingle(int address, double timestamp, MessageType messageType, params float[] values)
@@ -825,7 +825,7 @@ namespace Bonsai.Harp
 
         public static HarpMessage FromSingle(int address, int port, double timestamp, MessageType messageType, params float[] values)
         {
-            return FromArray(messageType, address, port, timestamp, PayloadType.TimestampedFloat, values);
+            return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedFloat, values);
         }
     }
 }
