@@ -5,6 +5,7 @@ namespace Bonsai.Harp
 {
     class SerialTransport : StreamTransport, IDisposable
     {
+        const int DefaultBaudRate = 1000000;
         const int DefaultReadBufferSize = 1048576; // 2^20 = 1 MB
         readonly SerialPort serialPort;
         bool disposed;
@@ -12,8 +13,7 @@ namespace Bonsai.Harp
         public SerialTransport(string portName, IObserver<HarpMessage> observer)
             : base(observer)
         {
-            //serialPort = new SerialPort(portName, 2000000, Parity.None, 8, StopBits.One);
-            serialPort = new SerialPort(portName, 1000000, Parity.None, 8, StopBits.One);
+            serialPort = new SerialPort(portName, DefaultBaudRate, Parity.None, 8, StopBits.One);
             serialPort.ReadBufferSize = DefaultReadBufferSize;
             serialPort.Handshake = Handshake.RequestToSend;
             serialPort.DataReceived += serialPort_DataReceived;
@@ -37,15 +37,7 @@ namespace Bonsai.Harp
 
         void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            try
-            {
-                ReceiveData(serialPort.BaseStream, serialPort.ReadBufferSize, serialPort.BytesToRead);
-            }
-
-            catch (Exception exception)
-            {
-                //Console.WriteLine("{0} Exception caught.", exception);
-            }
+            ReceiveData(serialPort.BaseStream, serialPort.ReadBufferSize, serialPort.BytesToRead);
         }
 
         public void Close()

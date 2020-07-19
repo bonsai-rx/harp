@@ -18,12 +18,7 @@ namespace Bonsai.Harp
 
         public StreamTransport(IObserver<HarpMessage> observer)
         {
-            if (observer == null)
-            {
-                throw new ArgumentNullException("observer");
-            }
-
-            this.observer = observer;
+            this.observer = observer ?? throw new ArgumentNullException(nameof(observer));
         }
 
         public bool IgnoreErrors { get; set; }
@@ -49,75 +44,6 @@ namespace Bonsai.Harp
                     return false;
 
             return true;
-        }
-
-        static void ProcessThrowException(HarpMessage message)
-        {
-            if (message.Error)
-            {
-                string payload;
-                bool errorOnType = false;
-
-                try
-                {
-                    switch ((PayloadType)(message.MessageBytes[4] & ~0x10))
-                    {
-                        case PayloadType.U8:
-                            payload = ((byte)(message.MessageBytes[11])).ToString();
-                            break;
-                        case PayloadType.S8:
-                            payload = ((sbyte)(message.MessageBytes[11])).ToString();
-                            break;
-                        case PayloadType.U16:
-                            payload = (BitConverter.ToUInt16(message.MessageBytes, 11)).ToString();
-                            break;
-                        case PayloadType.S16:
-                            payload = (BitConverter.ToInt16(message.MessageBytes, 11)).ToString();
-                            break;
-                        case PayloadType.U32:
-                            payload = (BitConverter.ToUInt32(message.MessageBytes, 11)).ToString();
-                            break;
-                        case PayloadType.S32:
-                            payload = (BitConverter.ToInt32(message.MessageBytes, 11)).ToString();
-                            break;
-                        case PayloadType.U64:
-                            payload = (BitConverter.ToUInt64(message.MessageBytes, 11)).ToString();
-                            break;
-                        case PayloadType.S64:
-                            payload = (BitConverter.ToInt64(message.MessageBytes, 11)).ToString();
-                            break;
-                        case PayloadType.Float:
-                            payload = (BitConverter.ToSingle(message.MessageBytes, 11)).ToString();
-                            break;
-
-                        default:
-                            payload = "";
-                            break;
-                    }
-                }
-                catch (Exception)
-                {
-                    errorOnType = true;
-                    payload = "";
-                }
-
-
-                string exception;
-                var payloadType = message.PayloadType & ~PayloadType.Timestamp;
-                string note = "\n\nNote: If the Payload is an array only the first value is shown here.";
-                if (message.MessageType == MessageType.Write)
-                {
-                    exception = "The device reported an erroneous write command. Check the command details bellow for clues.\nPayload: " + payload + ", Address: " + message.Address + ", Type: " + payloadType + "." + note;
-                }
-                else
-                {
-                    if (errorOnType)
-                        exception = "The device reported an erroneous read command.\nType not correct for address " + message.Address + ".";
-                    else
-                        exception = "The device reported an erroneous read command. Check the command details bellow for clues.\nAddress: " + message.Address + ", Type: " + payloadType + "." + note;
-                }
-                throw new InvalidOperationException(exception);
-            }
         }
 
         internal void ReceiveData(Stream stream, int readBufferSize, int bytesToRead)
@@ -154,7 +80,7 @@ namespace Bonsai.Harp
                                 notAbleToParse = false;
 
                                 var dataFrame = new HarpMessage(currentMessage);
-                                if (!IgnoreErrors) ProcessThrowException(dataFrame);
+                                if (dataFrame.Error && !IgnoreErrors) throw new HarpException(dataFrame);
                                 observer.OnNext(dataFrame);
                             }
                             else
