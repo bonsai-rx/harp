@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Harp
 {
+    [Obsolete]
     [Description("Creates a new Harp message.")]
     public class CreateHarpMessage : Source<HarpMessage>
     {

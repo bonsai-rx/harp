@@ -358,6 +358,26 @@ namespace Bonsai.Harp
             return FromBytes(timestamp, messageBytes);
         }
 
+        public static HarpMessage FromPayload(int address, MessageType messageType, PayloadType payloadType, params byte[] payload)
+        {
+            return FromPayload(address, DevicePort, messageType, payloadType, payload);
+        }
+
+        public static HarpMessage FromPayload(int address, int port, MessageType messageType, PayloadType payloadType, params byte[] payload)
+        {
+            return FromPayload(address, port, messageType, payloadType, payload);
+        }
+
+        public static HarpMessage FromPayload(int address, double timestamp, MessageType messageType, PayloadType payloadType, params byte[] payload)
+        {
+            return FromPayload(address, DevicePort, timestamp, messageType, payloadType, payload);
+        }
+
+        public static HarpMessage FromPayload(int address, int port, double timestamp, MessageType messageType, PayloadType payloadType, params byte[] payload)
+        {
+            return FromPayload(address, port, timestamp, messageType, payloadType, payload);
+        }
+
         public static HarpMessage FromByte(int address, MessageType messageType, byte value)
         {
             return FromByte(address, DevicePort, messageType, value);

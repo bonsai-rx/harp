@@ -1,0 +1,84 @@
+﻿using Bonsai.Expressions;
+using System;
+using System.ComponentModel;
+using System.Linq.Expressions;
+
+namespace Bonsai.Harp
+{
+    [Description("Formats input data as a Harp message.")]
+    public class Format : SelectBuilder
+    {
+        public Format()
+        {
+            Address = 32;
+            MessageType = MessageType.Write;
+            PayloadType = PayloadType.U8;
+        }
+
+        [Description("The type of the Harp message.")]
+        public MessageType MessageType { get; set; }
+
+        [Description("The address of the register to which the Harp message refers to.")]
+        public int Address { get; set; }
+
+        [Description("The type of data to include in the message payload.")]
+        public PayloadType PayloadType { get; set; }
+
+        protected override Expression BuildSelector(Expression expression)
+        {
+            Expression[] arguments;
+            var payloadType = PayloadType;
+            var baseType = payloadType & ~PayloadType.Timestamp;
+            var timestamped = (payloadType & PayloadType.Timestamp) == PayloadType.Timestamp;
+            var address = Expression.Constant(Address);
+            var messageType = Expression.Constant(MessageType);
+            if (timestamped)
+            {
+                var timestamp = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Seconds));
+                expression = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Value));
+                arguments = new[] { address, timestamp, messageType, expression };
+            }
+            else arguments = new[] { address, messageType, expression };
+
+            switch (baseType)
+            {
+                case PayloadType.U8:
+                    EnsurePayloadType(arguments, expression, typeof(byte));
+                    return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromByte), null, arguments);
+                case PayloadType.S8:
+                    EnsurePayloadType(arguments, expression, typeof(sbyte));
+                    return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromSByte), null, arguments);
+                case PayloadType.U16:
+                    EnsurePayloadType(arguments, expression, typeof(ushort));
+                    return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromUInt16), null, arguments);
+                case PayloadType.S16:
+                    EnsurePayloadType(arguments, expression, typeof(short));
+                    return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromInt16), null, arguments);
+                case PayloadType.U32:
+                    EnsurePayloadType(arguments, expression, typeof(uint));
+                    return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromUInt32), null, arguments);
+                case PayloadType.S32:
+                    EnsurePayloadType(arguments, expression, typeof(int));
+                    return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromInt32), null, arguments);
+                case PayloadType.U64:
+                    EnsurePayloadType(arguments, expression, typeof(ulong));
+                    return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromUInt64), null, arguments);
+                case PayloadType.S64:
+                    EnsurePayloadType(arguments, expression, typeof(long));
+                    return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromInt64), null, arguments);
+                case PayloadType.Float:
+                    EnsurePayloadType(arguments, expression, typeof(float));
+                    return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromSingle), null, arguments);
+                default:
+                    throw new InvalidOperationException("Invalid Harp payload type.");
+            }
+        }
+
+        static void EnsurePayloadType(Expression[] arguments, Expression payload, Type type)
+        {
+            if (type != typeof(float)) payload = payload.Type.IsArray ? payload : Expression.Convert(payload, type);
+            else payload = payload.Type.IsArray? payload : Expression.NewArrayInit(type, Expression.Convert(payload, type));
+            arguments[arguments.Length - 1] = payload;
+        }
+    }
+}
