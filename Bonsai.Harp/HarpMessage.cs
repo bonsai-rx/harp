@@ -63,44 +63,21 @@ namespace Bonsai.Harp
         {
             get
             {
-                var messageId = MessageType;
-                var payloadType = PayloadType;
-                var sizeOfType = (int)payloadType & 0x0F;
-                var payloadArrayLength = (MessageBytes.Length - 10) / sizeOfType;
+                // validate message type and length fields
+                var messageType = MessageType;
+                if (messageType < MessageType.Read || messageType > MessageType.Event) return false;
+                if (MessageBytes[1] != MessageBytes.Length - 2) return false;
 
-                if ((messageId != MessageType.Write) &&
-                    (messageId != MessageType.Read) &&
-                    (messageId != MessageType.Event) &&
-                    ((byte)messageId != ((byte)MessageType.Write | ErrorMask)) &&
-                    ((byte)messageId != ((byte)MessageType.Read | ErrorMask)))
-                {
-                    return false;
-                }
-
-                /* Check if the size of type is correct */
-                if ((sizeOfType != 1) && (sizeOfType != 2) && (sizeOfType != 4) && (sizeOfType != 8))
-                {
-                    return false;
-                }
-
-                /* Check if the payload length is an integer number */
-                if ((payloadArrayLength % 1) != 0)
-                {
-                    return false;
-                }
-
-                /* Bit 0x20 can't be high */
-                if (((int)payloadType & 0x20) == 0x20)
-                {
-                    return false;
-                }
+                // validate payload type flags (signed and float cannot both be HIGH, and 0x20 is invalid)
+                var payloadType = (int)PayloadType;
+                if ((payloadType & 0xC0) == 0xC0 || (payloadType & 0x20) == 0x20) return false;
                 
-                if (GetChecksum() != MessageBytes[MessageBytes.Length - 1])
-                {
-                    return false;
-                }
+                // base type must be a power of two
+                var baseType = payloadType & 0xF;
+                if (baseType == 0 || (baseType & (baseType - 1)) != 0) return false;
 
-                return true;
+                // validate checksum
+                return Checksum == GetChecksum(MessageBytes, MessageBytes.Length - 1);
             }
         }
 
@@ -135,11 +112,6 @@ namespace Bonsai.Harp
                 timestamp = default;
                 return false;
             }
-        }
-
-        public byte GetChecksum()
-        {
-            return GetChecksum(MessageBytes, MessageBytes.Length - 1);
         }
 
         static byte GetChecksum(byte[] messageBytes, int count)
