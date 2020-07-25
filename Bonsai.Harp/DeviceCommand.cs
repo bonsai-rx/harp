@@ -23,69 +23,49 @@ using System.ComponentModel;
 
 namespace Bonsai.Harp
 {
-    public enum DeviceCommandType : byte
-    {
-        Timestamp,
-        SynchronizeTimestamp
-    }
-
     [Description(
     "\n" +
     "Timestamp: Positive integer\n" +
     "SynchronizeTimestamp: Any\n"
     )]
-
     public class DeviceCommand : SelectBuilder, INamedElement
     {
-        public DeviceCommand()
-        {
-            Type = DeviceCommandType.SynchronizeTimestamp;
-        }
+        string INamedElement.Name => $"Device.{Type}";
 
-        string INamedElement.Name
-        {
-            get { return typeof(DeviceCommand).Name.Replace("Command", string.Empty) + "." + Type.ToString(); }
-        }
-
-        public DeviceCommandType Type { get; set; }
+        public DeviceCommandType Type { get; set; } = DeviceCommandType.SynchronizeTimestamp;
 
         protected override Expression BuildSelector(Expression expression)
         {
             switch (Type)
             {
-                /************************************************************************/
-                /* Register: R_TIMESTAMP_SECOND                                         */
-                /************************************************************************/
                 case DeviceCommandType.Timestamp:
-                    if (expression.Type != typeof(UInt32))
+                    if (expression.Type != typeof(uint))
                     {
-                        expression = Expression.Convert(expression, typeof(UInt32));
+                        expression = Expression.Convert(expression, typeof(uint));
                     }
-                    return Expression.Call(typeof(DeviceCommand), "ProcessWriteTimestamp", null, expression);
-
-
+                    return Expression.Call(typeof(DeviceCommand), nameof(WriteTimestamp), null, expression);
                 case DeviceCommandType.SynchronizeTimestamp:
-                    return Expression.Call(typeof(DeviceCommand), "ProcessSynchronizeTimestamp", new[] { expression.Type }, expression);
-
+                    return Expression.Call(typeof(DeviceCommand), nameof(SynchronizeTimestamp), null);
                 default:
-                    break;
+                    throw new InvalidOperationException("Invalid selection or not supported yet.");
             }
-            return expression;
         }
 
-        /************************************************************************/
-        /* Register: R_TIMESTAMP_SECOND                                         */
-        /************************************************************************/
-        static HarpMessage ProcessWriteTimestamp(UInt32 input)
+        static HarpMessage WriteTimestamp(uint input)
         {
-            return new HarpMessage(true, 2, 8, 8, 255, (byte)PayloadType.U32, (byte)(input & 255), (byte)((input >> 8) & 255), (byte)((input >> 16) & 255), (byte)((input >> 24) & 255), 0);
+            return HarpMessage.FromUInt32(Registers.TimestampSecond, MessageType.Write, input);
         }
 
-        static HarpMessage ProcessSynchronizeTimestamp<TSource>(TSource input)
+        static HarpMessage SynchronizeTimestamp()
         {
-            UInt32 unixTimestamp = (UInt32)(DateTime.UtcNow.Subtract(new DateTime(1904, 1, 1))).TotalSeconds;
-
-            return new HarpMessage(true, 2, 8, 8, 255, (byte)PayloadType.U32, (byte)(unixTimestamp & 255), (byte)((unixTimestamp >> 8) & 255), (byte)((unixTimestamp >> 16) & 255), (byte)((unixTimestamp >> 24) & 255), 0);
+            var unixTimestamp = (uint)(DateTime.UtcNow.Subtract(new DateTime(1904, 1, 1))).TotalSeconds;
+            return HarpMessage.FromUInt32(Registers.TimestampSecond, MessageType.Write, unixTimestamp);
         }
+    }
+
+    public enum DeviceCommandType : byte
+    {
+        Timestamp,
+        SynchronizeTimestamp
     }
 }

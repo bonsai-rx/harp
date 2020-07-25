@@ -88,6 +88,26 @@ namespace Bonsai.Harp
             get { return IsTimestamped ? TimestampedOffset : BaseOffset; }
         }
 
+        public bool IsMatch(int address)
+        {
+            return Address == address;
+        }
+
+        public bool IsMatch(int address, MessageType messageType)
+        {
+            return Address == address && MessageType == messageType;
+        }
+
+        public bool IsMatch(int address, PayloadType payloadType)
+        {
+            return Address == address && PayloadType == payloadType;
+        }
+
+        public bool IsMatch(int address, MessageType messageType, PayloadType payloadType)
+        {
+            return Address == address && MessageType == messageType && PayloadType == payloadType;
+        }
+
         public double GetTimestamp()
         {
             if (!TryGetTimestamp(out double timestamp))

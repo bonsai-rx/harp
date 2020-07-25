@@ -40,33 +40,17 @@ using System.ComponentModel;
 
 namespace Bonsai.Harp
 {
-    public enum DeviceEventType : byte
-    {
-        /* Event: TIMESTAMP_SECOND */
-        Heartbeat = 0,
-        MessageTimestamp
-    }
-
     [Description(
     "\n" +
     "Heartbeat: Integer\n" +
     "\n" +
     "MessageTimestamp: Double\n"
     )]
-
     public class DeviceEvent : SingleArgumentExpressionBuilder, INamedElement
     {
-        public DeviceEvent()
-        {
-            Type = DeviceEventType.Heartbeat;
-        }
+        string INamedElement.Name => $"Device.{Type}";
 
-        string INamedElement.Name
-        {
-            get { return typeof(DeviceEvent).Name.Replace("Event", string.Empty) + "." + Type.ToString(); }
-        }
-
-        public DeviceEventType Type { get; set; }
+        public DeviceEventType Type { get; set; } = DeviceEventType.Heartbeat;
 
         public override Expression Build(IEnumerable<Expression> expressions)
         {
@@ -74,26 +58,32 @@ namespace Bonsai.Harp
             switch (Type)
             {
                 case DeviceEventType.Heartbeat:
-                    return Expression.Call(typeof(DeviceEvent), "ProcessHeartbeat", null, expression);
+                    return Expression.Call(typeof(DeviceEvent), nameof(Heartbeat), null, expression);
                 case DeviceEventType.MessageTimestamp:
-                    return Expression.Call(typeof(DeviceEvent), "ProcessMessageTimestamp", null, expression);
-
+                    return Expression.Call(typeof(DeviceEvent), nameof(MessageTimestamp), null, expression);
                 default:
                     throw new InvalidOperationException("Invalid selection or not supported yet.");
             }
         }
 
-        static bool is_evt_timestamp(HarpMessage input) { return ((input.Address == 8) && (input.Error == false) && (input.MessageType == MessageType.Event) && (input.PayloadType == PayloadType.TimestampedU32)); }
-        static bool evt_has_timestamp(HarpMessage input) { return ((input.IsTimestamped) && (input.MessageType == MessageType.Event)); }
-
-        static IObservable<UInt32> ProcessHeartbeat(IObservable<HarpMessage> source)
+        static IObservable<uint> Heartbeat(IObservable<HarpMessage> source)
         {
-            return source.Where(is_evt_timestamp).Select(input => BitConverter.ToUInt32(input.MessageBytes, 11));
+            return source
+                .Where(input => input.IsMatch(Registers.TimestampSecond, MessageType.Event, PayloadType.TimestampedU32))
+                .Select(input => input.GetPayloadUInt32());
         }
 
-        static IObservable<double> ProcessMessageTimestamp(IObservable<HarpMessage> source)
+        static IObservable<double> MessageTimestamp(IObservable<HarpMessage> source)
         {
-            return source.Where(evt_has_timestamp).Select(input => input.GetTimestamp());
+            return source
+                .Where(input => input.MessageType == MessageType.Event && input.IsTimestamped)
+                .Select(input => input.GetTimestamp());
         }
+    }
+
+    public enum DeviceEventType : byte
+    {
+        Heartbeat = 0,
+        MessageTimestamp
     }
 }
