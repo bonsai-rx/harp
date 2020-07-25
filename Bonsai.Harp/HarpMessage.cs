@@ -827,5 +827,10 @@ namespace Bonsai.Harp
         {
             return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedFloat, values);
         }
+
+        public override string ToString()
+        {
+            return $"{MessageType} {Address} {PayloadType}{(IsTimestamped ? $"@{GetTimestamp()}" : "")}";
+        }
     }
 }
