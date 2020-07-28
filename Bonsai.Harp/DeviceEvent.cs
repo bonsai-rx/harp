@@ -6,51 +6,28 @@ using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.ComponentModel;
 
-/* Events are divided into two categories: Bonsai Events and Raw Registers.                                                                                       */
-/*   - Bonsai Events:                                                                                                                                             */
-/*                   Should follow Bonsai guidelines and use the types int, bool, float, Mat and string (for Enums like Wear's DEV_SELECT                         */
-/*   - Raw Registers:                                                                                                                                             */
-/*                   Should have the Timestamped<T> output and the T must have the exact same type (UInt16, Int16, byte, Int, ...) of the Harp device register.   */
-/*                                                                                                                                                                */
-/* Note: When the device has both digital and analog inputs or outputs use the names DigitalOutput, DigitalInput, AnalogOutput and AnalogInput.                   */
-
-/* Example of Events' descriptions (Bonsai Events):     */
-/*      Bitmask (not recommended, use Mat[] instead)    */
-/*      Groumask                                        */
-/*      Boolean Mat[9]                                  */
-/*      Boolean                                         */
-/*      Boolean (*)                                     */
-/*      Integer                                         */
-/*      Integer Mat[3][9]                               */
-/*      Decimal                                         */
-/*      Decimal (V)                                     */
-/*      Decimal (ºC)                                    */
-/*  (*) Only distinct contiguous elements are propagated. */
-
-/* Example of Events' descriptions (Raw Registers):     */
-/*      Bitmask U8                                      */
-/*      Groupmask U8                                    */
-/*      U16                                             */
-/*      S16                                             */
-/*      U32                                             */
-/*      Float                                           */
-/*      INPUTS register U16                             */
-
-
-
 namespace Bonsai.Harp
 {
-    [Description(
-    "\n" +
-    "Heartbeat: Integer\n" +
-    "\n" +
-    "MessageTimestamp: Double\n"
-    )]
+    [Description("Selects event data available to all Harp devices.")]
+    [TypeDescriptionProvider(typeof(DeviceTypeDescriptionProvider<DeviceEvent>))]
     public class DeviceEvent : SingleArgumentExpressionBuilder, INamedElement
     {
+        public DeviceEventType Type { get; set; } = DeviceEventType.Heartbeat;
+
         string INamedElement.Name => $"Device.{Type}";
 
-        public DeviceEventType Type { get; set; } = DeviceEventType.Heartbeat;
+        string Description
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case DeviceEventType.Heartbeat: return "The periodic timing signal, reported once every second, used to synchronize Harp devices.";
+                    case DeviceEventType.MessageTimestamp: return "Gets the timestamp, in seconds, for each input event.";
+                    default: return null;
+                }
+            }
+        }
 
         public override Expression Build(IEnumerable<Expression> expressions)
         {

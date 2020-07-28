@@ -3,36 +3,28 @@ using System;
 using System.Linq.Expressions;
 using System.ComponentModel;
 
-/* Commands should try to convert the input to the used input type.
- * The input types should be Bonsai typical types like int, boolean and Float.
- * 
- * Use suffix like Set, Clear, Start, Stop, Enable, Disable or don't use any.
- * Suffix like Write should be avoided.
- * 
- * Examples for Commands' input type:
- *      Any
- *      Boolean
- *      Bitmask
- *      Integer
- *      Positive integer
- *      Decimal
- *      Positive decimal
- *      Integer array[9]
- *      Positive integer array[9]
- */
-
 namespace Bonsai.Harp
 {
-    [Description(
-    "\n" +
-    "Timestamp: Positive integer\n" +
-    "SynchronizeTimestamp: Any\n"
-    )]
+    [Description("Creates command messages available to all Harp devices.")]
+    [TypeDescriptionProvider(typeof(DeviceTypeDescriptionProvider<DeviceCommand>))]
     public class DeviceCommand : SelectBuilder, INamedElement
     {
         string INamedElement.Name => $"Device.{Type}";
 
         public DeviceCommandType Type { get; set; } = DeviceCommandType.SynchronizeTimestamp;
+
+        string Description
+        {
+            get
+            {
+                switch (Type)
+                {
+                    case DeviceCommandType.Timestamp: return "Updates the value of the timestamp register in the Harp device, in whole seconds.";
+                    case DeviceCommandType.SynchronizeTimestamp: return "Sets the value of the timestamp register in the Harp device to the UTC timestamp of the host.";
+                    default: return null;
+                }
+            }
+        }
 
         protected override Expression BuildSelector(Expression expression)
         {
