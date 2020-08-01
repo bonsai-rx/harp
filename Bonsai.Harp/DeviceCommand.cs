@@ -9,9 +9,10 @@ namespace Bonsai.Harp
     [TypeDescriptionProvider(typeof(DeviceTypeDescriptionProvider<DeviceCommand>))]
     public class DeviceCommand : SelectBuilder, INamedElement
     {
-        string INamedElement.Name => $"Device.{Type}";
-
+        [RefreshProperties(RefreshProperties.All)]
         public DeviceCommandType Type { get; set; } = DeviceCommandType.SynchronizeTimestamp;
+
+        string INamedElement.Name => $"Device.{Type}";
 
         string Description
         {

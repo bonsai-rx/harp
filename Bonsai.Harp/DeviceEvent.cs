@@ -12,6 +12,7 @@ namespace Bonsai.Harp
     [TypeDescriptionProvider(typeof(DeviceTypeDescriptionProvider<DeviceEvent>))]
     public class DeviceEvent : SingleArgumentExpressionBuilder, INamedElement
     {
+        [RefreshProperties(RefreshProperties.All)]
         public DeviceEventType Type { get; set; } = DeviceEventType.Heartbeat;
 
         string INamedElement.Name => $"Device.{Type}";
