@@ -14,9 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="MulticastTimestamp.bonsai" />
-    <EmbeddedResource Include="TimestampSubject.bonsai" />
-    <EmbeddedResource Include="WithLatestTimestamp.bonsai" />
+    <EmbeddedResource Include="*.bonsai" />
   </ItemGroup>
 
 </Project>
