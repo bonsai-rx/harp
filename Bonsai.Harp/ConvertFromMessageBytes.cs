@@ -10,10 +10,7 @@ namespace Bonsai.Harp
     {
         public override IObservable<HarpMessage> Process(IObservable<byte[]> source)
         {
-            return source.Select(input =>
-            {
-                return new HarpMessage(input);
-            });
+            return source.Select(input => new HarpMessage(input));
         }
     }
 }

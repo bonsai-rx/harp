@@ -9,9 +9,6 @@ namespace Bonsai.Harp
     /// <typeparam name="T">The type of the value being annotated with timestamp information.</typeparam>
     public struct Timestamped<T> : IEquatable<Timestamped<T>>
     {
-        readonly double seconds;
-        readonly T value;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Timestamped{T}"/> class with the specified
         /// value and timestamp information.
@@ -20,25 +17,19 @@ namespace Bonsai.Harp
         /// <param name="seconds">The acquisition timestamp of the value, in fractional seconds.</param>
         public Timestamped(T value, double seconds)
         {
-            this.value = value;
-            this.seconds = seconds;
+            Value = value;
+            Seconds = seconds;
         }
 
         /// <summary>
         /// Gets the acquisition timestamp of the value, in fractional seconds.
         /// </summary>
-        public double Seconds
-        {
-            get { return seconds; }
-        }
+        public double Seconds { get; }
 
         /// <summary>
         /// Gets the value of the element.
         /// </summary>
-        public T Value
-        {
-            get { return value; }
-        }
+        public T Value { get; }
 
         /// <summary>
         /// Returns a value indicating whether this instance has the same value and timestamp
@@ -51,26 +42,21 @@ namespace Bonsai.Harp
         /// </returns>
         public bool Equals(Timestamped<T> other)
         {
-            return seconds == other.Seconds && EqualityComparer<T>.Default.Equals(value, other.Value);
+            return Seconds == other.Seconds && EqualityComparer<T>.Default.Equals(Value, other.Value);
         }
 
         /// <summary>
         /// Tests to see whether the specified object is an <see cref="Timestamped{T}"/> structure
         /// with the same value and timestamp as this <see cref="Timestamped{T}"/> structure.
         /// </summary>
-        /// <param name="obj">The <see cref="Object"/> to test.</param>
+        /// <param name="obj">The <see cref="object"/> to test.</param>
         /// <returns>
         /// <b>true</b> if <paramref name="obj"/> is an <see cref="Timestamped{T}"/> and has the
         /// same value and timestamp as this <see cref="Timestamped{T}"/>; otherwise, <b>false</b>.
         /// </returns>
         public override bool Equals(object obj)
         {
-            if (obj is Timestamped<T>)
-            {
-                return Equals((Timestamped<T>)obj);
-            }
-
-            return false;
+            return obj is Timestamped<T> timestamped && Equals(timestamped);
         }
 
         /// <summary>
@@ -79,20 +65,20 @@ namespace Bonsai.Harp
         /// <returns>An integer value that specifies a hash value for this <see cref="Timestamped{T}"/> structure.</returns>
         public override int GetHashCode()
         {
-            return seconds.GetHashCode() ^ EqualityComparer<T>.Default.GetHashCode(value);
+            return Seconds.GetHashCode() ^ EqualityComparer<T>.Default.GetHashCode(Value);
         }
 
         /// <summary>
-        /// Creates a <see cref="String"/> representation of this <see cref="Timestamped{T}"/>
+        /// Creates a <see cref="string"/> representation of this <see cref="Timestamped{T}"/>
         /// structure.
         /// </summary>
         /// <returns>
-        /// A <see cref="String"/> containing the <see cref="Value"/> and <see cref="Seconds"/>
+        /// A <see cref="string"/> containing the <see cref="Value"/> and <see cref="Seconds"/>
         /// properties of this <see cref="Timestamped{T}"/> structure.
         /// </returns>
         public override string ToString()
         {
-            return string.Format("{0}@{1}", value, seconds);
+            return $"{Value}@{Seconds}";
         }
 
         /// <summary>

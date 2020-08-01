@@ -25,7 +25,7 @@ namespace Bonsai.Harp
             if (IsArray && payloadType != PayloadType.Timestamp)
             {
                 Type arrayType;
-                var baseType = (payloadType & ~PayloadType.Timestamp);
+                var baseType = payloadType & ~PayloadType.Timestamp;
                 var timestamped = (payloadType & PayloadType.Timestamp) == PayloadType.Timestamp;
                 var methodName = timestamped ? nameof(ProcessTimestampedArray) : nameof(ProcessArray);
                 switch (baseType)
@@ -94,11 +94,6 @@ namespace Bonsai.Harp
             if (input.Error)
             {
                 throw new InvalidOperationException("The Harp message is an error report.");
-            }
-
-            if (!input.IsValid)
-            {
-                throw new InvalidOperationException("The Harp message is not valid.");
             }
 
             var payloadLength = input.GetPayload().Count;
@@ -246,11 +241,6 @@ namespace Bonsai.Harp
             if (input.Error)
             {
                 throw new InvalidOperationException("The Harp message is an error report.");
-            }
-
-            if (!input.IsValid)
-            {
-                throw new InvalidOperationException("The Harp message is not valid.");
             }
 
             return input.GetTimestamp();

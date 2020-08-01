@@ -61,7 +61,7 @@ namespace Bonsai.Harp
             return string.Join(DataSeparator, message.GetPayload<TArray>());
         }
 
-        protected HarpException(SerializationInfo info, StreamingContext context)
+        private HarpException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }

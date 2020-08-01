@@ -6,7 +6,7 @@ namespace Bonsai.Harp
     class BufferedStream
     {
         readonly Stream serialStream;
-        byte[] readBuffer;
+        readonly byte[] readBuffer;
         int readOffset;
         int writeOffset;
 

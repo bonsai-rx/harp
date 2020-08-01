@@ -12,7 +12,7 @@ namespace Bonsai.Harp
     [Description("Produces a sequence of Harp messages from a previously recorded data file.")]
     public class FileDevice : Source<HarpMessage>
     {
-        IObservable<HarpMessage> source;
+        readonly IObservable<HarpMessage> source;
         readonly object captureLock = new object();
         const int ReadBufferSize = 4096;
 
@@ -34,9 +34,8 @@ namespace Bonsai.Harp
                             var harpObserver = Observer.Create<HarpMessage>(
                                 value =>
                                 {
-                                    double timestamp;
                                     var playbackRate = PlaybackRate;
-                                    if (playbackRate.HasValue && value.TryGetTimestamp(out timestamp))
+                                    if (playbackRate.HasValue && value.TryGetTimestamp(out double timestamp))
                                     {
                                         timestamp *= 1000.0 / playbackRate.Value; //ms
                                         if (!stopwatch.IsRunning ||
@@ -80,7 +79,7 @@ namespace Bonsai.Harp
         }
 
         [Description("The path to the binary file containing harp messages.")]
-        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", "System.Drawing.Design.UITypeEditor, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a")]
+        [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
         [Description("Indicates whether device errors should be ignored.")]
