@@ -1,6 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<WorkflowBuilder Version="2.4.0-preview">
-  <Workflow xmlns:q1="clr-namespace:Bonsai.Scripting;assembly=Bonsai.Scripting" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="https://bonsai-rx.org/2018/workflow">
+<WorkflowBuilder Version="2.5.0"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
+                 xmlns:scr="clr-namespace:Bonsai.Scripting;assembly=Bonsai.Scripting"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Description>Records the latest collected Harp timestamp for each element of the input sequence.</Description>
+  <Workflow>
     <Nodes>
       <Expression xsi:type="WorkflowInput">
         <Name>Source1</Name>
@@ -12,12 +17,12 @@
         <Name>Timestamp</Name>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="WithLatestFrom" />
+        <Combinator xsi:type="rx:WithLatestFrom" />
       </Expression>
-      <Expression xsi:type="q1:ExpressionTransform">
-        <q1:Expression>new(
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(
 Item2 as Timestamp,
-Item1 as Value)</q1:Expression>
+Item1 as Value)</scr:Expression>
       </Expression>
       <Expression xsi:type="WorkflowOutput" />
     </Nodes>
@@ -29,8 +34,4 @@ Item1 as Value)</q1:Expression>
       <Edge From="4" To="5" Label="Source1" />
     </Edges>
   </Workflow>
-  <ExtensionTypes>
-    <Type>Bonsai.Reactive.WithLatestFrom, Bonsai.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
-    <Type>Bonsai.Scripting.ExpressionTransform, Bonsai.Scripting, Version=2.4.0.0, Culture=neutral, PublicKeyToken=null</Type>
-  </ExtensionTypes>
 </WorkflowBuilder>

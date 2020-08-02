@@ -4,6 +4,7 @@
                  xmlns:harp="clr-namespace:Bonsai.Harp;assembly=Bonsai.Harp"
                  xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
                  xmlns="https://bonsai-rx.org/2018/workflow">
+  <Description>Creates a shared subject of Harp command messages for controlling a device.</Description>
   <Workflow>
     <Nodes>
       <Expression xsi:type="Combinator">
