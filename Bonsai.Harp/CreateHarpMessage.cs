@@ -5,10 +5,16 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Harp
 {
+    /// <summary>
+    /// Represents an operator which creates an observable source of Harp messages.
+    /// </summary>
     [Obsolete]
     [Description("Creates a new Harp message.")]
     public class CreateHarpMessage : Source<HarpMessage>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateHarpMessage"/> class.
+        /// </summary>
         public CreateHarpMessage()
         {
             MessageType = MessageType.Write;
@@ -17,15 +23,27 @@ namespace Bonsai.Harp
             Payload = 0;
         }
 
+        /// <summary>
+        /// Gets or sets the type of the message.
+        /// </summary>
         [Description("The type of the message.")]
         public MessageType MessageType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the address of the register.
+        /// </summary>
         [Description("The address of the register.")]
         public byte Address { get; set; }
 
+        /// <summary>
+        /// Gets or sets the type of the payload data.
+        /// </summary>
         [Description("The type of the payload data.")]
         public PayloadType PayloadType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the data to write on the message payload.
+        /// </summary>
         [Description("The data to write on the message payload.")]
         public double Payload { get; set; }
 
@@ -103,6 +121,10 @@ namespace Bonsai.Harp
             return data;
         }
 
+        /// <summary>
+        /// Returns an observable sequence of Harp messages.
+        /// </summary>
+        /// <returns>An observable sequence of Harp messages.</returns>
         public override IObservable<HarpMessage> Generate()
         {
             return Observable.Defer(() =>
@@ -137,6 +159,11 @@ namespace Bonsai.Harp
             });
         }
 
+        /// <summary>
+        /// Returns an observable sequence of Harp messages from the input payload.
+        /// </summary>
+        /// <param name="source">An observable sequence representing the input payload.</param>
+        /// <returns>An observable sequence of Harp messages.</returns>
         public IObservable<HarpMessage> Generate(IObservable<Byte> source)
         {
             return source.Select(input =>
@@ -145,7 +172,12 @@ namespace Bonsai.Harp
                 return CreateMessage(BitConverter.GetBytes(dataUInt), MessageType, PayloadType, Address, 255);
             });
         }
-        
+
+        /// <summary>
+        /// Returns an observable sequence of Harp messages from the input payload.
+        /// </summary>
+        /// <param name="source">An observable sequence representing the input payload.</param>
+        /// <returns>An observable sequence of Harp messages.</returns>
         public IObservable<HarpMessage> Generate(IObservable<SByte> source)
         {
             return source.Select(input =>
@@ -155,6 +187,11 @@ namespace Bonsai.Harp
             });
         }
 
+        /// <summary>
+        /// Returns an observable sequence of Harp messages from the input payload.
+        /// </summary>
+        /// <param name="source">An observable sequence representing the input payload.</param>
+        /// <returns>An observable sequence of Harp messages.</returns>
         public IObservable<HarpMessage> Generate(IObservable<UInt16> source)
         {
             return source.Select(input =>
@@ -163,7 +200,12 @@ namespace Bonsai.Harp
                 return CreateMessage(BitConverter.GetBytes(dataUInt), MessageType, PayloadType, Address, 255);
             });
         }
-        
+
+        /// <summary>
+        /// Returns an observable sequence of Harp messages from the input payload.
+        /// </summary>
+        /// <param name="source">An observable sequence representing the input payload.</param>
+        /// <returns>An observable sequence of Harp messages.</returns>
         public IObservable<HarpMessage> Generate(IObservable<Int16> source)
         {
             return source.Select(input =>
@@ -172,7 +214,12 @@ namespace Bonsai.Harp
                 return CreateMessage(BitConverter.GetBytes(dataInt), MessageType, PayloadType, Address, 255);
             });
         }
-        
+
+        /// <summary>
+        /// Returns an observable sequence of Harp messages from the input payload.
+        /// </summary>
+        /// <param name="source">An observable sequence representing the input payload.</param>
+        /// <returns>An observable sequence of Harp messages.</returns>
         public IObservable<HarpMessage> Generate(IObservable<UInt32> source)
         {
             return source.Select(input =>
@@ -181,7 +228,12 @@ namespace Bonsai.Harp
                 return CreateMessage(BitConverter.GetBytes(dataUInt), MessageType, PayloadType, Address, 255);
             });
         }
-        
+
+        /// <summary>
+        /// Returns an observable sequence of Harp messages from the input payload.
+        /// </summary>
+        /// <param name="source">An observable sequence representing the input payload.</param>
+        /// <returns>An observable sequence of Harp messages.</returns>
         public IObservable<HarpMessage> Generate(IObservable<Int32> source)
         {
             return source.Select(input =>
@@ -191,6 +243,11 @@ namespace Bonsai.Harp
             });
         }
 
+        /// <summary>
+        /// Returns an observable sequence of Harp messages from the input payload.
+        /// </summary>
+        /// <param name="source">An observable sequence representing the input payload.</param>
+        /// <returns>An observable sequence of Harp messages.</returns>
         public IObservable<HarpMessage> Generate(IObservable<UInt64> source)
         {
             return source.Select(input =>
@@ -200,6 +257,11 @@ namespace Bonsai.Harp
             });
         }
 
+        /// <summary>
+        /// Returns an observable sequence of Harp messages from the input payload.
+        /// </summary>
+        /// <param name="source">An observable sequence representing the input payload.</param>
+        /// <returns>An observable sequence of Harp messages.</returns>
         public IObservable<HarpMessage> Generate(IObservable<Int64> source)
         {
             return source.Select(input =>
@@ -209,6 +271,11 @@ namespace Bonsai.Harp
             });
         }
 
+        /// <summary>
+        /// Returns an observable sequence of Harp messages from the input payload.
+        /// </summary>
+        /// <param name="source">An observable sequence representing the input payload.</param>
+        /// <returns>An observable sequence of Harp messages.</returns>
         public IObservable<HarpMessage> Generate(IObservable<Single> source)
         {
             return source.Select(input =>
@@ -218,6 +285,11 @@ namespace Bonsai.Harp
             });
         }
 
+        /// <summary>
+        /// Returns an observable sequence of Harp messages from the input payload.
+        /// </summary>
+        /// <param name="source">An observable sequence representing the input payload.</param>
+        /// <returns>An observable sequence of Harp messages.</returns>
         public IObservable<HarpMessage> Generate(IObservable<Double> source)
         {
             return source.Select(input =>

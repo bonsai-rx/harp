@@ -3,6 +3,7 @@
   <PropertyGroup>
     <Title>Bonsai - Harp Library</Title>
     <Description>Bonsai Library containing interfaces for data acquisition and control of devices implementing the Harp protocol.</Description>
+    <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">true</GenerateDocumentationFile>
     <PackageTags>Bonsai Rx Harp Hardware Protocol</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TargetFramework>net472</TargetFramework>

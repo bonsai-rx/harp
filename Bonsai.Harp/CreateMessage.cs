@@ -5,12 +5,18 @@ using System.Reactive.Linq;
 
 namespace Bonsai.Harp
 {
+    /// <summary>
+    /// Represents an operator which creates an observable source of Harp messages.
+    /// </summary>
     [Description("Creates a new Harp message with the specified payload.")]
     public class CreateMessage : Source<HarpMessage>
     {
         double payload;
         event Action<double> PayloadChanged;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CreateMessage"/> class.
+        /// </summary>
         public CreateMessage()
         {
             Address = 32;
@@ -19,15 +25,27 @@ namespace Bonsai.Harp
             Payload = 0;
         }
 
+        /// <summary>
+        /// Gets or sets the type of the Harp message.
+        /// </summary>
         [Description("The type of the Harp message.")]
         public MessageType MessageType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the address of the register to which the Harp message refers to.
+        /// </summary>
         [Description("The address of the register to which the Harp message refers to.")]
         public int Address { get; set; }
 
+        /// <summary>
+        /// Gets or sets the type of data to include in the message payload.
+        /// </summary>
         [Description("The type of data to include in the message payload.")]
         public PayloadType PayloadType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the data to write in the message payload.
+        /// </summary>
         [Description("The data to write in the message payload.")]
         public double Payload
         {
@@ -60,6 +78,13 @@ namespace Bonsai.Harp
             }
         }
 
+        /// <summary>
+        /// Returns an observable sequence that produces a Harp message whenever the payload
+        /// property changes, starting with the initial payload value.
+        /// </summary>
+        /// <returns>
+        /// An observable sequence of Harp messages containing the value of the payload property.
+        /// </returns>
         public override IObservable<HarpMessage> Generate()
         {
             return Observable
@@ -70,6 +95,15 @@ namespace Bonsai.Harp
                 .Select(payload => GetMessage(payload)));
         }
 
+        /// <summary>
+        /// Returns an observable sequence that produces a Harp message with the specified
+        /// payload value whenever the source sequence emits a new element.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
+        /// <param name="source">The source sequence used to generate new values.</param>
+        /// <returns>
+        /// An observable sequence of Harp messages containing the value of the payload property.
+        /// </returns>
         public IObservable<HarpMessage> Generate<TSource>(IObservable<TSource> source)
         {
             return source.Select(x => GetMessage(payload));

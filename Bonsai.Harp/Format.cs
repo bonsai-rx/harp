@@ -5,9 +5,15 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Harp
 {
+    /// <summary>
+    /// Represents an operator which formats input data as a Harp message payload.
+    /// </summary>
     [Description("Formats input data as a Harp message.")]
     public class Format : SelectBuilder
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Format"/> class.
+        /// </summary>
         public Format()
         {
             Address = 32;
@@ -15,15 +21,32 @@ namespace Bonsai.Harp
             PayloadType = PayloadType.U8;
         }
 
+        /// <summary>
+        /// Gets or sets the type of the Harp message.
+        /// </summary>
         [Description("The type of the Harp message.")]
         public MessageType MessageType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the address of the register to which the Harp message refers to.
+        /// </summary>
         [Description("The address of the register to which the Harp message refers to.")]
         public int Address { get; set; }
 
+        /// <summary>
+        /// Gets or sets the type of data to include in the message payload.
+        /// </summary>
         [Description("The type of data to include in the message payload.")]
         public PayloadType PayloadType { get; set; }
 
+        /// <summary>
+        /// Returns the expression that specifies how a valid Harp message is created from the input data.
+        /// </summary>
+        /// <param name="expression">The input parameter to the selector.</param>
+        /// <returns>
+        /// The <see cref="Expression"/> that maps the input parameter to the
+        /// valid Harp message.
+        /// </returns>
         protected override Expression BuildSelector(Expression expression)
         {
             Expression[] arguments;

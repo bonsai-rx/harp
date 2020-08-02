@@ -5,20 +5,40 @@ using System.Linq.Expressions;
 
 namespace Bonsai.Harp
 {
+    /// <summary>
+    /// Represents an operator which extracts the payload data from an observable sequence of Harp messages.
+    /// </summary>
     [Description("Extracts the payload data from Harp messages.")]
     public class Parse : SelectBuilder
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Parse"/> class.
+        /// </summary>
         public Parse()
         {
             Type = PayloadType.U8;
         }
 
+        /// <summary>
+        /// Gets or sets the type of payload data to parse.
+        /// </summary>
         [Description("The type of payload data to parse.")]
         public PayloadType Type { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the payload is an array.
+        /// </summary>
         [Description("Indicates whether the payload is an array.")]
         public bool IsArray { get; set; }
 
+        /// <summary>
+        /// Returns the expression that specifies how to extract the payload data from a valid Harp message.
+        /// </summary>
+        /// <param name="expression">The input parameter to the selector.</param>
+        /// <returns>
+        /// The <see cref="Expression"/> that maps the input Harp message parameter to the
+        /// specified payload data type.
+        /// </returns>
         protected override Expression BuildSelector(Expression expression)
         {
             var payloadType = Type;

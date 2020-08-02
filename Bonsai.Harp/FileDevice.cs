@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
+    /// <summary>
+    /// Represents an operator which produces an observable sequence of Harp messages from a previously recorded data file.
+    /// </summary>
     [Description("Produces a sequence of Harp messages from a previously recorded data file.")]
     public class FileDevice : Source<HarpMessage>
     {
@@ -16,6 +19,9 @@ namespace Bonsai.Harp
         readonly object captureLock = new object();
         const int ReadBufferSize = 4096;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileDevice"/> class.
+        /// </summary>
         public FileDevice()
         {
             PlaybackRate = 1;
@@ -78,16 +84,31 @@ namespace Bonsai.Harp
             .RefCount();
         }
 
-        [Description("The path to the binary file containing harp messages.")]
+        /// <summary>
+        /// Gets or sets the path to the binary file containing Harp messages to playback.
+        /// </summary>
+        [Description("The path to the binary file containing Harp messages.")]
         [Editor("Bonsai.Design.OpenFileNameEditor, Bonsai.Design", DesignTypes.UITypeEditor)]
         public string FileName { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to ignore any device error messages included in the binary file.
+        /// </summary>
         [Description("Indicates whether device errors should be ignored.")]
         public bool IgnoreErrors { get; set; }
 
+        /// <summary>
+        /// Gets or sets the optional rate multiplier to either slowdown or speedup the playback. If
+        /// no rate is specified, playback will be done as fast as possible.
+        /// </summary>
         [Description("The optional rate multiplier to either slowdown or speedup the playback. If no rate is specified, playback will be done as fast as possible.")]
         public double? PlaybackRate { get; set; }
 
+        /// <summary>
+        /// Opens the specified file name and returns the observable sequence of Harp messages
+        /// stored in the binary file.
+        /// </summary>
+        /// <returns>The observable sequence of Harp messages stored in the binary file.</returns>
         public override IObservable<HarpMessage> Generate()
         {
             return source;

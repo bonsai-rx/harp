@@ -8,11 +8,18 @@ using System.ComponentModel;
 
 namespace Bonsai.Harp
 {
-    [Description("Selects event data available to all Harp devices.")]
+    /// <summary>
+    /// Represents an operator which filters and selects specific event messages reported by all Harp devices
+    /// </summary>
+    [Description("Filters and selects event messages reported by all Harp devices.")]
     [TypeDescriptionProvider(typeof(DeviceTypeDescriptionProvider<DeviceEvent>))]
     public class DeviceEvent : SingleArgumentExpressionBuilder, INamedElement
     {
+        /// <summary>
+        /// Gets or sets the type of the device event message to select.
+        /// </summary>
         [RefreshProperties(RefreshProperties.All)]
+        [Description("The type of the device event message to select.")]
         public DeviceEventType Type { get; set; } = DeviceEventType.Heartbeat;
 
         string INamedElement.Name => $"Device.{Type}";
@@ -30,9 +37,19 @@ namespace Bonsai.Harp
             }
         }
 
-        public override Expression Build(IEnumerable<Expression> expressions)
+        /// <summary>
+        /// Returns the expression that specifies how standard event messages are filtered and selected.
+        /// </summary>
+        /// <param name="arguments">
+        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
+        /// </param>
+        /// <returns>
+        /// The <see cref="Expression"/> that maps the single input argument to the
+        /// contents of the standard event message.
+        /// </returns>
+        public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var expression = expressions.First();
+            var expression = arguments.First();
             switch (Type)
             {
                 case DeviceEventType.Heartbeat:
@@ -59,9 +76,19 @@ namespace Bonsai.Harp
         }
     }
 
+    /// <summary>
+    /// Specifies standard device events available on all Harp devices.
+    /// </summary>
     public enum DeviceEventType : byte
     {
+        /// <summary>
+        /// The periodic timing signal, reported once every second, used to synchronize Harp devices.
+        /// </summary>
         Heartbeat = 0,
+
+        /// <summary>
+        /// Specifies that the timestamp, in seconds, should be selected for each input event.
+        /// </summary>
         MessageTimestamp
     }
 }

@@ -7,6 +7,9 @@ using System.Text;
 
 namespace Bonsai.Harp
 {
+    /// <summary>
+    /// Represents an observable source of messages from the Harp device connected at the specified serial port.
+    /// </summary>
     [Description("Produces a sequence of messages from the Harp device connected at the specified serial port.")]
     public class Device : Source<HarpMessage>, INamedElement
     {
@@ -15,6 +18,9 @@ namespace Bonsai.Harp
         LedState ledState;
         LedState visualIndicators;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Device"/> class.
+        /// </summary>
         public Device()
         {
             PortName = "COMx";
@@ -26,6 +32,9 @@ namespace Bonsai.Harp
             CommandReplies = EnableType.Enable;
         }
 
+        /// <summary>
+        /// Gets or sets the name of the serial port used to communicate with the Harp device.
+        /// </summary>
         [TypeConverter(typeof(PortNameConverter))]
         [Description("The name of the serial port used to communicate with the Harp device.")]
         public string PortName
@@ -38,12 +47,21 @@ namespace Bonsai.Harp
             }
         }
 
+        /// <summary>
+        /// Gets or sets the state of the device at run time.
+        /// </summary>
         [Description("Specifies the state of the device at run time.")]
         public DeviceState DeviceState { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the device should send the content of all registers during initialization.
+        /// </summary>
         [Description("Specifies whether the device should send the content of all registers during initialization.")]
         public bool DumpRegisters { get; set; }
 
+        /// <summary>
+        /// Gets or sets the state of the device LED.
+        /// </summary>
         [Description("Specifies the state of the device LED.")]
         public LedState LedState
         {
@@ -56,6 +74,9 @@ namespace Bonsai.Harp
             }
         }
 
+        /// <summary>
+        /// Gets or sets the state of all the visual indicators in the device.
+        /// </summary>
         [Description("Specifies the state of all the visual indicators in the device.")]
         public LedState VisualIndicators
         {
@@ -67,13 +88,19 @@ namespace Bonsai.Harp
             }
         }
 
-        [Description("Specifies if the Device sends the Timestamp Event each second.")]
+        /// <summary>
+        /// Gets or sets a value indicating whether the Device sends the Timestamp event each second.
+        /// </summary>
+        [Description("Specifies if the Device sends the Timestamp event each second.")]
         public EnableType Heartbeat { get; set; }
 
         [Description("Specifies if the Device replies to commands.")]
         EnableType CommandReplies { get; set; }
 
-        [Description("Specifies whether error messages parsed during acquisition should be ignored or create an exception.")]
+        /// <summary>
+        /// Gets or sets a value indicating whether error messages parsed during acquisition should be ignored or raise an exception.
+        /// </summary>
+        [Description("Specifies whether error messages parsed during acquisition should be ignored or raise an error.")]
         public bool IgnoreErrors { get; set; }        
 
         static HarpMessage CreateOperationControl(DeviceState stateMode, LedState ledState, LedState visualIndicators, EnableType heartbeat, EnableType replies, bool dumpRegisters)
@@ -161,6 +188,11 @@ namespace Bonsai.Harp
               .FirstAsync();
         }
 
+        /// <summary>
+        /// Connects to the specified serial port and returns an observable sequence of Harp messages
+        /// coming from the device.
+        /// </summary>
+        /// <returns>The observable sequence of Harp messages produced by the device.</returns>
         public override IObservable<HarpMessage> Generate()
         {
             return Observable.Create<HarpMessage>(observer =>
@@ -184,6 +216,12 @@ namespace Bonsai.Harp
             });
         }
 
+        /// <summary>
+        /// Connects to the specified serial port and sends the observable sequence of Harp messages.
+        /// The return value is an observable sequence of Harp messages coming from the device.
+        /// </summary>
+        /// <param name="source">An observable sequence of Harp messages to send to the device.</param>
+        /// <returns>The observable sequence of Harp messages produced by the device.</returns>
         public IObservable<HarpMessage> Generate(IObservable<HarpMessage> source)
         {
             return Observable.Create<HarpMessage>(observer =>

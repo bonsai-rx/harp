@@ -5,11 +5,18 @@ using System.ComponentModel;
 
 namespace Bonsai.Harp
 {
-    [Description("Creates command messages available to all Harp devices.")]
+    /// <summary>
+    /// Represents an operator which creates standard command messages available to all Harp devices.
+    /// </summary>
+    [Description("Creates standard command messages available to all Harp devices.")]
     [TypeDescriptionProvider(typeof(DeviceTypeDescriptionProvider<DeviceCommand>))]
     public class DeviceCommand : SelectBuilder, INamedElement
     {
+        /// <summary>
+        /// Gets or sets the type of the device command message to create.
+        /// </summary>
         [RefreshProperties(RefreshProperties.All)]
+        [Description("The type of the device command message to create.")]
         public DeviceCommandType Type { get; set; } = DeviceCommandType.SynchronizeTimestamp;
 
         string INamedElement.Name => $"Device.{Type}";
@@ -27,6 +34,14 @@ namespace Bonsai.Harp
             }
         }
 
+        /// <summary>
+        /// Returns the expression that specifies how the standard command messages are created.
+        /// </summary>
+        /// <param name="expression">The input parameter to the selector.</param>
+        /// <returns>
+        /// The <see cref="Expression"/> that maps the input parameter to the
+        /// standard command message.
+        /// </returns>
         protected override Expression BuildSelector(Expression expression)
         {
             switch (Type)
@@ -56,9 +71,19 @@ namespace Bonsai.Harp
         }
     }
 
+    /// <summary>
+    /// Specifies standard device commands available on all Harp devices.
+    /// </summary>
     public enum DeviceCommandType : byte
     {
+        /// <summary>
+        /// Specifies that the value of the timestamp register in the Harp device should be updated.
+        /// </summary>
         Timestamp,
+
+        /// <summary>
+        /// Specifies that the timestamp register in the Harp device should be set to the UTC timestamp of the host.
+        /// </summary>
         SynchronizeTimestamp
     }
 }
