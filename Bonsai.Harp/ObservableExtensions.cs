@@ -10,6 +10,37 @@ namespace Bonsai.Harp
     public static class ObservableExtensions
     {
         /// <summary>
+        /// Filters the elements of an observable sequence of Harp event messages based
+        /// on their address.
+        /// </summary>
+        /// <param name="source">The observable sequence whose event messages to filter.</param>
+        /// <param name="address">The address to test for a match.</param>
+        /// <returns>
+        /// An observable sequence that contains event messages from the input sequence that
+        /// match the specified <paramref name="address"/>.
+        /// </returns>
+        public static IObservable<HarpMessage> Event(this IObservable<HarpMessage> source, int address)
+        {
+            return source.Where(address, MessageType.Event);
+        }
+
+        /// <summary>
+        /// Filters the elements of an observable sequence of Harp event messages based
+        /// on their address.
+        /// </summary>
+        /// <param name="source">The observable sequence whose event messages to filter.</param>
+        /// <param name="address">The address to test for a match.</param>
+        /// <param name="allowErrors"><c>true</c> to allow error messages in the filter; otherwise, <c>false</c>.</param>
+        /// <returns>
+        /// An observable sequence that contains event messages from the input sequence that
+        /// match the specified <paramref name="address"/>.
+        /// </returns>
+        public static IObservable<HarpMessage> Event(this IObservable<HarpMessage> source, int address, bool allowErrors)
+        {
+            return source.Where(address, MessageType.Event, allowErrors);
+        }
+
+        /// <summary>
         /// Filters the elements of an observable sequence of Harp messages based
         /// on their address.
         /// </summary>
