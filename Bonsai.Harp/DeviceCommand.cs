@@ -19,7 +19,7 @@ namespace Bonsai.Harp
         [Description("The type of the device command message to create.")]
         public DeviceCommandType Type { get; set; } = DeviceCommandType.SynchronizeTimestamp;
 
-        string INamedElement.Name => $"Device.{Type}";
+        string INamedElement.Name => $"{nameof(Device)}.{Type}";
 
         string Description
         {

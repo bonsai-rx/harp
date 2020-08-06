@@ -22,7 +22,7 @@ namespace Bonsai.Harp
         [Description("The type of the device event message to select.")]
         public DeviceEventType Type { get; set; } = DeviceEventType.Heartbeat;
 
-        string INamedElement.Name => $"Device.{Type}";
+        string INamedElement.Name => $"{nameof(Device)}.{Type}";
 
         string Description
         {
