@@ -1962,14 +1962,23 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
-        /// Returns a <see cref="string"/> that represents the Harp message metadata and timestamp.
+        /// Returns a <see cref="string"/> that represents the Harp message metadata, payload length and timestamp.
         /// </summary>
         /// <returns>
-        /// A formatted <see cref="string"/> representing the Harp message metadata.
+        /// A formatted <see cref="string"/> representing the Harp message metadata, payload length and timestamp.
         /// </returns>
         public override string ToString()
         {
-            return $"{MessageType} {Address} {PayloadType}{(IsTimestamped ? $"@{GetTimestamp()}" : "")}";
+            var payloadType = (byte)PayloadType & 0xF;
+            var timestamped = TryGetTimestamp(out double timestamp);
+            var payloadLength = payloadType > 0 ? GetPayloadLength(timestamped ? TimestampedOffset : BaseOffset) / payloadType : 0;
+            return string.Format("{0}{1} {2} {3}{4} Length:{5}",
+                Error ? "Error:" : string.Empty,
+                MessageType,
+                Address,
+                PayloadType,
+                timestamped ? timestamp.ToString("@0.#####") : string.Empty,
+                payloadLength);
         }
     }
 }
