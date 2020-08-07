@@ -1969,9 +1969,10 @@ namespace Bonsai.Harp
         /// </returns>
         public override string ToString()
         {
+            if (!IsValid) return "Invalid";
             var payloadType = (byte)PayloadType & 0xF;
             var timestamped = TryGetTimestamp(out double timestamp);
-            var payloadLength = payloadType > 0 ? GetPayloadLength(timestamped ? TimestampedOffset : BaseOffset) / payloadType : 0;
+            var payloadLength = GetPayloadLength(timestamped ? TimestampedOffset : BaseOffset) / payloadType;
             return string.Format("{0}{1} {2} {3}{4} Length:{5}",
                 Error ? "Error:" : string.Empty,
                 MessageType,
