@@ -168,6 +168,7 @@ namespace Bonsai.Harp
                                 Console.WriteLine($"Fw: {firmwareVersionHigh}.{firmwareVersionLow}");
                                 Console.WriteLine($"Timestamp (s): {timestamp}");
                                 Console.WriteLine($"DeviceName: {deviceName}");
+                                Console.WriteLine();
                                 observer.OnNext(deviceName);
                                 observer.OnCompleted();
                                 break;
