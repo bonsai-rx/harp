@@ -4,17 +4,17 @@ using System.Collections.Generic;
 namespace Bonsai.Harp
 {
     /// <summary>
-    /// Represents an element from an observable sequence associated with its timestamp information.
+    /// Represents a timestamped payload value.
     /// </summary>
-    /// <typeparam name="T">The type of the value being annotated with timestamp information.</typeparam>
-    public struct Timestamped<T> : IEquatable<Timestamped<T>>
+    /// <typeparam name="T">The type of the value in the timestamped payload.</typeparam>
+    public readonly struct Timestamped<T> : IEquatable<Timestamped<T>>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Timestamped{T}"/> class with the specified
-        /// value and timestamp information.
+        /// payload value and timestamp.
         /// </summary>
-        /// <param name="value">The value to be annotated with timestamp information.</param>
-        /// <param name="seconds">The acquisition timestamp of the value, in fractional seconds.</param>
+        /// <param name="value">The value of the timestamped payload.</param>
+        /// <param name="seconds">The timestamp of the payload, in fractional seconds.</param>
         public Timestamped(T value, double seconds)
         {
             Value = value;
@@ -22,14 +22,25 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
-        /// Gets the acquisition timestamp of the value, in fractional seconds.
+        /// Gets the timestamp of the payload, in fractional seconds.
         /// </summary>
         public double Seconds { get; }
 
         /// <summary>
-        /// Gets the value of the element.
+        /// Gets the value of the timestamped payload.
         /// </summary>
         public T Value { get; }
+
+        /// <summary>
+        /// Deconstructs the components of a timestamped payload into separate variables.
+        /// </summary>
+        /// <param name="value">The value of the timestamped payload.</param>
+        /// <param name="seconds">The timestamp of the payload, in fractional seconds.</param>
+        public void Deconstruct(out T value, out double seconds)
+        {
+            value = Value;
+            seconds = Seconds;
+        }
 
         /// <summary>
         /// Returns a value indicating whether this instance has the same value and timestamp
@@ -107,6 +118,27 @@ namespace Bonsai.Harp
         public static bool operator !=(Timestamped<T> left, Timestamped<T> right)
         {
             return !left.Equals(right);
+        }
+    }
+
+    /// <summary>
+    /// Provides static methods for creating timestamped payload objects.
+    /// </summary>
+    public static class Timestamped
+    {
+        /// <summary>
+        /// Creates a new timestamped payload value.
+        /// </summary>
+        /// <typeparam name="T">The type of the value in the timestamped payload.</typeparam>
+        /// <param name="value">The value of the timestamped payload.</param>
+        /// <param name="seconds">The timestamp of the payload, in fractional seconds.</param>
+        /// <returns>
+        /// A new instance of the <see cref="Timestamped{T}"/> class with the specified
+        /// payload value and timestamp.
+        /// </returns>
+        public static Timestamped<T> Create<T>(T value, double seconds)
+        {
+            return new Timestamped<T>(value, seconds);
         }
     }
 }
