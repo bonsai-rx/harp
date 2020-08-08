@@ -41,6 +41,35 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Filters the elements of an observable sequence of Harp messages based on their message type.
+        /// </summary>
+        /// <param name="source">The observable sequence whose messages to filter.</param>
+        /// <param name="messageType">The message type to test for a match.</param>
+        /// <returns>
+        /// An observable sequence that contains messages from the input sequence that
+        /// match the specified <paramref name="messageType"/>.
+        /// </returns>
+        public static IObservable<HarpMessage> Where(this IObservable<HarpMessage> source, MessageType messageType)
+        {
+            return source.Where(message => message.MessageType == messageType && !message.Error);
+        }
+
+        /// <summary>
+        /// Filters the elements of an observable sequence of Harp messages based on their message type.
+        /// </summary>
+        /// <param name="source">The observable sequence whose messages to filter.</param>
+        /// <param name="messageType">The message type to test for a match.</param>
+        /// <param name="allowErrors"><c>true</c> to allow error messages in the filter; otherwise, <c>false</c>.</param>
+        /// <returns>
+        /// An observable sequence that contains messages from the input sequence that
+        /// match the specified <paramref name="messageType"/>.
+        /// </returns>
+        public static IObservable<HarpMessage> Where(this IObservable<HarpMessage> source, MessageType messageType, bool allowErrors)
+        {
+            return source.Where(message => message.MessageType == messageType && (!message.Error || allowErrors));
+        }
+
+        /// <summary>
         /// Filters the elements of an observable sequence of Harp messages based
         /// on their address.
         /// </summary>
