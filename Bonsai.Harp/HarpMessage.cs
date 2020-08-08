@@ -277,27 +277,27 @@ namespace Bonsai.Harp
         /// Gets the array segment containing the raw message payload and the timestamp. This method
         /// returns a view into the original array without copying any data.
         /// </summary>
-        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
         /// <returns>
-        /// An <see cref="ArraySegment{T}"/> delimiting the message payload section
+        /// A timestamped <see cref="ArraySegment{T}"/> delimiting the message payload section
         /// of the message bytes.
         /// </returns>
         /// <exception cref="InvalidOperationException">
         /// The message does not have a timestamped payload.
         /// </exception>
-        public ArraySegment<byte> GetPayload(out double timestamp)
+        public Timestamped<ArraySegment<byte>> GetTimestampedPayload()
         {
-            timestamp = GetTimestamp();
-            return new ArraySegment<byte>(MessageBytes, TimestampedOffset, GetPayloadLength(TimestampedOffset));
+            var timestamp = GetTimestamp();
+            var value = new ArraySegment<byte>(MessageBytes, TimestampedOffset, GetPayloadLength(TimestampedOffset));
+            return Timestamped.Create(value, timestamp);
         }
 
         /// <summary>
-        /// Copies the message payload into an array of non-pointer value types. The size of the
+        /// Returns the message payload as an array of non-pointer value types. The size of the
         /// type should be a multiple of the total size of the payload.
         /// </summary>
         /// <typeparam name="TArray">The type of the non-pointer values in the array.</typeparam>
         /// <returns>An array containing a copy of the message payload data.</returns>
-        public unsafe TArray[] GetPayload<TArray>() where TArray : unmanaged
+        public unsafe TArray[] GetPayloadArray<TArray>() where TArray : unmanaged
         {
             GetPayloadOffset(out int payloadOffset, out int payloadLength);
             var value = new TArray[payloadLength / sizeof(TArray)];
@@ -306,22 +306,226 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
-        /// Copies the message payload into an array of non-pointer value types and gets the message
+        /// Returns the message payload as an array of non-pointer value types and gets the message
         /// timestamp. The size of the type should be a multiple of the total size of the payload.
         /// </summary>
         /// <typeparam name="TArray">The type of the non-pointer values in the array.</typeparam>
-        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
-        /// <returns>An array containing a copy of the message payload data.</returns>
+        /// <returns>A timestamped array containing a copy of the message payload data.</returns>
         /// <exception cref="InvalidOperationException">
         /// The message does not have a timestamped payload.
         /// </exception>
-        public unsafe TArray[] GetPayload<TArray>(out double timestamp) where TArray : unmanaged
+        public unsafe Timestamped<TArray[]> GetTimestampedPayloadArray<TArray>() where TArray : unmanaged
         {
-            timestamp = GetTimestamp();
+            var timestamp = GetTimestamp();
             var payloadLength = GetPayloadLength(TimestampedOffset);
             var value = new TArray[payloadLength / sizeof(TArray)];
             Buffer.BlockCopy(MessageBytes, TimestampedOffset, value, 0, payloadLength);
-            return value;
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 8-bit unsigned integer.
+        /// </summary>
+        /// <returns>A <see cref="byte"/> representing the message payload.</returns>
+        public byte GetPayloadByte()
+        {
+            return MessageBytes[PayloadOffset];
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 8-bit unsigned integer and gets the message timestamp.
+        /// </summary>
+        /// <returns>A timestamped <see cref="byte"/> representing the message payload.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<byte> GetTimestampedPayloadByte()
+        {
+            var timestamp = GetTimestamp();
+            return Timestamped.Create(MessageBytes[TimestampedOffset], timestamp);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 8-bit signed integer.
+        /// </summary>
+        /// <returns>An <see cref="sbyte"/> representing the message payload.</returns>
+        public sbyte GetPayloadSByte()
+        {
+            return (sbyte)MessageBytes[PayloadOffset];
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 8-bit signed integer and gets the message timestamp.
+        /// </summary>
+        /// <returns>A timestamped <see cref="sbyte"/> representing the message payload.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<sbyte> GetTimestampedPayloadSByte()
+        {
+            var timestamp = GetTimestamp();
+            return Timestamped.Create((sbyte)MessageBytes[TimestampedOffset], timestamp);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 16-bit unsigned integer.
+        /// </summary>
+        /// <returns>A <see cref="ushort"/> representing the message payload.</returns>
+        public ushort GetPayloadUInt16()
+        {
+            return BitConverter.ToUInt16(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 16-bit unsigned integer and gets the message timestamp.
+        /// </summary>
+        /// <returns>A timestamped <see cref="ushort"/> representing the message payload.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<ushort> GetTimestampedPayloadUInt16()
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToUInt16(MessageBytes, TimestampedOffset);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 16-bit signed integer.
+        /// </summary>
+        /// <returns>A <see cref="short"/> representing the message payload.</returns>
+        public short GetPayloadInt16()
+        {
+            return BitConverter.ToInt16(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 16-bit signed integer and gets the message timestamp.
+        /// </summary>
+        /// <returns>A timestamped <see cref="short"/> representing the message payload.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<short> GetTimestampedPayloadInt16()
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToInt16(MessageBytes, TimestampedOffset);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 32-bit unsigned integer.
+        /// </summary>
+        /// <returns>A <see cref="uint"/> representing the message payload.</returns>
+        public uint GetPayloadUInt32()
+        {
+            return BitConverter.ToUInt32(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 32-bit unsigned integer and gets the message timestamp.
+        /// </summary>
+        /// <returns>A timestamped <see cref="uint"/> representing the message payload.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<uint> GetTimestampedPayloadUInt32()
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToUInt32(MessageBytes, TimestampedOffset);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 32-bit signed integer.
+        /// </summary>
+        /// <returns>An <see cref="int"/> representing the message payload.</returns>
+        public int GetPayloadInt32()
+        {
+            return BitConverter.ToInt32(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 32-bit signed integer and gets the message timestamp.
+        /// </summary>
+        /// <returns>A timestamped <see cref="int"/> representing the message payload.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<int> GetTimestampedPayloadInt32()
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToInt32(MessageBytes, TimestampedOffset);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 64-bit unsigned integer.
+        /// </summary>
+        /// <returns>A <see cref="ulong"/> representing the message payload.</returns>
+        public ulong GetPayloadUInt64()
+        {
+            return BitConverter.ToUInt64(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 64-bit unsigned integer and gets the message timestamp.
+        /// </summary>
+        /// <returns>A timestamped <see cref="ulong"/> representing the message payload.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<ulong> GetTimestampedPayloadUInt64()
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToUInt64(MessageBytes, TimestampedOffset);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 64-bit signed integer.
+        /// </summary>
+        /// <returns>A <see cref="long"/> representing the message payload.</returns>
+        public long GetPayloadInt64()
+        {
+            return BitConverter.ToInt64(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single 64-bit signed integer and gets the message timestamp.
+        /// </summary>
+        /// <returns>A timestamped <see cref="long"/> representing the message payload.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<long> GetTimestampedPayloadInt64()
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToInt64(MessageBytes, TimestampedOffset);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single-precision floating point number.
+        /// </summary>
+        /// <returns>A <see cref="float"/> representing the message payload.</returns>
+        public float GetPayloadSingle()
+        {
+            return BitConverter.ToSingle(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the message payload as a single-precision floating point number and gets the message timestamp.
+        /// </summary>
+        /// <returns>A timestamped <see cref="float"/> representing the message payload.</returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<float> GetTimestampedPayloadSingle()
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToSingle(MessageBytes, TimestampedOffset);
+            return Timestamped.Create(value, timestamp);
         }
 
         /// <summary>
@@ -336,9 +540,9 @@ namespace Bonsai.Harp
         /// <exception cref="ArgumentException">
         /// The number of bytes in <paramref name="value"/> is less than the total size of the payload.
         /// </exception>
-        public unsafe void GetPayload<TArray>(TArray[] value) where TArray : unmanaged
+        public unsafe void CopyTo<TArray>(TArray[] value) where TArray : unmanaged
         {
-            GetPayload(value, 0);
+            CopyTo(value, 0);
         }
 
         /// <summary>
@@ -358,9 +562,9 @@ namespace Bonsai.Harp
         /// <exception cref="InvalidOperationException">
         /// The message does not have a timestamped payload.
         /// </exception>
-        public unsafe void GetPayload<TArray>(TArray[] value, out double timestamp) where TArray : unmanaged
+        public unsafe void CopyTo<TArray>(TArray[] value, out double timestamp) where TArray : unmanaged
         {
-            GetPayload(value, 0, out timestamp);
+            CopyTo(value, 0, out timestamp);
         }
 
         /// <summary>
@@ -377,7 +581,7 @@ namespace Bonsai.Harp
         /// The number of bytes in <paramref name="value"/> is less than <paramref name="index"/> times size of
         /// each array element plus the total size of the payload.
         /// </exception>
-        public unsafe void GetPayload<TArray>(TArray[] value, int index) where TArray : unmanaged
+        public unsafe void CopyTo<TArray>(TArray[] value, int index) where TArray : unmanaged
         {
             GetPayloadOffset(out int payloadOffset, out int payloadLength);
             Buffer.BlockCopy(MessageBytes, payloadOffset, value, index * sizeof(TArray), payloadLength);
@@ -402,218 +606,11 @@ namespace Bonsai.Harp
         /// <exception cref="InvalidOperationException">
         /// The message does not have a timestamped payload.
         /// </exception>
-        public unsafe void GetPayload<TArray>(TArray[] value, int index, out double timestamp) where TArray : unmanaged
+        public unsafe void CopyTo<TArray>(TArray[] value, int index, out double timestamp) where TArray : unmanaged
         {
             timestamp = GetTimestamp();
             var payloadLength = GetPayloadLength(TimestampedOffset);
             Buffer.BlockCopy(MessageBytes, TimestampedOffset, value, index * sizeof(TArray), payloadLength);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 8-bit unsigned integer.
-        /// </summary>
-        /// <returns>A <see cref="byte"/> representing the message payload.</returns>
-        public byte GetPayloadByte()
-        {
-            return MessageBytes[PayloadOffset];
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 8-bit unsigned integer and gets the message timestamp.
-        /// </summary>
-        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
-        /// <returns>A <see cref="byte"/> representing the message payload.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// The message does not have a timestamped payload.
-        /// </exception>
-        public byte GetPayloadByte(out double timestamp)
-        {
-            timestamp = GetTimestamp();
-            return MessageBytes[TimestampedOffset];
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 8-bit signed integer.
-        /// </summary>
-        /// <returns>An <see cref="sbyte"/> representing the message payload.</returns>
-        public sbyte GetPayloadSByte()
-        {
-            return (sbyte)MessageBytes[PayloadOffset];
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 8-bit signed integer and gets the message timestamp.
-        /// </summary>
-        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
-        /// <returns>An <see cref="sbyte"/> representing the message payload.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// The message does not have a timestamped payload.
-        /// </exception>
-        public sbyte GetPayloadSByte(out double timestamp)
-        {
-            timestamp = GetTimestamp();
-            return (sbyte)MessageBytes[TimestampedOffset];
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 16-bit unsigned integer.
-        /// </summary>
-        /// <returns>A <see cref="ushort"/> representing the message payload.</returns>
-        public ushort GetPayloadUInt16()
-        {
-            return BitConverter.ToUInt16(MessageBytes, PayloadOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 16-bit unsigned integer and gets the message timestamp.
-        /// </summary>
-        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
-        /// <returns>A <see cref="ushort"/> representing the message payload.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// The message does not have a timestamped payload.
-        /// </exception>
-        public ushort GetPayloadUInt16(out double timestamp)
-        {
-            timestamp = GetTimestamp();
-            return BitConverter.ToUInt16(MessageBytes, TimestampedOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 16-bit signed integer.
-        /// </summary>
-        /// <returns>A <see cref="short"/> representing the message payload.</returns>
-        public short GetPayloadInt16()
-        {
-            return BitConverter.ToInt16(MessageBytes, PayloadOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 16-bit signed integer and gets the message timestamp.
-        /// </summary>
-        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
-        /// <returns>A <see cref="short"/> representing the message payload.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// The message does not have a timestamped payload.
-        /// </exception>
-        public short GetPayloadInt16(out double timestamp)
-        {
-            timestamp = GetTimestamp();
-            return BitConverter.ToInt16(MessageBytes, TimestampedOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 32-bit unsigned integer.
-        /// </summary>
-        /// <returns>A <see cref="uint"/> representing the message payload.</returns>
-        public uint GetPayloadUInt32()
-        {
-            return BitConverter.ToUInt32(MessageBytes, PayloadOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 32-bit unsigned integer and gets the message timestamp.
-        /// </summary>
-        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
-        /// <returns>A <see cref="uint"/> representing the message payload.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// The message does not have a timestamped payload.
-        /// </exception>
-        public uint GetPayloadUInt32(out double timestamp)
-        {
-            timestamp = GetTimestamp();
-            return BitConverter.ToUInt32(MessageBytes, TimestampedOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 32-bit signed integer.
-        /// </summary>
-        /// <returns>An <see cref="int"/> representing the message payload.</returns>
-        public int GetPayloadInt32()
-        {
-            return BitConverter.ToInt32(MessageBytes, PayloadOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 32-bit signed integer and gets the message timestamp.
-        /// </summary>
-        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
-        /// <returns>An <see cref="int"/> representing the message payload.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// The message does not have a timestamped payload.
-        /// </exception>
-        public int GetPayloadInt32(out double timestamp)
-        {
-            timestamp = GetTimestamp();
-            return BitConverter.ToInt32(MessageBytes, TimestampedOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 64-bit unsigned integer.
-        /// </summary>
-        /// <returns>A <see cref="ulong"/> representing the message payload.</returns>
-        public ulong GetPayloadUInt64()
-        {
-            return BitConverter.ToUInt64(MessageBytes, PayloadOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 64-bit unsigned integer and gets the message timestamp.
-        /// </summary>
-        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
-        /// <returns>A <see cref="ulong"/> representing the message payload.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// The message does not have a timestamped payload.
-        /// </exception>
-        public ulong GetPayloadUInt64(out double timestamp)
-        {
-            timestamp = GetTimestamp();
-            return BitConverter.ToUInt64(MessageBytes, TimestampedOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 64-bit signed integer.
-        /// </summary>
-        /// <returns>A <see cref="long"/> representing the message payload.</returns>
-        public long GetPayloadInt64()
-        {
-            return BitConverter.ToInt64(MessageBytes, PayloadOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single 64-bit signed integer and gets the message timestamp.
-        /// </summary>
-        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
-        /// <returns>A <see cref="long"/> representing the message payload.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// The message does not have a timestamped payload.
-        /// </exception>
-        public long GetPayloadInt64(out double timestamp)
-        {
-            timestamp = GetTimestamp();
-            return BitConverter.ToInt64(MessageBytes, TimestampedOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single-precision floating point number.
-        /// </summary>
-        /// <returns>A <see cref="float"/> representing the message payload.</returns>
-        public float GetPayloadSingle()
-        {
-            return BitConverter.ToSingle(MessageBytes, PayloadOffset);
-        }
-
-        /// <summary>
-        /// Returns the message payload as a single-precision floating point number and gets the message timestamp.
-        /// </summary>
-        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
-        /// <returns>A <see cref="float"/> representing the message payload.</returns>
-        /// <exception cref="InvalidOperationException">
-        /// The message does not have a timestamped payload.
-        /// </exception>
-        public float GetPayloadSingle(out double timestamp)
-        {
-            timestamp = GetTimestamp();
-            return BitConverter.ToSingle(MessageBytes, TimestampedOffset);
         }
 
         static HarpMessage FromBytes(double timestamp, params byte[] messageBytes)

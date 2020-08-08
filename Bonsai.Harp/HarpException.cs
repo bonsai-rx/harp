@@ -84,7 +84,7 @@ namespace Bonsai.Harp
         static string GetPayloadString<TArray>(HarpMessage message) where TArray : unmanaged
         {
             const string DataSeparator = ",";
-            return string.Join(DataSeparator, message.GetPayload<TArray>());
+            return string.Join(DataSeparator, message.GetPayloadArray<TArray>());
         }
 
         private HarpException(SerializationInfo info, StreamingContext context)

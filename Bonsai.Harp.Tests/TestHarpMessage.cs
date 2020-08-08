@@ -50,7 +50,7 @@ namespace Bonsai.Harp.Tests
             var value = new byte[] { 23, 17 };
             var message = HarpMessage.FromByte(DefaultAddress, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<byte>();
+            var payload = message.GetPayloadArray<byte>();
             AssertArrayEqual(value, payload);
         }
 
@@ -69,7 +69,7 @@ namespace Bonsai.Harp.Tests
             var value = new sbyte[] { 4, -23 };
             var message = HarpMessage.FromSByte(DefaultAddress, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<sbyte>();
+            var payload = message.GetPayloadArray<sbyte>();
             AssertArrayEqual(value, payload);
         }
 
@@ -88,7 +88,7 @@ namespace Bonsai.Harp.Tests
             var value = new ushort[] { 512, 2048 };
             var message = HarpMessage.FromUInt16(DefaultAddress, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<ushort>();
+            var payload = message.GetPayloadArray<ushort>();
             AssertArrayEqual(value, payload);
         }
 
@@ -107,7 +107,7 @@ namespace Bonsai.Harp.Tests
             var value = new short[] { 512, -2048 };
             var message = HarpMessage.FromInt16(DefaultAddress, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<short>();
+            var payload = message.GetPayloadArray<short>();
             AssertArrayEqual(value, payload);
         }
 
@@ -126,7 +126,7 @@ namespace Bonsai.Harp.Tests
             var value = new uint[] { uint.MaxValue / 2, 123456789 };
             var message = HarpMessage.FromUInt32(DefaultAddress, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<uint>();
+            var payload = message.GetPayloadArray<uint>();
             AssertArrayEqual(value, payload);
         }
 
@@ -145,7 +145,7 @@ namespace Bonsai.Harp.Tests
             var value = new int[] { int.MaxValue / 2, -123456789 };
             var message = HarpMessage.FromInt32(DefaultAddress, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<int>();
+            var payload = message.GetPayloadArray<int>();
             AssertArrayEqual(value, payload);
         }
 
@@ -164,7 +164,7 @@ namespace Bonsai.Harp.Tests
             var value = new ulong[] { int.MaxValue * 2u, 123456789 };
             var message = HarpMessage.FromUInt64(DefaultAddress, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<ulong>();
+            var payload = message.GetPayloadArray<ulong>();
             AssertArrayEqual(value, payload);
         }
 
@@ -183,7 +183,7 @@ namespace Bonsai.Harp.Tests
             var value = new long[] { int.MaxValue * -2u, 123456789 };
             var message = HarpMessage.FromInt64(DefaultAddress, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<long>();
+            var payload = message.GetPayloadArray<long>();
             AssertArrayEqual(value, payload);
         }
 
@@ -202,7 +202,7 @@ namespace Bonsai.Harp.Tests
             var value = new float[] { (float)Math.PI, 1 / 3f };
             var message = HarpMessage.FromSingle(DefaultAddress, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<float>();
+            var payload = message.GetPayloadArray<float>();
             AssertArrayEqual(value, payload);
         }
 
@@ -213,7 +213,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromByte(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayloadByte(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadByte();
             AssertTimestamp(timestamp, actualTimestamp);
             Assert.AreEqual(value, payload);
         }
@@ -225,7 +225,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromByte(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<byte>(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadArray<byte>();
             AssertTimestamp(timestamp, actualTimestamp);
             AssertArrayEqual(value, payload);
         }
@@ -237,7 +237,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromSByte(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayloadSByte(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadSByte();
             AssertTimestamp(timestamp, actualTimestamp);
             Assert.AreEqual(value, payload);
         }
@@ -249,7 +249,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromSByte(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<sbyte>(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadArray<sbyte>();
             AssertTimestamp(timestamp, actualTimestamp);
             AssertArrayEqual(value, payload);
         }
@@ -261,7 +261,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromUInt16(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayloadUInt16(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadUInt16();
             AssertTimestamp(timestamp, actualTimestamp);
             Assert.AreEqual(value, payload);
         }
@@ -273,7 +273,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromUInt16(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<ushort>(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadArray<ushort>();
             AssertTimestamp(timestamp, actualTimestamp);
             AssertArrayEqual(value, payload);
         }
@@ -285,7 +285,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromInt16(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayloadInt16(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadInt16();
             AssertTimestamp(timestamp, actualTimestamp);
             Assert.AreEqual(value, payload);
         }
@@ -297,7 +297,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromInt16(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<short>(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadArray<short>();
             AssertTimestamp(timestamp, actualTimestamp);
             AssertArrayEqual(value, payload);
         }
@@ -309,7 +309,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromUInt32(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayloadUInt32(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadUInt32();
             AssertTimestamp(timestamp, actualTimestamp);
             Assert.AreEqual(value, payload);
         }
@@ -321,7 +321,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromUInt32(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<uint>(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadArray<uint>();
             AssertTimestamp(timestamp, actualTimestamp);
             AssertArrayEqual(value, payload);
         }
@@ -333,7 +333,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromInt32(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayloadInt32(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadInt32();
             AssertTimestamp(timestamp, actualTimestamp);
             Assert.AreEqual(value, payload);
         }
@@ -345,7 +345,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromInt32(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<int>(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadArray<int>();
             AssertTimestamp(timestamp, actualTimestamp);
             AssertArrayEqual(value, payload);
         }
@@ -357,7 +357,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromUInt64(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayloadUInt64(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadUInt64();
             AssertTimestamp(timestamp, actualTimestamp);
             Assert.AreEqual(value, payload);
         }
@@ -369,7 +369,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromUInt64(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<ulong>(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadArray<ulong>();
             AssertTimestamp(timestamp, actualTimestamp);
             AssertArrayEqual(value, payload);
         }
@@ -381,7 +381,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromInt64(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayloadInt64(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadInt64();
             AssertTimestamp(timestamp, actualTimestamp);
             Assert.AreEqual(value, payload);
         }
@@ -393,7 +393,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromInt64(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<long>(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadArray<long>();
             AssertTimestamp(timestamp, actualTimestamp);
             AssertArrayEqual(value, payload);
         }
@@ -405,7 +405,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromSingle(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayloadSingle(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadSingle();
             AssertTimestamp(timestamp, actualTimestamp);
             Assert.AreEqual(value, payload);
         }
@@ -417,7 +417,7 @@ namespace Bonsai.Harp.Tests
             var timestamp = GetTimestamp();
             var message = HarpMessage.FromSingle(DefaultAddress, timestamp, MessageType.Write, value);
             AssertIsValid(message);
-            var payload = message.GetPayload<float>(out double actualTimestamp);
+            var (payload, actualTimestamp) = message.GetTimestampedPayloadArray<float>();
             AssertTimestamp(timestamp, actualTimestamp);
             AssertArrayEqual(value, payload);
         }
