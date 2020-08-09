@@ -333,6 +333,19 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns the element at the specified index of the 8-bit unsigned integer array payload.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A <see cref="byte"/> representing the element at the specified index of the
+        /// array payload.
+        /// </returns>
+        public byte GetPayloadByte(int index)
+        {
+            return MessageBytes[PayloadOffset + index];
+        }
+
+        /// <summary>
         /// Returns the message payload as a single 8-bit unsigned integer and gets the message timestamp.
         /// </summary>
         /// <returns>A timestamped <see cref="byte"/> representing the message payload.</returns>
@@ -346,12 +359,43 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns the element at the specified index of the 8-bit unsigned integer array payload
+        /// and gets the message timestamp.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A timestamped <see cref="byte"/> representing the element at the specified index
+        /// of the array payload.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<byte> GetTimestampedPayloadByte(int index)
+        {
+            var timestamp = GetTimestamp();
+            return Timestamped.Create(MessageBytes[TimestampedOffset + index], timestamp);
+        }
+
+        /// <summary>
         /// Returns the message payload as a single 8-bit signed integer.
         /// </summary>
         /// <returns>An <see cref="sbyte"/> representing the message payload.</returns>
         public sbyte GetPayloadSByte()
         {
             return (sbyte)MessageBytes[PayloadOffset];
+        }
+
+        /// <summary>
+        /// Returns the element at the specified index of the 8-bit signed integer array payload.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// An <see cref="sbyte"/> representing the element at the specified index of the
+        /// array payload.
+        /// </returns>
+        public sbyte GetPayloadSByte(int index)
+        {
+            return (sbyte)MessageBytes[PayloadOffset + index];
         }
 
         /// <summary>
@@ -368,12 +412,43 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns the element at the specified index of the 8-bit signed integer array payload
+        /// and gets the message timestamp.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A timestamped <see cref="sbyte"/> representing the element at the specified index
+        /// of the array payload.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<sbyte> GetTimestampedPayloadSByte(int index)
+        {
+            var timestamp = GetTimestamp();
+            return Timestamped.Create((sbyte)MessageBytes[TimestampedOffset + index], timestamp);
+        }
+
+        /// <summary>
         /// Returns the message payload as a single 16-bit unsigned integer.
         /// </summary>
         /// <returns>A <see cref="ushort"/> representing the message payload.</returns>
         public ushort GetPayloadUInt16()
         {
             return BitConverter.ToUInt16(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the element at the specified index of the 16-bit unsigned integer array payload.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A <see cref="ushort"/> representing the element at the specified index of the
+        /// array payload.
+        /// </returns>
+        public ushort GetPayloadUInt16(int index)
+        {
+            return BitConverter.ToUInt16(MessageBytes, PayloadOffset + sizeof(ushort) * index);
         }
 
         /// <summary>
@@ -391,12 +466,44 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns the element at the specified index of the 16-bit unsigned integer array payload
+        /// and gets the message timestamp.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A timestamped <see cref="ushort"/> representing the element at the specified index
+        /// of the array payload.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<ushort> GetTimestampedPayloadUInt16(int index)
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToUInt16(MessageBytes, TimestampedOffset + sizeof(ushort) * index);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
         /// Returns the message payload as a single 16-bit signed integer.
         /// </summary>
         /// <returns>A <see cref="short"/> representing the message payload.</returns>
         public short GetPayloadInt16()
         {
             return BitConverter.ToInt16(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the element at the specified index of the 16-bit signed integer array payload.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A <see cref="short"/> representing the element at the specified index of the
+        /// array payload.
+        /// </returns>
+        public short GetPayloadInt16(int index)
+        {
+            return BitConverter.ToInt16(MessageBytes, PayloadOffset + sizeof(short) * index);
         }
 
         /// <summary>
@@ -414,12 +521,44 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns the element at the specified index of the 16-bit signed integer array payload
+        /// and gets the message timestamp.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A timestamped <see cref="short"/> representing the element at the specified index
+        /// of the array payload.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<short> GetTimestampedPayloadInt16(int index)
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToInt16(MessageBytes, TimestampedOffset + sizeof(short) * index);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
         /// Returns the message payload as a single 32-bit unsigned integer.
         /// </summary>
         /// <returns>A <see cref="uint"/> representing the message payload.</returns>
         public uint GetPayloadUInt32()
         {
             return BitConverter.ToUInt32(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the element at the specified index of the 32-bit unsigned integer array payload.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A <see cref="uint"/> representing the element at the specified index of the
+        /// array payload.
+        /// </returns>
+        public uint GetPayloadUInt32(int index)
+        {
+            return BitConverter.ToUInt32(MessageBytes, PayloadOffset + sizeof(uint) * index);
         }
 
         /// <summary>
@@ -437,12 +576,44 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns the element at the specified index of the 32-bit unsigned integer array payload
+        /// and gets the message timestamp.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A timestamped <see cref="uint"/> representing the element at the specified index
+        /// of the array payload.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<uint> GetTimestampedPayloadUInt32(int index)
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToUInt32(MessageBytes, TimestampedOffset + sizeof(uint) * index);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
         /// Returns the message payload as a single 32-bit signed integer.
         /// </summary>
         /// <returns>An <see cref="int"/> representing the message payload.</returns>
         public int GetPayloadInt32()
         {
             return BitConverter.ToInt32(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the element at the specified index of the 32-bit signed integer array payload.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// An <see cref="int"/> representing the element at the specified index of the
+        /// array payload.
+        /// </returns>
+        public int GetPayloadInt32(int index)
+        {
+            return BitConverter.ToInt32(MessageBytes, PayloadOffset + sizeof(int) * index);
         }
 
         /// <summary>
@@ -460,12 +631,44 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns the element at the specified index of the 32-bit signed integer array payload
+        /// and gets the message timestamp.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A timestamped <see cref="int"/> representing the element at the specified index
+        /// of the array payload.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<int> GetTimestampedPayloadInt32(int index)
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToInt32(MessageBytes, TimestampedOffset + sizeof(int) * index);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
         /// Returns the message payload as a single 64-bit unsigned integer.
         /// </summary>
         /// <returns>A <see cref="ulong"/> representing the message payload.</returns>
         public ulong GetPayloadUInt64()
         {
             return BitConverter.ToUInt64(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the element at the specified index of the 64-bit unsigned integer array payload.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A <see cref="ulong"/> representing the element at the specified index of the
+        /// array payload.
+        /// </returns>
+        public ulong GetPayloadUInt64(int index)
+        {
+            return BitConverter.ToUInt64(MessageBytes, PayloadOffset + sizeof(ulong) * index);
         }
 
         /// <summary>
@@ -483,12 +686,44 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns the element at the specified index of the 64-bit unsigned integer array payload
+        /// and gets the message timestamp.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A timestamped <see cref="ulong"/> representing the element at the specified index
+        /// of the array payload.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<ulong> GetTimestampedPayloadUInt64(int index)
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToUInt64(MessageBytes, TimestampedOffset + sizeof(ulong) * index);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
         /// Returns the message payload as a single 64-bit signed integer.
         /// </summary>
         /// <returns>A <see cref="long"/> representing the message payload.</returns>
         public long GetPayloadInt64()
         {
             return BitConverter.ToInt64(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the element at the specified index of the 64-bit signed integer array payload.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A <see cref="long"/> representing the element at the specified index of the
+        /// array payload.
+        /// </returns>
+        public long GetPayloadInt64(int index)
+        {
+            return BitConverter.ToInt64(MessageBytes, PayloadOffset + sizeof(long) * index);
         }
 
         /// <summary>
@@ -506,12 +741,44 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns the element at the specified index of the 64-bit signed integer array payload
+        /// and gets the message timestamp.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A timestamped <see cref="long"/> representing the element at the specified index
+        /// of the array payload.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<long> GetTimestampedPayloadInt64(int index)
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToInt64(MessageBytes, TimestampedOffset + sizeof(long) * index);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
         /// Returns the message payload as a single-precision floating point number.
         /// </summary>
         /// <returns>A <see cref="float"/> representing the message payload.</returns>
         public float GetPayloadSingle()
         {
             return BitConverter.ToSingle(MessageBytes, PayloadOffset);
+        }
+
+        /// <summary>
+        /// Returns the element at the specified index of the single-precision floating point array payload.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A <see cref="float"/> representing the element at the specified index of the
+        /// array payload.
+        /// </returns>
+        public float GetPayloadSingle(int index)
+        {
+            return BitConverter.ToSingle(MessageBytes, PayloadOffset + sizeof(float) * index);
         }
 
         /// <summary>
@@ -525,6 +792,25 @@ namespace Bonsai.Harp
         {
             var timestamp = GetTimestamp();
             var value = BitConverter.ToSingle(MessageBytes, TimestampedOffset);
+            return Timestamped.Create(value, timestamp);
+        }
+
+        /// <summary>
+        /// Returns the element at the specified index of the single-precision floating point array
+        /// payload and gets the message timestamp.
+        /// </summary>
+        /// <param name="index">The zero-based index of the array element to get.</param>
+        /// <returns>
+        /// A timestamped <see cref="float"/> representing the element at the specified index
+        /// of the array payload.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// The message does not have a timestamped payload.
+        /// </exception>
+        public Timestamped<float> GetTimestampedPayloadSingle(int index)
+        {
+            var timestamp = GetTimestamp();
+            var value = BitConverter.ToSingle(MessageBytes, TimestampedOffset + sizeof(float) * index);
             return Timestamped.Create(value, timestamp);
         }
 
