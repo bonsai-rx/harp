@@ -5,6 +5,42 @@
     /// </summary>
     public static class HarpCommand
     {
+        #region Common
+
+        /// <summary>
+        /// Returns a <see cref="HarpMessage"/> command to initialize the device operation control register.
+        /// </summary>
+        /// <param name="operationMode">The desired operation mode of the device.</param>
+        /// <param name="ledState">Specifies whether the operation mode LED should report the device state.</param>
+        /// <param name="visualIndicators">Specifies whether any visual indicator LEDs should be enabled on the Harp device.</param>
+        /// <param name="heartbeat">Specifies whether to enable or disable the heartbeat register.</param>
+        /// <param name="replies">Specifies whether write commands should report back the state of the register.</param>
+        /// <param name="dumpRegisters">Specifies whether the state of all registers should be reported after initialization.</param>
+        /// <returns>A valid <see cref="HarpMessage"/> command to set the device operation mode.</returns>
+        public static HarpMessage OperationControl(DeviceState operationMode, LedState ledState, LedState visualIndicators, EnableType heartbeat, EnableType replies, bool dumpRegisters)
+        {
+            int operationFlags;
+            operationFlags  = heartbeat == EnableType.Enable      ? 0x80 : 0x00;
+            operationFlags += ledState == LedState.On             ? 0x40 : 0x00;
+            operationFlags += visualIndicators == LedState.On     ? 0x20 : 0x00;
+            operationFlags += replies == EnableType.Enable        ? 0x00 : 0x10;
+            operationFlags += dumpRegisters                       ? 0x08 : 0x00;
+            operationFlags += operationMode == DeviceState.Active ? 0x01 : 0x00;
+            return WriteByte(Registers.OperationControl, (byte)operationFlags);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="HarpMessage"/> command to reset the device and restore or save non-volatile registers.
+        /// </summary>
+        /// <param name="resetMode">Specifies whether to restore or save non-volatile registers.</param>
+        /// <returns>A valid <see cref="HarpMessage"/> command to reset the device.</returns>
+        public static HarpMessage Reset(ResetMode resetMode)
+        {
+            return WriteByte(Registers.Reset, (byte)(1 << (byte)resetMode));
+        }
+
+        #endregion
+
         #region Read
 
         /// <summary>

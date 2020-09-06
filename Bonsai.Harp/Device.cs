@@ -101,26 +101,14 @@ namespace Bonsai.Harp
         /// Gets or sets a value indicating whether error messages parsed during acquisition should be ignored or raise an exception.
         /// </summary>
         [Description("Specifies whether error messages parsed during acquisition should be ignored or raise an error.")]
-        public bool IgnoreErrors { get; set; }        
-
-        static HarpMessage CreateOperationControl(DeviceState stateMode, LedState ledState, LedState visualIndicators, EnableType heartbeat, EnableType replies, bool dumpRegisters)
-        {
-            int operationFlags;
-            operationFlags  = (heartbeat == EnableType.Enable)  ? 0x80 : 0x00;
-            operationFlags += (ledState == LedState.On)         ? 0x40 : 0x00;
-            operationFlags += (visualIndicators == LedState.On) ? 0x20 : 0x00;
-            operationFlags += (replies == EnableType.Enable)    ? 0x00 : 0x10;
-            operationFlags += dumpRegisters                     ? 0x08 : 0x00;
-            operationFlags += (stateMode == DeviceState.Active) ? 0x01 : 0x00;
-            return HarpMessage.FromByte(Registers.OperationControl, MessageType.Write, (byte)operationFlags);
-        }
+        public bool IgnoreErrors { get; set; }
 
         static IObservable<string> GetDeviceName(string portName, LedState ledState, LedState visualIndicators, EnableType heartbeat)
         {
             return Observable.Create<string>(observer =>
             {
                 var transport = default(SerialTransport);
-                var writeOpCtrl = CreateOperationControl(DeviceState.Standby, ledState, visualIndicators, heartbeat, EnableType.Enable, false);
+                var writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, ledState, visualIndicators, heartbeat, EnableType.Enable, false);
                 var cmdReadWhoAmI = HarpMessage.FromUInt16(Registers.WhoAmI, MessageType.Read);
                 var cmdReadMajorHardwareVersion = HarpMessage.FromByte(Registers.HardwareVersionHigh, MessageType.Read);
                 var cmdReadMinorHardwareVersion = HarpMessage.FromByte(Registers.HardwareVersionLow, MessageType.Read);
@@ -202,12 +190,12 @@ namespace Bonsai.Harp
                 transport.IgnoreErrors = IgnoreErrors;
                 transport.Open();
                 
-                var writeOpCtrl = CreateOperationControl(DeviceState, ledState, visualIndicators, Heartbeat, CommandReplies, DumpRegisters);
+                var writeOpCtrl = HarpCommand.OperationControl(DeviceState, ledState, visualIndicators, Heartbeat, CommandReplies, DumpRegisters);
                 transport.Write(writeOpCtrl);
 
                 var cleanup = Disposable.Create(() =>
                 {
-                    writeOpCtrl = CreateOperationControl(DeviceState.Standby, ledState, visualIndicators, Heartbeat, CommandReplies, false);
+                    writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, ledState, visualIndicators, Heartbeat, CommandReplies, false);
                     transport.Write(writeOpCtrl);
                 });
 
@@ -231,7 +219,7 @@ namespace Bonsai.Harp
                 transport.IgnoreErrors = IgnoreErrors;
                 transport.Open();
 
-                var writeOpCtrl = CreateOperationControl(DeviceState, ledState, visualIndicators, Heartbeat, CommandReplies, DumpRegisters);
+                var writeOpCtrl = HarpCommand.OperationControl(DeviceState, ledState, visualIndicators, Heartbeat, CommandReplies, DumpRegisters);
                 transport.Write(writeOpCtrl);
 
                 var sourceDisposable = new SingleAssignmentDisposable();
@@ -242,7 +230,7 @@ namespace Bonsai.Harp
 
                 var cleanup = Disposable.Create(() =>
                 {
-                    writeOpCtrl = CreateOperationControl(DeviceState.Standby, ledState, visualIndicators, Heartbeat, CommandReplies, false);
+                    writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, ledState, visualIndicators, Heartbeat, CommandReplies, false);
                     transport.Write(writeOpCtrl);
                 });
 

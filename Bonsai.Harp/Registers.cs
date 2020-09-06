@@ -9,6 +9,7 @@
         public const int FirmwareVersionLow = 7;
         public const int TimestampSecond = 8;
         public const int OperationControl = 10;
+        public const int Reset = 11;
         public const int DeviceName = 12;
 
         public const PayloadType WhoAmIPayload = PayloadType.U16;
