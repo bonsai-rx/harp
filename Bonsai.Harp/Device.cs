@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -109,13 +109,13 @@ namespace Bonsai.Harp
             {
                 var transport = default(SerialTransport);
                 var writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, ledState, visualIndicators, heartbeat, EnableType.Enable, false);
-                var cmdReadWhoAmI = HarpMessage.FromUInt16(Registers.WhoAmI, MessageType.Read);
-                var cmdReadMajorHardwareVersion = HarpMessage.FromByte(Registers.HardwareVersionHigh, MessageType.Read);
-                var cmdReadMinorHardwareVersion = HarpMessage.FromByte(Registers.HardwareVersionLow, MessageType.Read);
-                var cmdReadMajorFirmwareVersion = HarpMessage.FromByte(Registers.FirmwareVersionHigh, MessageType.Read);
-                var cmdReadMinorFirmwareVersion = HarpMessage.FromByte(Registers.FirmwareVersionLow, MessageType.Read);
-                var cmdReadTimestampSeconds = HarpMessage.FromUInt32(Registers.TimestampSecond, MessageType.Read);
-                var cmdReadDeviceName = HarpMessage.FromByte(Registers.DeviceName, MessageType.Read);
+                var cmdReadWhoAmI = HarpCommand.ReadUInt16(Registers.WhoAmI);
+                var cmdReadMajorHardwareVersion = HarpCommand.ReadByte(Registers.HardwareVersionHigh);
+                var cmdReadMinorHardwareVersion = HarpCommand.ReadByte(Registers.HardwareVersionLow);
+                var cmdReadMajorFirmwareVersion = HarpCommand.ReadByte(Registers.FirmwareVersionHigh);
+                var cmdReadMinorFirmwareVersion = HarpCommand.ReadByte(Registers.FirmwareVersionLow);
+                var cmdReadTimestampSeconds = HarpCommand.ReadUInt32(Registers.TimestampSecond);
+                var cmdReadDeviceName = HarpCommand.ReadByte(Registers.DeviceName);
 
                 var whoAmI = 0;
                 var timestamp = 0u;
