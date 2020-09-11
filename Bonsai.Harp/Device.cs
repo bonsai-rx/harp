@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -116,6 +116,7 @@ namespace Bonsai.Harp
                 var cmdReadMinorFirmwareVersion = HarpCommand.ReadByte(Registers.FirmwareVersionLow);
                 var cmdReadTimestampSeconds = HarpCommand.ReadUInt32(Registers.TimestampSecond);
                 var cmdReadDeviceName = HarpCommand.ReadByte(Registers.DeviceName);
+                var cmdReadSerialNumber = HarpCommand.ReadUInt16(Registers.SerialNumber);
 
                 var whoAmI = 0;
                 var timestamp = 0u;
@@ -123,6 +124,7 @@ namespace Bonsai.Harp
                 var hardwareVersionLow = 0;
                 var firmwareVersionHigh = 0;
                 var firmwareVersionLow = 0;
+                var serialNumber = default(ushort?);
                 var messageObserver = Observer.Create<HarpMessage>(
                     message =>
                     {
@@ -135,6 +137,7 @@ namespace Bonsai.Harp
                                 transport.Write(cmdReadMajorFirmwareVersion);
                                 transport.Write(cmdReadMinorFirmwareVersion);
                                 transport.Write(cmdReadTimestampSeconds);
+                                transport.Write(cmdReadSerialNumber);
                                 transport.Write(cmdReadDeviceName);
                                 break;
                             case Registers.WhoAmI: whoAmI = message.GetPayloadUInt16(); break;
@@ -143,6 +146,7 @@ namespace Bonsai.Harp
                             case Registers.FirmwareVersionHigh: firmwareVersionHigh = message.GetPayloadByte(); break;
                             case Registers.FirmwareVersionLow: firmwareVersionLow = message.GetPayloadByte(); break;
                             case Registers.TimestampSecond: timestamp = message.GetPayloadUInt32(); break;
+                            case Registers.SerialNumber: if (!message.Error) serialNumber = message.GetPayloadUInt16(); break;
                             case Registers.DeviceName:
                                 var deviceName = nameof(Device);
                                 if (!message.Error)
@@ -151,7 +155,8 @@ namespace Bonsai.Harp
                                     deviceName = Encoding.ASCII.GetString(namePayload.Array, namePayload.Offset, namePayload.Count);
                                 }
                                 Console.WriteLine("Serial Harp device.");
-                                Console.WriteLine($"WhoAmI: {whoAmI}");
+                                if (!serialNumber.HasValue) Console.WriteLine($"WhoAmI: {whoAmI}");
+                                else Console.WriteLine($"WhoAmI: {whoAmI}-{serialNumber:x4}");
                                 Console.WriteLine($"Hw: {hardwareVersionHigh}.{hardwareVersionLow}");
                                 Console.WriteLine($"Fw: {firmwareVersionHigh}.{firmwareVersionLow}");
                                 Console.WriteLine($"Timestamp (s): {timestamp}");
