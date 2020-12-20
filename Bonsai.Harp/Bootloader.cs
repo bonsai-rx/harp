@@ -33,10 +33,11 @@ namespace Bonsai.Harp
         /// or is in bootloader mode; <b>false</b> to throw an exception if the firmware is not supported, or the device
         /// is in an invalid state.
         /// </param>
+        /// <param name="progress">The optional <see cref="IProgress{Int32}"/> object used to report update progress.</param>
         /// <returns>
         /// The task object representing the asynchronous firmware update operation.
         /// </returns>
-        public static async Task UpdateFirmwareAsync(string portName, DeviceFirmware firmware, bool forceUpdate = false)
+        public static async Task UpdateFirmwareAsync(string portName, DeviceFirmware firmware, bool forceUpdate = false, IProgress<int> progress = default)
         {
             var flushDelay = TimeSpan.FromMilliseconds(FlushDelayMilliseconds);
             using (var device = new AsyncDevice(portName))
@@ -65,6 +66,7 @@ namespace Bonsai.Harp
                     }
                     else throw new HarpException("The device is in an unexpected boot mode.");
                     await Observable.Timer(flushDelay);
+                    progress?.Report(20);
                 }
                 catch (TimeoutException)
                 {
@@ -82,6 +84,7 @@ namespace Bonsai.Harp
                 bootloader.Open();
                 await Observable.Timer(flushDelay);
                 var pageSize = await ReadPageSizeAsync(bootloader.BaseStream);
+                progress?.Report(40);
 
                 var bytesWritten = 0;
                 var dataMessage = new byte[pageSize + HeaderSize];
@@ -90,10 +93,13 @@ namespace Bonsai.Harp
                     CreateBootloaderMessage(dataMessage, WritePage, bytesWritten, firmware.Data, bytesWritten, pageSize);
                     await BootloaderCommandAsync(bootloader.BaseStream, dataMessage);
                     bytesWritten += pageSize;
+                    progress?.Report(40 + bytesWritten * 50 / firmware.Data.Length);
                 }
 
+                progress?.Report(90);
                 CreateBootloaderMessage(dataMessage, ExitBootloader, 0, firmware.Data, 0, pageSize);
                 await BootloaderCommandAsync(bootloader.BaseStream, dataMessage);
+                progress?.Report(100);
             };
         }
 
