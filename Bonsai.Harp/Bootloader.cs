@@ -28,6 +28,20 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="portName">The name of the serial port used to communicate with the Harp device.</param>
         /// <param name="firmware">The binary firmware image to upload to the device.</param>
+        /// <param name="progress">The optional <see cref="IProgress{Int32}"/> object used to report update progress.</param>
+        /// <returns>
+        /// The task object representing the asynchronous firmware update operation.
+        /// </returns>
+        public static Task UpdateFirmwareAsync(string portName, DeviceFirmware firmware, IProgress<int> progress = default)
+        {
+            return UpdateFirmwareAsync(portName, firmware, forceUpdate: false, progress: progress);
+        }
+
+        /// <summary>
+        /// Asynchronously updates the firmware of the Harp device on the specified port.
+        /// </summary>
+        /// <param name="portName">The name of the serial port used to communicate with the Harp device.</param>
+        /// <param name="firmware">The binary firmware image to upload to the device.</param>
         /// <param name="forceUpdate">
         /// <b>true</b> to indicate that the firmware should be uploaded even if the device reports unsupported hardware,
         /// or is in bootloader mode; <b>false</b> to throw an exception if the firmware is not supported, or the device
@@ -37,7 +51,7 @@ namespace Bonsai.Harp
         /// <returns>
         /// The task object representing the asynchronous firmware update operation.
         /// </returns>
-        public static async Task UpdateFirmwareAsync(string portName, DeviceFirmware firmware, bool forceUpdate = false, IProgress<int> progress = default)
+        public static async Task UpdateFirmwareAsync(string portName, DeviceFirmware firmware, bool forceUpdate, IProgress<int> progress = default)
         {
             var flushDelay = TimeSpan.FromMilliseconds(FlushDelayMilliseconds);
             using (var device = new AsyncDevice(portName))
