@@ -101,13 +101,17 @@ namespace Bonsai.Harp
                 progress?.Report(40);
 
                 var bytesWritten = 0;
+                var reportSize = pageSize * 8;
                 var dataMessage = new byte[pageSize + HeaderSize];
                 while (bytesWritten < firmware.Data.Length)
                 {
                     CreateBootloaderMessage(dataMessage, WritePage, bytesWritten, firmware.Data, bytesWritten, pageSize);
                     await BootloaderCommandAsync(bootloader.BaseStream, dataMessage);
                     bytesWritten += pageSize;
-                    progress?.Report(40 + bytesWritten * 50 / firmware.Data.Length);
+                    if (bytesWritten % reportSize == 0)
+                    {
+                        progress?.Report(40 + bytesWritten * 50 / firmware.Data.Length);
+                    }
                 }
 
                 progress?.Report(90);
