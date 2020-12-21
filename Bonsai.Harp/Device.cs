@@ -4,6 +4,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive;
 using System.Text;
+using System.Reactive.Concurrency;
 
 namespace Bonsai.Harp
 {
@@ -15,36 +16,19 @@ namespace Bonsai.Harp
     {
         string name;
         string portName;
-        LedState ledState;
-        LedState visualIndicators;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Device"/> class.
         /// </summary>
         public Device()
         {
-            PortName = "COMx";
+            portName = "COMx";
             DeviceState = DeviceState.Active;
             LedState = LedState.On;
             VisualIndicators = LedState.On;
             DumpRegisters = true;
             Heartbeat = EnableType.Disable;
             CommandReplies = EnableType.Enable;
-        }
-
-        /// <summary>
-        /// Gets or sets the name of the serial port used to communicate with the Harp device.
-        /// </summary>
-        [TypeConverter(typeof(PortNameConverter))]
-        [Description("The name of the serial port used to communicate with the Harp device.")]
-        public string PortName
-        {
-            get { return portName; }
-            set
-            {
-                portName = value;
-                GetDeviceName(portName, ledState, visualIndicators, Heartbeat).Subscribe(deviceName => name = deviceName);
-            }
         }
 
         /// <summary>
@@ -63,30 +47,13 @@ namespace Bonsai.Harp
         /// Gets or sets the state of the device LED.
         /// </summary>
         [Description("Specifies the state of the device LED.")]
-        public LedState LedState
-        {
-            get { return ledState; }
-
-            set
-            {
-                ledState = value;
-                GetDeviceName(portName, ledState, visualIndicators, Heartbeat).Subscribe(deviceName => name = deviceName);
-            }
-        }
+        public LedState LedState { get; set; }
 
         /// <summary>
         /// Gets or sets the state of all the visual indicators in the device.
         /// </summary>
         [Description("Specifies the state of all the visual indicators in the device.")]
-        public LedState VisualIndicators
-        {
-            get { return visualIndicators; }
-            set
-            {
-                visualIndicators = value;
-                GetDeviceName(portName, ledState, visualIndicators, Heartbeat).Subscribe(deviceName => name = deviceName);
-            }
-        }
+        public LedState VisualIndicators { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the Device sends the Timestamp event each second.
@@ -102,6 +69,21 @@ namespace Bonsai.Harp
         /// </summary>
         [Description("Specifies whether error messages parsed during acquisition should be ignored or raise an error.")]
         public bool IgnoreErrors { get; set; }
+
+        /// <summary>
+        /// Gets or sets the name of the serial port used to communicate with the Harp device.
+        /// </summary>
+        [TypeConverter(typeof(PortNameConverter))]
+        [Description("The name of the serial port used to communicate with the Harp device.")]
+        public string PortName
+        {
+            get { return portName; }
+            set
+            {
+                portName = value;
+                GetDeviceName(portName, LedState, VisualIndicators, Heartbeat).Subscribe(deviceName => name = deviceName);
+            }
+        }
 
         static IObservable<string> GetDeviceName(string portName, LedState ledState, LedState visualIndicators, EnableType heartbeat)
         {
@@ -179,6 +161,7 @@ namespace Bonsai.Harp
                 return transport;
             }).Timeout(TimeSpan.FromMilliseconds(500))
               .OnErrorResumeNext(Observable.Return(nameof(Device)))
+              .SubscribeOn(Scheduler.Default)
               .FirstAsync();
         }
 
@@ -195,12 +178,12 @@ namespace Bonsai.Harp
                 transport.IgnoreErrors = IgnoreErrors;
                 transport.Open();
                 
-                var writeOpCtrl = HarpCommand.OperationControl(DeviceState, ledState, visualIndicators, Heartbeat, CommandReplies, DumpRegisters);
+                var writeOpCtrl = HarpCommand.OperationControl(DeviceState, LedState, VisualIndicators, Heartbeat, CommandReplies, DumpRegisters);
                 transport.Write(writeOpCtrl);
 
                 var cleanup = Disposable.Create(() =>
                 {
-                    writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, ledState, visualIndicators, Heartbeat, CommandReplies, false);
+                    writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, LedState, VisualIndicators, Heartbeat, CommandReplies, false);
                     transport.Write(writeOpCtrl);
                 });
 
@@ -224,7 +207,7 @@ namespace Bonsai.Harp
                 transport.IgnoreErrors = IgnoreErrors;
                 transport.Open();
 
-                var writeOpCtrl = HarpCommand.OperationControl(DeviceState, ledState, visualIndicators, Heartbeat, CommandReplies, DumpRegisters);
+                var writeOpCtrl = HarpCommand.OperationControl(DeviceState, LedState, VisualIndicators, Heartbeat, CommandReplies, DumpRegisters);
                 transport.Write(writeOpCtrl);
 
                 var sourceDisposable = new SingleAssignmentDisposable();
@@ -235,7 +218,7 @@ namespace Bonsai.Harp
 
                 var cleanup = Disposable.Create(() =>
                 {
-                    writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, ledState, visualIndicators, Heartbeat, CommandReplies, false);
+                    writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, LedState, VisualIndicators, Heartbeat, CommandReplies, false);
                     transport.Write(writeOpCtrl);
                 });
 
