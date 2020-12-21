@@ -6,9 +6,12 @@
     <PackageProjectUrl>https://github.com/bonsai-rx/harp</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/bonsai-rx/harp/blob/master/LICENSE</PackageLicenseUrl>
     <PackageIconUrl>https://github.com/bonsai-rx/harp/raw/master/Resources/Harp.png</PackageIconUrl>
-    <IncludeSymbols Condition="'$(Configuration)'=='Release'">true</IncludeSymbols>
-    <GeneratePackageOnBuild Condition="'$(Configuration)'=='Release'">true</GeneratePackageOnBuild>
     <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
+    <IncludeSymbols Condition="'$(Configuration)'=='Release'">true</IncludeSymbols>
+    <SymbolPackageFormat Condition="'$(Configuration)'=='Release'">snupkg</SymbolPackageFormat>
+    <GeneratePackageOnBuild Condition="'$(Configuration)'=='Release'">true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/bonsai-rx/harp.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <LangVersion>8.0</LangVersion>
     <Features>strict</Features>
   </PropertyGroup>
