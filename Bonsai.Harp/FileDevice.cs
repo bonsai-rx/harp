@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -67,11 +67,11 @@ namespace Bonsai.Harp
                             var transport = new StreamTransport(harpObserver);
                             transport.IgnoreErrors = IgnoreErrors;
 
-                            int bytesToRead;
+                            long bytesToRead;
                             while (!cancellationToken.IsCancellationRequested &&
-                                   (bytesToRead = Math.Min(ReadBufferSize, (int)(stream.Length - stream.Position))) > 0)
+                                   (bytesToRead = Math.Min(ReadBufferSize, stream.Length - stream.Position)) > 0)
                             {
-                                transport.ReceiveData(stream, ReadBufferSize, bytesToRead);
+                                transport.ReceiveData(stream, ReadBufferSize, (int)bytesToRead);
                             }
                         }
                     }
