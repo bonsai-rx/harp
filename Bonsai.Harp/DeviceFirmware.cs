@@ -8,6 +8,8 @@ namespace Bonsai.Harp
     /// </summary>
     public sealed class DeviceFirmware
     {
+        const int DefaultPageSize = 512;
+
         private DeviceFirmware(FirmwareMetadata metadata, byte[] data)
         {
             Metadata = metadata;
@@ -76,6 +78,20 @@ namespace Bonsai.Harp
             {
                 data[i] = -1;
             }
+        }
+
+        /// <summary>
+        /// Creates a <see cref="DeviceFirmware"/> object from the specified file in Intel HEX format
+        /// using the default page size.
+        /// </summary>
+        /// <param name="path">The name of the file from which to create the <see cref="DeviceFirmware"/>.</param>
+        /// <returns>
+        /// A new <see cref="DeviceFirmware"/> object representing the extracted binary firware blob,
+        /// together with the metadata extracted from the firmware file name.
+        /// </returns>
+        public static DeviceFirmware FromFile(string path)
+        {
+            return FromFile(path, DefaultPageSize);
         }
 
         /// <summary>

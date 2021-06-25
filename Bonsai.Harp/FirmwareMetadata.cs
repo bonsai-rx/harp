@@ -172,14 +172,14 @@ namespace Bonsai.Harp
         /// Converts a string representation of the <see cref="FirmwareMetadata"/> to its
         /// equivalent value.
         /// </summary>
-        /// <param name="metadata">The string representing the <see cref="FirmwareMetadata"/>.</param>
+        /// <param name="input">The string representing the <see cref="FirmwareMetadata"/>.</param>
         /// <returns>The equivalent <see cref="FirmwareMetadata"/> object for the specified string representation.</returns>
-        public static FirmwareMetadata Parse(string metadata)
+        public static FirmwareMetadata Parse(string input)
         {
-            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
-            if (!TryParse(metadata, out FirmwareMetadata result))
+            if (input == null) throw new ArgumentNullException(nameof(input));
+            if (!TryParse(input, out FirmwareMetadata result))
             {
-                throw new ArgumentException("Invalid Harp firmware metadata specification string.", nameof(metadata));
+                throw new ArgumentException("Invalid Harp firmware metadata specification string.", nameof(input));
             }
 
             return result;
@@ -189,17 +189,17 @@ namespace Bonsai.Harp
         /// Converts a string representation of the <see cref="FirmwareMetadata"/> to its
         /// equivalent value. A return value indicates whether the conversion succeeded.
         /// </summary>
-        /// <param name="metadata">The string representing the <see cref="FirmwareMetadata"/>.</param>
-        /// <param name="value">
+        /// <param name="input">The string representing the <see cref="FirmwareMetadata"/>.</param>
+        /// <param name="metadata">
         /// When this method returns, contains the equivalent <see cref="FirmwareMetadata"/> object
         /// for the specified string representation if the conversion was successful;
         /// otherwise, contains <b>null</b>.
         /// </param>
         /// <returns><b>true</b> if the conversion was successful; otherwise, <b>false</b>.</returns>
-        public static bool TryParse(string metadata, out FirmwareMetadata value)
+        public static bool TryParse(string input, out FirmwareMetadata metadata)
         {
-            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
-            var match = MetadataRegex.Match(metadata);
+            if (input == null) throw new ArgumentNullException(nameof(input));
+            var match = MetadataRegex.Match(input);
             if (match.Success && match.Groups.Count == 7)
             {
                 var deviceName = match.Groups[1].Value;
@@ -208,12 +208,12 @@ namespace Bonsai.Harp
                 var hardwareVersion = HarpVersion.Parse(match.Groups[4].Value);
                 var assemblyNumber = match.Groups[5].Value == HarpVersion.FloatingWildcard ? (int?)null : int.Parse(match.Groups[5].Value);
                 var prereleaseVersion = string.IsNullOrEmpty(match.Groups[6].Value) ? (int?)null : int.Parse(match.Groups[6].Value);
-                value = new FirmwareMetadata(deviceName, firmwareVersion, protocolVersion, hardwareVersion, assemblyNumber, prereleaseVersion);
+                metadata = new FirmwareMetadata(deviceName, firmwareVersion, protocolVersion, hardwareVersion, assemblyNumber, prereleaseVersion);
                 return true;
             }
             else
             {
-                value = null;
+                metadata = null;
                 return false;
             }
         }
