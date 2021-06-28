@@ -43,8 +43,8 @@ namespace Bonsai.Harp
         /// </returns>
         public async Task<HarpVersion> ReadHardwareVersionAsync()
         {
-            var major = await ReadByteAsync(Registers.HardwareVersionHigh);
-            var minor = await ReadByteAsync(Registers.HardwareVersionLow);
+            var major = await ReadByteAsync(DeviceRegisters.HardwareVersionHigh);
+            var minor = await ReadByteAsync(DeviceRegisters.HardwareVersionLow);
             return new HarpVersion(major, minor);
         }
 
@@ -57,8 +57,8 @@ namespace Bonsai.Harp
         /// </returns>
         public async Task<HarpVersion> ReadFirmwareVersionAsync()
         {
-            var major = await ReadByteAsync(Registers.FirmwareVersionHigh);
-            var minor = await ReadByteAsync(Registers.FirmwareVersionLow);
+            var major = await ReadByteAsync(DeviceRegisters.FirmwareVersionHigh);
+            var minor = await ReadByteAsync(DeviceRegisters.FirmwareVersionLow);
             return new HarpVersion(major, minor);
         }
 
@@ -71,7 +71,7 @@ namespace Bonsai.Harp
         /// </returns>
         public async Task<string> ReadDeviceNameAsync()
         {
-            var deviceName = await CommandAsync(HarpCommand.ReadByte(Registers.DeviceName));
+            var deviceName = await CommandAsync(HarpCommand.ReadByte(DeviceRegisters.DeviceName));
             var namePayload = deviceName.GetPayload();
             var count = Array.IndexOf(namePayload.Array, (byte)0, namePayload.Offset, namePayload.Count) - namePayload.Offset;
             return Encoding.ASCII.GetString(namePayload.Array, namePayload.Offset, count);

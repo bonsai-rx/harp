@@ -69,14 +69,14 @@ namespace Bonsai.Harp
                     const byte BootDefault = 0x40;
                     const byte ResetDefault = 0x1;
                     const byte ResetEeprom = 0x2;
-                    var reset = await device.ReadByteAsync(Registers.Reset);
+                    var reset = await device.ReadByteAsync(DeviceRegisters.Reset);
                     if ((reset & BootEeprom) != 0)
                     {
-                        await device.WriteByteAsync(Registers.Reset, ResetEeprom);
+                        await device.WriteByteAsync(DeviceRegisters.Reset, ResetEeprom);
                     }
                     else if ((reset & BootDefault) != 0)
                     {
-                        await device.WriteByteAsync(Registers.Reset, ResetDefault);
+                        await device.WriteByteAsync(DeviceRegisters.Reset, ResetDefault);
                     }
                     else throw new HarpException("The device is in an unexpected boot mode.");
                     await Observable.Timer(flushDelay);

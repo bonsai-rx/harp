@@ -63,7 +63,7 @@ namespace Bonsai.Harp
 
         static IObservable<uint> Heartbeat(IObservable<HarpMessage> source)
         {
-            return source.Event(Registers.TimestampSecond).Select(input => input.GetPayloadUInt32());
+            return source.Event(DeviceRegisters.TimestampSecond).Select(input => input.GetPayloadUInt32());
         }
 
         static IObservable<double> MessageTimestamp(IObservable<HarpMessage> source)

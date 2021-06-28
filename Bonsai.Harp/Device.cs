@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -91,14 +91,14 @@ namespace Bonsai.Harp
             {
                 var transport = default(SerialTransport);
                 var writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, ledState, visualIndicators, heartbeat, EnableType.Enable, false);
-                var cmdReadWhoAmI = HarpCommand.ReadUInt16(Registers.WhoAmI);
-                var cmdReadMajorHardwareVersion = HarpCommand.ReadByte(Registers.HardwareVersionHigh);
-                var cmdReadMinorHardwareVersion = HarpCommand.ReadByte(Registers.HardwareVersionLow);
-                var cmdReadMajorFirmwareVersion = HarpCommand.ReadByte(Registers.FirmwareVersionHigh);
-                var cmdReadMinorFirmwareVersion = HarpCommand.ReadByte(Registers.FirmwareVersionLow);
-                var cmdReadTimestampSeconds = HarpCommand.ReadUInt32(Registers.TimestampSecond);
-                var cmdReadDeviceName = HarpCommand.ReadByte(Registers.DeviceName);
-                var cmdReadSerialNumber = HarpCommand.ReadUInt16(Registers.SerialNumber);
+                var cmdReadWhoAmI = HarpCommand.ReadUInt16(DeviceRegisters.WhoAmI);
+                var cmdReadMajorHardwareVersion = HarpCommand.ReadByte(DeviceRegisters.HardwareVersionHigh);
+                var cmdReadMinorHardwareVersion = HarpCommand.ReadByte(DeviceRegisters.HardwareVersionLow);
+                var cmdReadMajorFirmwareVersion = HarpCommand.ReadByte(DeviceRegisters.FirmwareVersionHigh);
+                var cmdReadMinorFirmwareVersion = HarpCommand.ReadByte(DeviceRegisters.FirmwareVersionLow);
+                var cmdReadTimestampSeconds = HarpCommand.ReadUInt32(DeviceRegisters.TimestampSecond);
+                var cmdReadDeviceName = HarpCommand.ReadByte(DeviceRegisters.DeviceName);
+                var cmdReadSerialNumber = HarpCommand.ReadUInt16(DeviceRegisters.SerialNumber);
 
                 var whoAmI = 0;
                 var timestamp = 0u;
@@ -112,7 +112,7 @@ namespace Bonsai.Harp
                     {
                         switch (message.Address)
                         {
-                            case Registers.OperationControl:
+                            case DeviceRegisters.OperationControl:
                                 transport.Write(cmdReadWhoAmI);
                                 transport.Write(cmdReadMajorHardwareVersion);
                                 transport.Write(cmdReadMinorHardwareVersion);
@@ -122,14 +122,14 @@ namespace Bonsai.Harp
                                 transport.Write(cmdReadSerialNumber);
                                 transport.Write(cmdReadDeviceName);
                                 break;
-                            case Registers.WhoAmI: whoAmI = message.GetPayloadUInt16(); break;
-                            case Registers.HardwareVersionHigh: hardwareVersionHigh = message.GetPayloadByte(); break;
-                            case Registers.HardwareVersionLow: hardwareVersionLow = message.GetPayloadByte(); break;
-                            case Registers.FirmwareVersionHigh: firmwareVersionHigh = message.GetPayloadByte(); break;
-                            case Registers.FirmwareVersionLow: firmwareVersionLow = message.GetPayloadByte(); break;
-                            case Registers.TimestampSecond: timestamp = message.GetPayloadUInt32(); break;
-                            case Registers.SerialNumber: if (!message.Error) serialNumber = message.GetPayloadUInt16(); break;
-                            case Registers.DeviceName:
+                            case DeviceRegisters.WhoAmI: whoAmI = message.GetPayloadUInt16(); break;
+                            case DeviceRegisters.HardwareVersionHigh: hardwareVersionHigh = message.GetPayloadByte(); break;
+                            case DeviceRegisters.HardwareVersionLow: hardwareVersionLow = message.GetPayloadByte(); break;
+                            case DeviceRegisters.FirmwareVersionHigh: firmwareVersionHigh = message.GetPayloadByte(); break;
+                            case DeviceRegisters.FirmwareVersionLow: firmwareVersionLow = message.GetPayloadByte(); break;
+                            case DeviceRegisters.TimestampSecond: timestamp = message.GetPayloadUInt32(); break;
+                            case DeviceRegisters.SerialNumber: if (!message.Error) serialNumber = message.GetPayloadUInt16(); break;
+                            case DeviceRegisters.DeviceName:
                                 var deviceName = nameof(Device);
                                 if (!message.Error)
                                 {

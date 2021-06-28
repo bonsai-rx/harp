@@ -61,13 +61,13 @@ namespace Bonsai.Harp
 
         static HarpMessage WriteTimestamp(uint input)
         {
-            return HarpCommand.WriteUInt32(Registers.TimestampSecond, input);
+            return HarpCommand.WriteUInt32(DeviceRegisters.TimestampSecond, input);
         }
 
         static HarpMessage SynchronizeTimestamp()
         {
             var unixTimestamp = (uint)(DateTime.UtcNow.Subtract(new DateTime(1904, 1, 1))).TotalSeconds;
-            return HarpCommand.WriteUInt32(Registers.TimestampSecond, unixTimestamp);
+            return HarpCommand.WriteUInt32(DeviceRegisters.TimestampSecond, unixTimestamp);
         }
     }
 

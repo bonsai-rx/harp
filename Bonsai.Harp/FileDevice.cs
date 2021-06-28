@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -46,8 +46,8 @@ namespace Bonsai.Harp
                                         timestamp *= 1000.0 / playbackRate.Value; //ms
                                         if (!stopwatch.IsRunning ||
                                             value.MessageType == MessageType.Write &&
-                                            value.Address == Registers.TimestampSecond &&
-                                            value.PayloadType == (PayloadType.Timestamp | Registers.TimestampSecondPayload))
+                                            value.Address == DeviceRegisters.TimestampSecond &&
+                                            value.PayloadType == (PayloadType.Timestamp | DeviceRegisters.TimestampSecondPayload))
                                         {
                                             stopwatch.Restart();
                                             timestampOffset = timestamp;

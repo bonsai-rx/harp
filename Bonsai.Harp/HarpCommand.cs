@@ -26,7 +26,7 @@
             operationFlags += replies == EnableType.Enable        ? 0x00 : 0x10;
             operationFlags += dumpRegisters                       ? 0x08 : 0x00;
             operationFlags += operationMode == DeviceState.Active ? 0x01 : 0x00;
-            return WriteByte(Registers.OperationControl, (byte)operationFlags);
+            return WriteByte(DeviceRegisters.OperationControl, (byte)operationFlags);
         }
 
         /// <summary>
@@ -36,7 +36,7 @@
         /// <returns>A valid <see cref="HarpMessage"/> command to reset the device.</returns>
         public static HarpMessage Reset(ResetMode resetMode)
         {
-            return WriteByte(Registers.Reset, (byte)(1 << (byte)resetMode));
+            return WriteByte(DeviceRegisters.Reset, (byte)(1 << (byte)resetMode));
         }
 
         #endregion
