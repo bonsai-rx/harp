@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -11,6 +11,7 @@ namespace Bonsai.Harp
     /// <summary>
     /// Represents an observable source of messages from the Harp device connected at the specified serial port.
     /// </summary>
+    [Editor("Bonsai.Harp.Design.DeviceConfigurationEditor, Bonsai.Harp.Design", typeof(ComponentEditor))]
     [Description("Produces a sequence of messages from the Harp device connected at the specified serial port.")]
     public class Device : Source<HarpMessage>, INamedElement
     {

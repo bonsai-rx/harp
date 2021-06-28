@@ -1,5 +1,6 @@
 .vs
 .suo
 .nuget
+*.user
 bin
 obj
