@@ -213,6 +213,29 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously updates the display name of the device.
+        /// </summary>
+        /// <param name="name">
+        /// A <see cref="string"/> containing the name of the device. The maximum length
+        /// of the specified device name is 25 characters.
+        /// </param>
+        /// <returns>
+        /// The task object representing the asynchronous write operation.
+        /// </returns>
+        public async Task WriteDeviceNameAsync(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("The specified device name cannot be null or empty.", nameof(name));
+            }
+
+            const int DeviceNameLength = 25;
+            var payload = new byte[DeviceNameLength];
+            Encoding.ASCII.GetBytes(name, 0, Math.Min(name.Length, DeviceNameLength - 1), payload, 0);
+            await CommandAsync(HarpCommand.WriteByte(DeviceRegisters.DeviceName, payload));
+        }
+
+        /// <summary>
         /// Asynchronously writes a value to an 8-bit unsigned integer register
         /// with the specified address.
         /// </summary>
