@@ -107,6 +107,7 @@ namespace Bonsai.Harp.Design
             this.propertyGrid.Size = new System.Drawing.Size(286, 154);
             this.propertyGrid.TabIndex = 1;
             this.propertyGrid.ToolbarVisible = false;
+            this.propertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid_PropertyValueChanged);
             // 
             // bootloaderButton
             // 

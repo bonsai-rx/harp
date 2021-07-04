@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -135,6 +135,15 @@
   </data>
   <data name="UpdateDeviceFirmware_Question" xml:space="preserve">
     <value>Are you sure you want to update the device firmware? This action cannot be undone.</value>
+  </data>
+  <data name="UpdateDeviceName_Caption" xml:space="preserve">
+    <value>Update Device Name</value>
+  </data>
+  <data name="UpdateDeviceName_Label" xml:space="preserve">
+    <value>Setting device name. Please wait...</value>
+  </data>
+  <data name="UpdateDeviceName_Question" xml:space="preserve">
+    <value>Do you want to write the new device name to non-volatile memory?</value>
   </data>
   <data name="WorkflowRunning_Error" xml:space="preserve">
     <value>The Harp device configuration cannot be changed while the workflow is running. Please stop the workflow and try again.</value>

@@ -1,4 +1,4 @@
-using Bonsai.Design;
+﻿using Bonsai.Design;
 using Bonsai.Harp.Design.Properties;
 using System;
 using System.Collections.Generic;
@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Bonsai.Harp.Design
@@ -211,6 +212,41 @@ namespace Bonsai.Harp.Design
             }
         }
 
+        bool UpdateDeviceName(string name)
+        {
+            if (MessageBox.Show(this,
+                Resources.UpdateDeviceName_Question, Text,
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2) == DialogResult.Yes)
+            {
+                CloseDevice();
+                SetConnectionStatus(ConnectionStatus.Reset);
+                using (var firmwareDialog = new DeviceOperationDialog(
+                    Resources.UpdateDeviceName_Label,
+                    Resources.UpdateDeviceName_Caption,
+                    progress => UpdateDeviceNameAsync(instance.PortName, name, progress)))
+                {
+                    firmwareDialog.ShowDialog(this);
+                }
+                ResetDevice();
+                return true;
+            }
+
+            return false;
+        }
+
+        static async Task UpdateDeviceNameAsync(string portName, string name, IProgress<int> progress)
+        {
+            using (var device = new AsyncDevice(portName))
+            {
+                progress?.Report(40);
+                await device.WriteDeviceNameAsync(name);
+            }
+            await Observable.Timer(TimeSpan.FromMilliseconds(200));
+            progress?.Report(100);
+        }
+
         int EdgeMargin => Width - tableLayoutPanel.Right - tableLayoutPanel.Margin.Right;
 
         void ToggleBootloader()
@@ -272,6 +308,19 @@ namespace Bonsai.Harp.Design
         private void bootloaderButton_Click(object sender, EventArgs e)
         {
             ToggleBootloader();
+        }
+
+        private void propertyGrid_PropertyValueChanged(object sender, PropertyValueChangedEventArgs e)
+        {
+            if (e.ChangedItem.PropertyDescriptor.Name == nameof(DeviceConfiguration.DeviceName))
+            {
+                var name = (string)e.ChangedItem.Value;
+                if (string.IsNullOrEmpty(name) || !UpdateDeviceName(name))
+                {
+                    e.ChangedItem.PropertyDescriptor.SetValue(configuration, e.OldValue);
+                    propertyGrid.Refresh();
+                }
+            }
         }
     }
 }

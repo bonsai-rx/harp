@@ -25,7 +25,7 @@ namespace Bonsai.Harp.Design
 
         internal int WhoAmI { get; set; }
 
-        public string DeviceName { get; internal set; }
+        public string DeviceName { get; set; }
 
         internal int FirmwareVersionHigh { get; set; }
 
