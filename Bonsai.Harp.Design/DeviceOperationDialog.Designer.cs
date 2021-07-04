@@ -1,6 +1,6 @@
 ﻿namespace Bonsai.Harp.Design
 {
-    partial class DeviceFirmwareDialog
+    partial class DeviceOperationDialog
     {
         /// <summary>
         /// Required designer variable.
@@ -58,11 +58,11 @@
             this.updateLabel.AutoSize = true;
             this.updateLabel.Location = new System.Drawing.Point(12, 9);
             this.updateLabel.Name = "updateLabel";
-            this.updateLabel.Size = new System.Drawing.Size(235, 17);
+            this.updateLabel.Size = new System.Drawing.Size(258, 17);
             this.updateLabel.TabIndex = 0;
-            this.updateLabel.Text = "Updating {0} firmware. Please wait...";
+            this.updateLabel.Text = "Updating device firmware. Please wait...";
             // 
-            // DeviceFirmwareDialog
+            // DeviceOperationDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -72,10 +72,10 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "DeviceFirmwareDialog";
+            this.Name = "DeviceOperationDialog";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "{0} Update Firmware";
+            this.Text = "Device Update Firmware";
             this.panel.ResumeLayout(false);
             this.panel.PerformLayout();
             this.ResumeLayout(false);

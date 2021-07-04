@@ -1,4 +1,4 @@
-﻿using Bonsai.Design;
+using Bonsai.Design;
 using Bonsai.Harp.Design.Properties;
 using System;
 using System.Collections.Generic;
@@ -200,7 +200,10 @@ namespace Bonsai.Harp.Design
                 CloseDevice();
                 SetConnectionStatus(ConnectionStatus.Reset);
                 var deviceFirmware = DeviceFirmware.FromFile(path);
-                using (var firmwareDialog = new DeviceFirmwareDialog(instance.PortName, deviceFirmware))
+                using (var firmwareDialog = new DeviceOperationDialog(
+                    Resources.UpdateDeviceFirmware_Label,
+                    Resources.UpdateDeviceFirmware_Caption,
+                    progress => Bootloader.UpdateFirmwareAsync(instance.PortName, deviceFirmware, progress)))
                 {
                     firmwareDialog.ShowDialog(this);
                 }

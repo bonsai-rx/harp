@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -126,6 +126,12 @@
   </data>
   <data name="ResetPersistentRegisters_Question" xml:space="preserve">
     <value>This will reset the device to its default factory settings. Do you want to continue?</value>
+  </data>
+  <data name="UpdateDeviceFirmware_Caption" xml:space="preserve">
+    <value>Update Device Firmware</value>
+  </data>
+  <data name="UpdateDeviceFirmware_Label" xml:space="preserve">
+    <value>Updating device firmware. Please wait...</value>
   </data>
   <data name="UpdateDeviceFirmware_Question" xml:space="preserve">
     <value>Are you sure you want to update the device firmware? This action cannot be undone.</value>

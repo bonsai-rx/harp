@@ -5,22 +5,22 @@ using System.Windows.Forms;
 
 namespace Bonsai.Harp.Design
 {
-    public partial class DeviceFirmwareDialog : Form
+    public partial class DeviceOperationDialog : Form
     {
-        readonly Func<Task> updateFirmwareAsync;
+        readonly Func<Task> operationAsync;
 
-        public DeviceFirmwareDialog(string portName, DeviceFirmware firmware)
+        public DeviceOperationDialog(string text, string caption, Func<IProgress<int>, Task> operationAsyncFactory)
         {
-            if (firmware == null)
+            if (operationAsyncFactory == null)
             {
-                throw new ArgumentNullException(nameof(firmware));
+                throw new ArgumentNullException(nameof(operationAsyncFactory));
             }
 
             InitializeComponent();
             var progress = new Progress<int>(ReportProgress);
-            updateFirmwareAsync = () => Bootloader.UpdateFirmwareAsync(portName, firmware, progress);
-            Text = string.Format(Text, firmware.Metadata.DeviceName);
-            updateLabel.Text = string.Format(updateLabel.Text, firmware.Metadata.DeviceName);
+            operationAsync = () => operationAsyncFactory(progress);
+            updateLabel.Text = text;
+            Text = caption;
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
@@ -31,7 +31,7 @@ namespace Bonsai.Harp.Design
 
         protected override void OnLoad(EventArgs e)
         {
-            updateFirmwareAsync().ContinueWith(task =>
+            operationAsync().ContinueWith(task =>
             {
                 if (task.IsFaulted)
                 {
