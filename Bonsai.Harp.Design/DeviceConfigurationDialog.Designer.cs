@@ -217,6 +217,8 @@ namespace Bonsai.Harp.Design
             this.Controls.Add(this.tableLayoutPanel);
             this.Controls.Add(this.statusStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
+            this.MaximumSize = new System.Drawing.Size(850, 300);
             this.MinimumSize = new System.Drawing.Size(850, 300);
             this.Name = "DeviceConfigurationDialog";
             this.Text = "Device Setup";
