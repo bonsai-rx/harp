@@ -6,11 +6,9 @@ namespace Bonsai.Harp.Design
 {
     partial class DeviceResetDialog : Form
     {
-        public DeviceResetDialog(string deviceName)
+        public DeviceResetDialog()
         {
             InitializeComponent();
-            Text = string.Format(Text, deviceName);
-            resetLabel.Text = string.Format(resetLabel.Text, deviceName);
         }
 
         protected override void ScaleControl(SizeF factor, BoundsSpecified specified)

@@ -61,9 +61,9 @@
             this.resetLabel.AutoSize = true;
             this.resetLabel.Location = new System.Drawing.Point(12, 9);
             this.resetLabel.Name = "resetLabel";
-            this.resetLabel.Size = new System.Drawing.Size(219, 17);
+            this.resetLabel.Size = new System.Drawing.Size(242, 17);
             this.resetLabel.TabIndex = 0;
-            this.resetLabel.Text = "The {0} is resetting. Please wait...";
+            this.resetLabel.Text = "The device is resetting. Please wait...";
             // 
             // resetTimer
             // 
@@ -83,7 +83,7 @@
             this.Name = "DeviceResetDialog";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "{0} Reset";
+            this.Text = "Device Reset";
             this.panel.ResumeLayout(false);
             this.panel.PerformLayout();
             this.ResumeLayout(false);

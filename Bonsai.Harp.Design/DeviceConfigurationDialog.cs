@@ -97,7 +97,7 @@ namespace Bonsai.Harp.Design
         {
             CloseDevice();
             SetConnectionStatus(ConnectionStatus.Reset);
-            using (var resetDialog = new DeviceResetDialog(configuration.DeviceName))
+            using (var resetDialog = new DeviceResetDialog())
             {
                 resetDialog.ShowDialog(this);
             }
