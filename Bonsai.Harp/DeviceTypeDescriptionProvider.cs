@@ -44,7 +44,7 @@ namespace Bonsai.Harp
                 : base(parentDescriptor)
             {
                 component = instance;
-                descriptionProperty = instance.GetType().GetProperty("Description", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic); ;
+                descriptionProperty = instance.GetType().GetProperty("Description", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             }
 
             public override AttributeCollection GetAttributes()
