@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 
 namespace Bonsai.Harp
@@ -96,7 +96,7 @@ namespace Bonsai.Harp
                                     currentMessageStr += "(" + DateTime.Now.ToString("hh:mm:ss tt", System.Globalization.DateTimeFormatInfo.InvariantInfo) + ")!";
                                     currentMessageStr += "\nRaw Harp Data Frame: ";
                                     currentMessageStr += BitConverter.ToString(currentMessage).Replace("-", ":");
-                                    Console.WriteLine(currentMessageStr);
+                                    Console.Error.WriteLine(currentMessageStr);
                                 }
 
                                 bytesToRead += offset;
