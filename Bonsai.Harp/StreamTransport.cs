@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 
 namespace Bonsai.Harp
@@ -9,7 +9,7 @@ namespace Bonsai.Harp
         const byte ErrorMask = 0x08;
         const byte TypeLengthMask = 0x0F;
 
-        readonly IObserver<HarpMessage> observer;
+        IObserver<HarpMessage> observer;
         BufferedStream bufferedStream;
         byte[] currentMessage;
         bool notAbleToParse;
@@ -18,10 +18,15 @@ namespace Bonsai.Harp
 
         public StreamTransport(IObserver<HarpMessage> observer)
         {
-            this.observer = observer ?? throw new ArgumentNullException(nameof(observer));
+            SetObserver(observer);
         }
 
         public bool IgnoreErrors { get; set; }
+
+        internal void SetObserver(IObserver<HarpMessage> observer)
+        {
+            this.observer = observer ?? throw new ArgumentNullException(nameof(observer));
+        }
 
         static bool CheckType(byte type)
         {

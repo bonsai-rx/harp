@@ -17,12 +17,24 @@ namespace Bonsai.Harp
     {
         string name;
         string portName;
+        readonly int deviceId;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Device"/> class.
         /// </summary>
-        public Device()
+        public Device() : this(0)
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Device"/> class
+        /// accepting connections only from Harp devices with the specified
+        /// <paramref name="whoAmI"/> identifier.
+        /// </summary>
+        /// <param name="whoAmI">The device identifier to match against serial connections.</param>
+        public Device(int whoAmI)
+        {
+            deviceId = whoAmI;
             portName = "COMx";
             DeviceState = DeviceState.Active;
             LedState = LedState.On;
@@ -82,11 +94,11 @@ namespace Bonsai.Harp
             set
             {
                 portName = value;
-                GetDeviceName(portName, LedState, VisualIndicators, Heartbeat).Subscribe(deviceName => name = deviceName);
+                GetDeviceName(deviceId, portName, LedState, VisualIndicators, Heartbeat).Subscribe(deviceName => name = deviceName);
             }
         }
 
-        static IObservable<string> GetDeviceName(string portName, LedState ledState, LedState visualIndicators, EnableType heartbeat)
+        static IObservable<string> GetDeviceName(int deviceId, string portName, LedState ledState, LedState visualIndicators, EnableType heartbeat)
         {
             return Observable.Create<string>(observer =>
             {
@@ -138,6 +150,7 @@ namespace Bonsai.Harp
                                     deviceName = Encoding.ASCII.GetString(namePayload.Array, namePayload.Offset, namePayload.Count);
                                 }
                                 Console.WriteLine("Serial Harp device.");
+                                if (deviceId > 0 && deviceId != whoAmI) Console.WriteLine("WARNING: Unexpected device identifier!");
                                 if (!serialNumber.HasValue) Console.WriteLine($"WhoAmI: {whoAmI}");
                                 else Console.WriteLine($"WhoAmI: {whoAmI}-{serialNumber:x4}");
                                 Console.WriteLine($"Hw: {hardwareVersionHigh}.{hardwareVersionLow}");
@@ -175,16 +188,10 @@ namespace Bonsai.Harp
         {
             return Observable.Create<HarpMessage>(observer =>
             {
-                var transport = new SerialTransport(PortName, observer);
-                transport.IgnoreErrors = IgnoreErrors;
-                transport.Open();
-                
-                var writeOpCtrl = HarpCommand.OperationControl(DeviceState, LedState, VisualIndicators, Heartbeat, CommandReplies, DumpRegisters);
-                transport.Write(writeOpCtrl);
-
+                var transport = CreateTransport(observer);
                 var cleanup = Disposable.Create(() =>
                 {
-                    writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, LedState, VisualIndicators, Heartbeat, CommandReplies, false);
+                    var writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, LedState, VisualIndicators, Heartbeat, CommandReplies, false);
                     transport.Write(writeOpCtrl);
                 });
 
@@ -204,13 +211,7 @@ namespace Bonsai.Harp
         {
             return Observable.Create<HarpMessage>(observer =>
             {
-                var transport = new SerialTransport(PortName, observer);
-                transport.IgnoreErrors = IgnoreErrors;
-                transport.Open();
-
-                var writeOpCtrl = HarpCommand.OperationControl(DeviceState, LedState, VisualIndicators, Heartbeat, CommandReplies, DumpRegisters);
-                transport.Write(writeOpCtrl);
-
+                var transport = CreateTransport(observer);
                 var sourceDisposable = new SingleAssignmentDisposable();
                 sourceDisposable.Disposable = source.Subscribe(
                     transport.Write,
@@ -219,7 +220,7 @@ namespace Bonsai.Harp
 
                 var cleanup = Disposable.Create(() =>
                 {
-                    writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, LedState, VisualIndicators, Heartbeat, CommandReplies, false);
+                    var writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, LedState, VisualIndicators, Heartbeat, CommandReplies, false);
                     transport.Write(writeOpCtrl);
                 });
 
@@ -231,5 +232,48 @@ namespace Bonsai.Harp
         }
 
         string INamedElement.Name => !string.IsNullOrEmpty(name) ? name : nameof(Device);
+
+        SerialTransport CreateTransport(IObserver<HarpMessage> observer)
+        {
+            var portName = PortName;
+            var transport = new SerialTransport(portName, observer);
+            transport.IgnoreErrors = IgnoreErrors;
+
+            if (deviceId > 0)
+            {
+                transport.SetObserver(Observer.Create<HarpMessage>(
+                    message =>
+                    {
+                        if (message.Address != DeviceRegisters.WhoAmI)
+                        {
+                            Console.Error.WriteLine("Unexpected Harp data frame before identifier: {0}.", message);
+                            return;
+                        }
+
+                        var whoAmI = message.GetPayloadUInt16();
+                        if (whoAmI != deviceId)
+                        {
+                            var errorMessage = string.Format(
+                                "The device ID {1} on {0} was unexpected. Check whether the correct device is connected to the specified serial port.",
+                                portName, whoAmI);
+                            observer.OnError(new HarpException(errorMessage));
+                            return;
+                        }
+
+                        transport.SetObserver(observer);
+                    },
+                    observer.OnError,
+                    observer.OnCompleted));
+                transport.Open();
+
+                var cmdReadWhoAmI = HarpCommand.ReadUInt16(DeviceRegisters.WhoAmI);
+                transport.Write(cmdReadWhoAmI);
+            }
+            else transport.Open();
+
+            var writeOpCtrl = HarpCommand.OperationControl(DeviceState, LedState, VisualIndicators, Heartbeat, CommandReplies, DumpRegisters);
+            transport.Write(writeOpCtrl);
+            return transport;
+        }
     }
 }
