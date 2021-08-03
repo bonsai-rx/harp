@@ -1,4 +1,7 @@
-﻿namespace Bonsai.Harp
+﻿using System;
+using System.ComponentModel;
+
+namespace Bonsai.Harp
 {
     /// <summary>
     /// Provides static methods for creating Harp command messages.
@@ -29,14 +32,23 @@
             return WriteByte(DeviceRegisters.OperationControl, (byte)operationFlags);
         }
 
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public static HarpMessage Reset(ResetMode resetMode)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            return ResetDevice(resetMode);
+        }
+
         /// <summary>
         /// Returns a <see cref="HarpMessage"/> command to reset the device and restore or save non-volatile registers.
         /// </summary>
         /// <param name="resetMode">Specifies whether to restore or save non-volatile registers.</param>
         /// <returns>A valid <see cref="HarpMessage"/> command to reset the device.</returns>
-        public static HarpMessage Reset(ResetMode resetMode)
+        public static HarpMessage ResetDevice(ResetMode resetMode)
         {
-            return WriteByte(DeviceRegisters.Reset, (byte)(1 << (byte)resetMode));
+            return WriteByte(DeviceRegisters.ResetDevice, (byte)(1 << (byte)resetMode));
         }
 
         #endregion

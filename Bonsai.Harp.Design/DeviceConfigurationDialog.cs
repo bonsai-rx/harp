@@ -50,7 +50,7 @@ namespace Bonsai.Harp.Design
                 handler => resetNameButton.Click -= handler)
                 .Select(evt => ShouldResetDeviceName())
                 .Where(result => result != DialogResult.Cancel)
-                .Select(result => HarpCommand.Reset(ResetMode.RestoreName))
+                .Select(result => HarpCommand.ResetDevice(ResetMode.RestoreName))
                 .Publish().RefCount();
 
             var resetDeviceSettings = Observable.FromEventPattern(
@@ -68,7 +68,7 @@ namespace Bonsai.Harp.Design
                 .Do(message => ValidateDevice())
                 .DelaySubscription(TimeSpan.FromSeconds(0.2))
                 .TakeUntil(resetDeviceName.Merge(resetDeviceSettings)
-                    .Where(DeviceRegisters.Reset)
+                    .Where(DeviceRegisters.ResetDevice)
                     .Delay(TimeSpan.FromSeconds(1)))
                 .Do(x => { }, () => BeginInvoke((Action)ResetDevice));
         }
@@ -122,7 +122,7 @@ namespace Bonsai.Harp.Design
         IEnumerable<HarpMessage> ResetRegisters(bool resetDefault)
         {
             var resetMode = resetDefault ? ResetMode.RestoreDefault : ResetMode.RestoreEeprom;
-            yield return HarpCommand.Reset(resetMode);
+            yield return HarpCommand.ResetDevice(resetMode);
         }
 
         private void ReadRegister(HarpMessage message)
