@@ -34,13 +34,13 @@
         /// The address of the HARP_VERSION_H register containing the major version
         /// of the Harp core used by the device. This field is read-only.
         /// </summary>
-        public const int HarpVersionHigh = 4;
+        public const int CoreVersionHigh = 4;
 
         /// <summary>
         /// The address of the HARP_VERSION_L register containing the minor version
         /// of the Harp core used by the device. This field is read-only.
         /// </summary>
-        public const int HarpVersionLow = 5;
+        public const int CoreVersionLow = 5;
 
         /// <summary>
         /// The address of the FW_VERSION_H register containing the major firmware
@@ -113,12 +113,12 @@
         /// <summary>
         /// The payload type of the HARP_VERSION_H register. This field is read-only.
         /// </summary>
-        public const PayloadType HarpVersionHighPayload = PayloadType.U8;
+        public const PayloadType CoreVersionHighPayload = PayloadType.U8;
 
         /// <summary>
         /// The payload type of the HARP_VERSION_L register. This field is read-only.
         /// </summary>
-        public const PayloadType HarpVersionLowPayload = PayloadType.U8;
+        public const PayloadType CoreVersionLowPayload = PayloadType.U8;
 
         /// <summary>
         /// The payload type of the FW_VERSION_H register. This field is read-only.
