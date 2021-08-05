@@ -31,6 +31,10 @@ namespace Bonsai.Harp.Design
 
         internal int FirmwareVersionLow { get; set; }
 
+        internal int CoreVersionHigh { get; set; }
+
+        internal int CoreVersionLow { get; set; }
+
         internal int HardwareVersionHigh { get; set; }
 
         internal int HardwareVersionLow { get; set; }
@@ -40,21 +44,22 @@ namespace Bonsai.Harp.Design
             get { return new HarpVersion(FirmwareVersionHigh, FirmwareVersionLow); }
         }
 
+        public HarpVersion CoreVersion
+        {
+            get { return new HarpVersion(CoreVersionHigh, CoreVersionLow); }
+        }
+
         public HarpVersion HardwareVersion
         {
             get { return new HarpVersion(HardwareVersionHigh, HardwareVersionLow); }
         }
 
+        public int AssemblyVersion { get; internal set; }
+
         internal int? SerialNumber { get; set; }
 
         [DisplayName("Timestamp (s)")]
         public uint Timestamp { get; internal set; }
-
-        public FirmwareMetadata GetFirmwareMetadata()
-        {
-            var protocolVersion = new HarpVersion(1, null);
-            return new FirmwareMetadata(DeviceName, FirmwareVersion, protocolVersion, HardwareVersion);
-        }
 
         public override string ToString()
         {
@@ -63,6 +68,7 @@ namespace Bonsai.Harp.Design
                 !SerialNumber.HasValue ? $"WhoAmI: {WhoAmI}" : $"WhoAmI: {WhoAmI}-{SerialNumber:x4}",
                 $"HardwareVersion: {HardwareVersionHigh}.{HardwareVersionLow}",
                 $"FirmwareVersion: {FirmwareVersionHigh}.{FirmwareVersionLow}",
+                $"CoreVersion: {CoreVersionHigh}.{CoreVersionLow}",
                 $"Timestamp (s): {Timestamp}",
                 $"DeviceName: {DeviceName}");
         }

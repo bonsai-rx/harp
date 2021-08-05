@@ -144,6 +144,15 @@ namespace Bonsai.Harp.Design
                 case DeviceRegisters.FirmwareVersionLow:
                     configuration.FirmwareVersionLow = message.GetPayloadByte();
                     break;
+                case DeviceRegisters.CoreVersionHigh:
+                    configuration.CoreVersionHigh = message.GetPayloadByte();
+                    break;
+                case DeviceRegisters.CoreVersionLow:
+                    configuration.CoreVersionLow = message.GetPayloadByte();
+                    break;
+                case DeviceRegisters.AssemblyVersion:
+                    configuration.AssemblyVersion = message.GetPayloadByte();
+                    break;
                 case DeviceRegisters.TimestampSecond:
                     configuration.Timestamp = message.GetPayloadUInt32();
                     break;
