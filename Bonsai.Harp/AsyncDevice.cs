@@ -25,13 +25,6 @@ namespace Bonsai.Harp
             transport = new SerialTransport(portName, response);
             transport.IgnoreErrors = true;
             transport.Open();
-            transport.Write(HarpCommand.OperationControl(
-                DeviceState.Standby,
-                LedState.On,
-                LedState.On,
-                EnableType.Disable,
-                EnableType.Enable,
-                false));
         }
 
         /// <summary>
