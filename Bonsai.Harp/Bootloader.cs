@@ -58,17 +58,22 @@ namespace Bonsai.Harp
             {
                 try
                 {
-                    var hardwareVersion = await device.ReadHardwareVersionAsync().WithTimeout(FlushDelayMilliseconds);
-                    var deviceName = await device.ReadDeviceNameAsync().WithTimeout(FlushDelayMilliseconds);
-                    if (!firmware.Metadata.Supports(deviceName, hardwareVersion) && !forceUpdate)
+                    progress?.Report(10);
+                    if (!forceUpdate)
                     {
-                        throw new ArgumentException("The specified firmware is not supported.", nameof(firmware));
+                        var hardwareVersion = await device.ReadHardwareVersionAsync().WithTimeout(FlushDelayMilliseconds);
+                        var deviceName = await device.ReadDeviceNameAsync().WithTimeout(FlushDelayMilliseconds);
+                        if (!firmware.Metadata.Supports(deviceName, hardwareVersion))
+                        {
+                            throw new ArgumentException("The specified firmware is not supported.", nameof(firmware));
+                        }
                     }
 
                     const byte BootEeprom = 0x80;
                     const byte BootDefault = 0x40;
                     const byte ResetDefault = 0x1;
                     const byte ResetEeprom = 0x2;
+                    progress?.Report(20);
                     var reset = await device.ReadByteAsync(DeviceRegisters.ResetDevice);
                     if ((reset & BootEeprom) != 0)
                     {
@@ -80,7 +85,7 @@ namespace Bonsai.Harp
                     }
                     else throw new HarpException("The device is in an unexpected boot mode.");
                     await Observable.Timer(flushDelay);
-                    progress?.Report(20);
+                    progress?.Report(30);
                 }
                 catch (TimeoutException)
                 {
