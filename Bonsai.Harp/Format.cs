@@ -1,4 +1,4 @@
-﻿using Bonsai.Expressions;
+using Bonsai.Expressions;
 using System;
 using System.ComponentModel;
 using System.Linq.Expressions;
@@ -57,7 +57,9 @@ namespace Bonsai.Harp
             var messageType = Expression.Constant(MessageType);
             if (timestamped)
             {
-                var timestamp = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Seconds));
+                Expression timestamp = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Seconds));
+                if (timestamp.Type != typeof(double)) timestamp = Expression.Convert(timestamp, typeof(double));
+
                 expression = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Value));
                 arguments = new[] { address, timestamp, messageType, expression };
             }
