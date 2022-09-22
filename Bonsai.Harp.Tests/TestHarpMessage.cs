@@ -216,6 +216,17 @@ namespace Bonsai.Harp.Tests
         }
 
         [TestMethod]
+        public void FromPayload_Array_PayloadHasValue()
+        {
+            var payload = new byte[] { 0x92, 0x10 };
+            var value = BitConverter.ToUInt16(payload, 0);
+            var message = HarpCommand.Write(DefaultAddress, PayloadType.U16, payload);
+            AssertIsValid(message);
+            Assert.AreEqual(payload[1], message.GetPayloadByte(1));
+            Assert.AreEqual(value, message.GetPayloadUInt16());
+        }
+
+        [TestMethod]
         public void FromByte_TimestampedValue_PayloadHasValue()
         {
             byte value = 23;
@@ -438,6 +449,25 @@ namespace Bonsai.Harp.Tests
             AssertTimestamp(timestamp, actualTimestamp);
             AssertArrayEqual(value, payload);
             Assert.AreEqual(value[1], message.GetTimestampedPayloadSingle(1).Value);
+        }
+
+        [TestMethod]
+        public void FromPayload_TimestampedArray_PayloadHasValue()
+        {
+            var timestamp = GetTimestamp();
+            var payload = new byte[] { 0x92, 0x10 };
+            var value = BitConverter.ToUInt16(payload, 0);
+            var message = HarpMessage.FromPayload(
+                DefaultAddress,
+                timestamp,
+                MessageType.Write,
+                PayloadType.TimestampedU16,
+                payload);
+            AssertIsValid(message);
+            var actualTimestamp = message.GetTimestamp();
+            AssertTimestamp(timestamp, actualTimestamp);
+            AssertArrayEqual(payload, message.GetPayloadArray<byte>());
+            Assert.AreEqual(value, message.GetPayloadUInt16());
         }
     }
 }
