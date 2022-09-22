@@ -1175,7 +1175,7 @@ namespace Bonsai.Harp
         /// </returns>
         public static HarpMessage FromSByte(int address, int port, MessageType messageType, sbyte value)
         {
-            return FromBytes((byte)messageType, 0, (byte)address, (byte)port, (byte)PayloadType.U8, (byte)value, 0);
+            return FromBytes((byte)messageType, 0, (byte)address, (byte)port, (byte)PayloadType.S8, (byte)value, 0);
         }
 
         /// <summary>
@@ -1214,7 +1214,7 @@ namespace Bonsai.Harp
                 (byte)messageType, 0,
                 (byte)address,
                 (byte)port,
-                (byte)PayloadType.TimestampedU8,
+                (byte)PayloadType.TimestampedS8,
                 0, 0, 0, 0, 0, 0,
                 (byte)value,
                 0);
@@ -1248,7 +1248,7 @@ namespace Bonsai.Harp
         /// </returns>
         public static HarpMessage FromSByte(int address, int port, MessageType messageType, params sbyte[] values)
         {
-            return FromPayload(address, port, messageType, PayloadType.U8, values);
+            return FromPayload(address, port, messageType, PayloadType.S8, values);
         }
 
         /// <summary>
@@ -1282,7 +1282,7 @@ namespace Bonsai.Harp
         /// </returns>
         public static HarpMessage FromSByte(int address, int port, double timestamp, MessageType messageType, params sbyte[] values)
         {
-            return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedU8, values);
+            return FromPayload(address, port, timestamp, messageType, PayloadType.TimestampedS8, values);
         }
 
         /// <summary>
