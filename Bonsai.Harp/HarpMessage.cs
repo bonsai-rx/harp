@@ -922,6 +922,11 @@ namespace Bonsai.Harp
         static HarpMessage FromPayload(int address, int port, MessageType messageType, PayloadType payloadType, Array payload)
         {
             var payloadSize = payload.Length * (0xF & (byte)payloadType);
+            return FromPayload(address, port, messageType, payloadType, payload, payloadSize);
+        }
+
+        static HarpMessage FromPayload(int address, int port, MessageType messageType, PayloadType payloadType, Array payload, int payloadSize)
+        {
             var messageBytes = new byte[BaseOffset + payloadSize + ChecksumSize];
             messageBytes[0] = (byte)messageType;
             messageBytes[2] = (byte)address;
@@ -934,6 +939,11 @@ namespace Bonsai.Harp
         static HarpMessage FromPayload(int address, int port, double timestamp, MessageType messageType, PayloadType payloadType, Array payload)
         {
             var payloadSize = payload.Length * (0xF & (byte)payloadType);
+            return FromPayload(address, port, timestamp, messageType, payloadType, payload, payloadSize);
+        }
+
+        static HarpMessage FromPayload(int address, int port, double timestamp, MessageType messageType, PayloadType payloadType, Array payload, int payloadSize)
+        {
             var messageBytes = new byte[TimestampedOffset + payloadSize + ChecksumSize];
             messageBytes[0] = (byte)messageType;
             messageBytes[2] = (byte)address;
@@ -971,7 +981,7 @@ namespace Bonsai.Harp
         /// </returns>
         public static HarpMessage FromPayload(int address, int port, MessageType messageType, PayloadType payloadType, params byte[] payload)
         {
-            return FromPayload(address, port, messageType, payloadType, (Array)payload);
+            return FromPayload(address, port, messageType, payloadType, payload, payload.Length);
         }
 
         /// <summary>
@@ -1006,7 +1016,7 @@ namespace Bonsai.Harp
         /// </returns>
         public static HarpMessage FromPayload(int address, int port, double timestamp, MessageType messageType, PayloadType payloadType, params byte[] payload)
         {
-            return FromPayload(address, port, timestamp, messageType, payloadType, (Array)payload);
+            return FromPayload(address, port, timestamp, messageType, payloadType, payload, payload.Length);
         }
 
         /// <summary>
