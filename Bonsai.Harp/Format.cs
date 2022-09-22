@@ -57,11 +57,19 @@ namespace Bonsai.Harp
             var messageType = Expression.Constant(MessageType);
             if (timestamped)
             {
-                Expression timestamp = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Seconds));
-                if (timestamp.Type != typeof(double)) timestamp = Expression.Convert(timestamp, typeof(double));
+                Expression timestamp;
+                if (expression.Type == typeof(HarpMessage))
+                {
+                    timestamp = Expression.Call(expression, nameof(HarpMessage.GetTimestamp), null);
+                }
+                else
+                {
+                    timestamp = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Seconds));
+                    if (timestamp.Type != typeof(double)) timestamp = Expression.Convert(timestamp, typeof(double));
+                    expression = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Value));
+                }
 
-                expression = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Value));
-                if (expression.Type == typeof(ArraySegment<byte>))
+                if (TryGetArraySegment(ref expression))
                 {
                     arguments = new[] { address, timestamp, messageType, Expression.Constant(payloadType), expression };
                     return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromPayload), null, arguments);
@@ -70,7 +78,7 @@ namespace Bonsai.Harp
             }
             else
             {
-                if (expression.Type == typeof(ArraySegment<byte>))
+                if (TryGetArraySegment(ref expression))
                 {
                     arguments = new[] { address, messageType, Expression.Constant(payloadType), expression };
                     return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromPayload), null, arguments);
@@ -110,6 +118,16 @@ namespace Bonsai.Harp
                 default:
                     throw new InvalidOperationException("Invalid Harp payload type.");
             }
+        }
+
+        static bool TryGetArraySegment(ref Expression expression)
+        {
+            if (expression.Type == typeof(HarpMessage))
+            {
+                expression = Expression.Call(expression, nameof(HarpMessage.GetPayload), null);
+                return true;
+            }
+            return expression.Type == typeof(ArraySegment<byte>);
         }
 
         static void EnsurePayloadType(Expression[] arguments, Expression payload, Type type)
