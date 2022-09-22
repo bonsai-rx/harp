@@ -6,12 +6,16 @@
     <GenerateDocumentationFile Condition="'$(Configuration)'=='Release'">true</GenerateDocumentationFile>
     <PackageTags>Bonsai Rx Harp Hardware Protocol</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TargetFramework>net462</TargetFramework>
+    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
     <VersionPrefix>3.4.0</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bonsai.Core" Version="2.5.0" />
+    <PackageReference Include="Bonsai.Core" Version="2.7.0-rc4" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.IO.Ports" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
