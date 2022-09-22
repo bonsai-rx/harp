@@ -2,10 +2,10 @@
 <Project>
   <PropertyGroup>
     <Authors>Filipe Carvalho, Gonçalo Lopes</Authors>
-    <Copyright>Copyright © Filipe Carvalho, Gonçalo Lopes 2017-2020</Copyright>
+    <Copyright>Copyright © Filipe Carvalho, Gonçalo Lopes 2017-2022</Copyright>
     <PackageProjectUrl>https://github.com/bonsai-rx/harp</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/bonsai-rx/harp/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageIconUrl>https://github.com/bonsai-rx/harp/raw/master/Resources/Harp.png</PackageIconUrl>
+    <PackageLicenseUrl>https://github.com/bonsai-rx/harp/blob/main/LICENSE</PackageLicenseUrl>
+    <PackageIconUrl>https://github.com/bonsai-rx/harp/raw/main/Resources/Harp.png</PackageIconUrl>
     <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
     <IncludeSymbols Condition="'$(Configuration)'=='Release'">true</IncludeSymbols>
     <SymbolPackageFormat Condition="'$(Configuration)'=='Release'">snupkg</SymbolPackageFormat>
