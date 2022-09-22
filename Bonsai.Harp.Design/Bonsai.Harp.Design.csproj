@@ -6,7 +6,7 @@
     <PackageTags>Bonsai Rx Harp Hardware Protocol Design</PackageTags>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net462</TargetFramework>
-    <Version>3.4.0</Version>
+    <VersionPrefix>3.4.0</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup>

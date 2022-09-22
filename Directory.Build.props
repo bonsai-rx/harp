@@ -12,6 +12,7 @@
     <GeneratePackageOnBuild Condition="'$(Configuration)'=='Release'">true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/bonsai-rx/harp.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <VersionSuffix></VersionSuffix>
     <LangVersion>8.0</LangVersion>
     <Features>strict</Features>
   </PropertyGroup>

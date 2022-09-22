@@ -7,7 +7,7 @@
     <PackageTags>Bonsai Rx Harp Hardware Protocol</PackageTags>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <TargetFramework>net462</TargetFramework>
-    <Version>3.4.0</Version>
+    <VersionPrefix>3.4.0</VersionPrefix>
   </PropertyGroup>
 
   <ItemGroup>
