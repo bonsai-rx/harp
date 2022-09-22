@@ -985,6 +985,49 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns a <see cref="HarpMessage"/> with the specified address, message type, and payload
+        /// data stored in the specified array segment.
+        /// </summary>
+        /// <param name="address">The address of the register to which the Harp message refers to.</param>
+        /// <param name="messageType">The type of the Harp message.</param>
+        /// <param name="payloadType">The type of data available in the message payload.</param>
+        /// <param name="payload">
+        /// An array segment containing the raw binary representation of the payload data.
+        /// </param>
+        /// <returns>
+        /// A valid <see cref="HarpMessage"/> instance with the specified address, message type, and payload.
+        /// </returns>
+        public static HarpMessage FromPayload(int address, MessageType messageType, PayloadType payloadType, ArraySegment<byte> payload)
+        {
+            return FromPayload(address, DevicePort, messageType, payloadType, payload);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="HarpMessage"/> with the specified address, message type, port, and payload
+        /// data stored in the specified array segment.
+        /// </summary>
+        /// <param name="address">The address of the register to which the Harp message refers to.</param>
+        /// <param name="port">The origin or destination of the Harp message, for routing purposes.</param>
+        /// <param name="messageType">The type of the Harp message.</param>
+        /// <param name="payloadType">The type of data available in the message payload.</param>
+        /// <param name="payload">
+        /// An array segment containing the raw binary representation of the payload data.
+        /// </param>
+        /// <returns>
+        /// A valid <see cref="HarpMessage"/> instance with the specified address, message type, port, and payload.
+        /// </returns>
+        public static HarpMessage FromPayload(int address, int port, MessageType messageType, PayloadType payloadType, ArraySegment<byte> payload)
+        {
+            var messageBytes = new byte[BaseOffset + payload.Count + ChecksumSize];
+            messageBytes[0] = (byte)messageType;
+            messageBytes[2] = (byte)address;
+            messageBytes[3] = (byte)port;
+            messageBytes[4] = (byte)payloadType;
+            Buffer.BlockCopy(payload.Array, payload.Offset, messageBytes, BaseOffset, payload.Count);
+            return FromBytes(messageBytes);
+        }
+
+        /// <summary>
         /// Returns a <see cref="HarpMessage"/> with the specified address, message type, timestamp, and payload.
         /// </summary>
         /// <param name="address">The address of the register to which the Harp message refers to.</param>
@@ -1017,6 +1060,53 @@ namespace Bonsai.Harp
         public static HarpMessage FromPayload(int address, int port, double timestamp, MessageType messageType, PayloadType payloadType, params byte[] payload)
         {
             return FromPayload(address, port, timestamp, messageType, payloadType, payload, payload.Length);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="HarpMessage"/> with the specified address, message type,
+        /// timestamp, and payload data stored in the specified array segment.
+        /// </summary>
+        /// <param name="address">The address of the register to which the Harp message refers to.</param>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">The type of the Harp message.</param>
+        /// <param name="payloadType">The type of data available in the message payload.</param>
+        /// <param name="payload">
+        /// An array segment containing the raw binary representation of the payload data.
+        /// </param>
+        /// <returns>
+        /// A valid <see cref="HarpMessage"/> instance with the specified address, message type,
+        /// timestamp, and payload.
+        /// </returns>
+        public static HarpMessage FromPayload(int address, double timestamp, MessageType messageType, PayloadType payloadType, ArraySegment<byte> payload)
+        {
+            return FromPayload(address, DevicePort, timestamp, messageType, payloadType, payload);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="HarpMessage"/> with the specified address, message type, port,
+        /// timestamp, and payload data stored in the specified array segment.
+        /// </summary>
+        /// <param name="address">The address of the register to which the Harp message refers to.</param>
+        /// <param name="port">The origin or destination of the Harp message, for routing purposes.</param>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">The type of the Harp message.</param>
+        /// <param name="payloadType">The type of data available in the message payload.</param>
+        /// <param name="payload">
+        /// An array segment containing the raw binary representation of the payload data.
+        /// </param>
+        /// <returns>
+        /// A valid <see cref="HarpMessage"/> instance with the specified address, message type, port,
+        /// timestamp, and payload.
+        /// </returns>
+        public static HarpMessage FromPayload(int address, int port, double timestamp, MessageType messageType, PayloadType payloadType, ArraySegment<byte> payload)
+        {
+            var messageBytes = new byte[TimestampedOffset + payload.Count + ChecksumSize];
+            messageBytes[0] = (byte)messageType;
+            messageBytes[2] = (byte)address;
+            messageBytes[3] = (byte)port;
+            messageBytes[4] = (byte)payloadType;
+            Buffer.BlockCopy(payload.Array, payload.Offset, messageBytes, TimestampedOffset, payload.Count);
+            return FromBytes(timestamp, messageBytes);
         }
 
         /// <summary>
