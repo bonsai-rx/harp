@@ -213,6 +213,23 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns a <see cref="HarpMessage"/> write command with the specified address, and payload
+        /// data stored in the specified array segment.
+        /// </summary>
+        /// <param name="address">The address of the register to which the Harp message refers to.</param>
+        /// <param name="payloadType">The type of data available in the message payload.</param>
+        /// <param name="payload">
+        /// An array segment containing the raw binary representation of the payload data.
+        /// </param>
+        /// <returns>
+        /// A valid <see cref="HarpMessage"/> write command with the specified address and payload.
+        /// </returns>
+        public static HarpMessage Write(int address, PayloadType payloadType, ArraySegment<byte> payload)
+        {
+            return HarpMessage.FromPayload(address, MessageType.Write, payloadType, payload);
+        }
+
+        /// <summary>
         /// Returns a <see cref="HarpMessage"/> write command with the specified address, and a
         /// single value 8-bit unsigned integer payload.
         /// </summary>
