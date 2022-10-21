@@ -1,5 +1,4 @@
 ﻿using Bonsai.Design;
-using Bonsai.Harp.Design.Properties;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -108,14 +107,14 @@ namespace Bonsai.Harp.Design
         private DialogResult ShouldResetDeviceName()
         {
             return MessageBox.Show(this,
-                Resources.ResetDeviceName_Question,
+                Properties.Resources.ResetDeviceName_Question,
                 Text, MessageBoxButtons.OKCancel);
         }
 
         private DialogResult ShouldResetPersistentRegisters()
         {
             return MessageBox.Show(this,
-                Resources.ResetPersistentRegisters_Question,
+                Properties.Resources.ResetPersistentRegisters_Question,
                 Text, MessageBoxButtons.OKCancel);
         }
 
@@ -202,7 +201,7 @@ namespace Bonsai.Harp.Design
         void UpdateFirmware(string path)
         {
             if (MessageBox.Show(this,
-                Resources.UpdateDeviceFirmware_Question, Text,
+                Properties.Resources.UpdateDeviceFirmware_Question, Text,
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2) == DialogResult.Yes)
@@ -211,8 +210,8 @@ namespace Bonsai.Harp.Design
                 SetConnectionStatus(ConnectionStatus.Reset);
                 var deviceFirmware = DeviceFirmware.FromFile(path);
                 using (var firmwareDialog = new DeviceOperationDialog(
-                    Resources.UpdateDeviceFirmware_Label,
-                    Resources.UpdateDeviceFirmware_Caption,
+                    Properties.Resources.UpdateDeviceFirmware_Label,
+                    Properties.Resources.UpdateDeviceFirmware_Caption,
                     progress => Bootloader.UpdateFirmwareAsync(instance.PortName, deviceFirmware, progress)))
                 {
                     firmwareDialog.ShowDialog(this);
@@ -224,7 +223,7 @@ namespace Bonsai.Harp.Design
         bool UpdateDeviceName(string name)
         {
             if (MessageBox.Show(this,
-                Resources.UpdateDeviceName_Question, Text,
+                Properties.Resources.UpdateDeviceName_Question, Text,
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2) == DialogResult.Yes)
@@ -232,8 +231,8 @@ namespace Bonsai.Harp.Design
                 CloseDevice();
                 SetConnectionStatus(ConnectionStatus.Reset);
                 using (var firmwareDialog = new DeviceOperationDialog(
-                    Resources.UpdateDeviceName_Label,
-                    Resources.UpdateDeviceName_Caption,
+                    Properties.Resources.UpdateDeviceName_Label,
+                    Properties.Resources.UpdateDeviceName_Caption,
                     progress => UpdateDeviceNameAsync(instance.PortName, name, progress)))
                 {
                     firmwareDialog.ShowDialog(this);
