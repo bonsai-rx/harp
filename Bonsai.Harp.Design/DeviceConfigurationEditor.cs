@@ -1,5 +1,4 @@
 ﻿using Bonsai.Design;
-using Bonsai.Harp.Design.Properties;
 using System;
 using System.ComponentModel;
 using System.Reflection;
@@ -18,7 +17,7 @@ namespace Bonsai.Harp.Design
                 {
                     if (editorState.WorkflowRunning)
                     {
-                        throw new InvalidOperationException(Resources.WorkflowRunning_Error);
+                        throw new InvalidOperationException(Properties.Resources.WorkflowRunning_Error);
                     }
 
                     var device = (Device)component;
