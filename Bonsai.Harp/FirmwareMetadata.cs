@@ -70,6 +70,7 @@ namespace Bonsai.Harp
         public int? PrereleaseVersion { get; private set; }
 
         [Obsolete]
+        [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public HarpVersion ProtocolVersion
