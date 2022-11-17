@@ -1,4 +1,4 @@
-using Bonsai.Design;
+﻿using Bonsai.Design;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -69,7 +69,8 @@ namespace Bonsai.Harp.Design
                 .TakeUntil(resetDeviceName.Merge(resetDeviceSettings)
                     .Where(DeviceRegisters.ResetDevice)
                     .Delay(TimeSpan.FromSeconds(1)))
-                .Do(x => { }, () => BeginInvoke((Action)ResetDevice));
+                .Do(x => { }, () => BeginInvoke((Action)ResetDevice))
+                .Catch<HarpMessage, IOException>(ConnectionErrorHandler);
         }
 
         private void ValidateDevice()
@@ -102,6 +103,12 @@ namespace Bonsai.Harp.Design
                 resetDialog.ShowDialog(this);
             }
             OpenDevice();
+        }
+
+        private IObservable<HarpMessage> ConnectionErrorHandler(IOException ex)
+        {
+            SetConnectionStatus(ConnectionStatus.Closed);
+            return Observable.Empty<HarpMessage>();
         }
 
         private DialogResult ShouldResetDeviceName()
@@ -184,6 +191,9 @@ namespace Bonsai.Harp.Design
                     break;
                 case ConnectionStatus.Reset:
                     connectionStatusLabel.Text = "Resetting device...";
+                    break;
+                case ConnectionStatus.Closed:
+                    connectionStatusLabel.Text = $"No device connected ({instance.PortName})";
                     break;
                 default:
                     break;
@@ -312,7 +322,8 @@ namespace Bonsai.Harp.Design
         {
             Open,
             Ready,
-            Reset
+            Reset,
+            Closed
         }
 
         private void selectFirmwareButton_Click(object sender, EventArgs e)
