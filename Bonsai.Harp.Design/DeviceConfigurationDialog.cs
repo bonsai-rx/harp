@@ -19,31 +19,27 @@ namespace Bonsai.Harp.Design
         readonly Size bootloaderMinimumSize;
         readonly Size deviceInfoMinimumSize;
         readonly DeviceConfiguration configuration;
+        readonly PortNameConverter portNameConverter;
         IDisposable subscription;
 
         public DeviceConfigurationDialog(Device device)
         {
             InitializeComponent();
-            instance = device;
             source = CreateDevice();
             configuration = new DeviceConfiguration();
+            portNameConverter = new PortNameConverter();
+            portNameComboBox.Text = device.PortName;
             propertyGrid.SelectedObject = configuration;
             bootloaderInfoWidth = tableLayoutPanel.ColumnStyles[1].Width;
             bootloaderMinimumSize = MinimumSize;
             deviceInfoMinimumSize = new Size(bootloaderGroupBox.Left + EdgeMargin, MinimumSize.Height);
             warningTextBox.Select(0, warningTextBox.Find(":") + 1);
             warningTextBox.SelectionFont = new Font(warningTextBox.Font, FontStyle.Bold);
+            instance = device;
         }
 
         private IObservable<HarpMessage> CreateDevice()
         {
-            var device = new Device
-            {
-                PortName = instance.PortName,
-                Heartbeat = EnableType.Disable,
-                IgnoreErrors = true
-            };
-
             var resetDeviceName = Observable.FromEventPattern(
                 handler => resetNameButton.Click += handler,
                 handler => resetNameButton.Click -= handler)
@@ -60,7 +56,14 @@ namespace Bonsai.Harp.Design
                 .SelectMany(result => ResetRegisters(true))
                 .Publish().RefCount();
 
-            return device.Generate(resetDeviceName.Merge(resetDeviceSettings))
+            var device = Observable.Defer(() => new Device
+            {
+                PortName = instance.PortName,
+                Heartbeat = EnableType.Disable,
+                IgnoreErrors = true
+            }.Generate(resetDeviceName.Merge(resetDeviceSettings)));
+
+            return device
                 .Where(MessageType.Read).Do(ReadRegister)
                 .Throttle(TimeSpan.FromSeconds(0.2))
                 .ObserveOn(propertyGrid)
@@ -355,6 +358,27 @@ namespace Bonsai.Harp.Design
                     propertyGrid.Refresh();
                 }
             }
+        }
+
+        private void portNameComboBox_DropDown(object sender, EventArgs e)
+        {
+            var portNames = portNameConverter.GetStandardValues();
+            portNameBindingSource.DataSource = portNames.Count > 0 ? portNames : null;
+        }
+
+        private void portNameComboBox_Validated(object sender, EventArgs e)
+        {
+            if (instance != null)
+            {
+                instance.PortName = portNameComboBox.Text;
+                CloseDevice();
+                OpenDevice();
+            }
+        }
+
+        private void portNameComboBox_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            propertyGrid.Select();
         }
     }
 }
