@@ -133,6 +133,9 @@
   <data name="UpdateDeviceFirmware_Label" xml:space="preserve">
     <value>Updating device firmware. Please wait...</value>
   </data>
+  <data name="UpdateDeviceFirmware_NotSupported" xml:space="preserve">
+    <value>The specified firmware is not supported by the device hardware.</value>
+  </data>
   <data name="UpdateDeviceFirmware_Question" xml:space="preserve">
     <value>Are you sure you want to update the device firmware? This action cannot be undone.</value>
   </data>

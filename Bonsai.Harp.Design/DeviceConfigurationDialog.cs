@@ -1,4 +1,4 @@
-﻿using Bonsai.Design;
+using Bonsai.Design;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -200,19 +200,34 @@ namespace Bonsai.Harp.Design
 
         void UpdateFirmware(string path)
         {
-            if (MessageBox.Show(this,
-                Properties.Resources.UpdateDeviceFirmware_Question, Text,
+            var deviceFirmware = DeviceFirmware.FromFile(path);
+            var forceUpdate = ModifierKeys == (Keys.Shift | Keys.Control | Keys.Alt);
+            if (!deviceFirmware.Metadata.Supports(configuration.DeviceName, configuration.HardwareVersion) &&
+                !forceUpdate)
+            {
+                MessageBox.Show(this,
+                    Properties.Resources.UpdateDeviceFirmware_NotSupported,
+                    Properties.Resources.UpdateDeviceFirmware_Caption,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+            else if (MessageBox.Show(this,
+                Properties.Resources.UpdateDeviceFirmware_Question,
+                Properties.Resources.UpdateDeviceFirmware_Caption,
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
                 CloseDevice();
                 SetConnectionStatus(ConnectionStatus.Reset);
-                var deviceFirmware = DeviceFirmware.FromFile(path);
                 using (var firmwareDialog = new DeviceOperationDialog(
                     Properties.Resources.UpdateDeviceFirmware_Label,
                     Properties.Resources.UpdateDeviceFirmware_Caption,
-                    progress => Bootloader.UpdateFirmwareAsync(instance.PortName, deviceFirmware, progress)))
+                    progress => Bootloader.UpdateFirmwareAsync(
+                        instance.PortName,
+                        deviceFirmware,
+                        forceUpdate,
+                        progress)))
                 {
                     firmwareDialog.ShowDialog(this);
                 }
