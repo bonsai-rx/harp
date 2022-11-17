@@ -54,9 +54,9 @@ namespace Bonsai.Harp
         public static async Task UpdateFirmwareAsync(string portName, DeviceFirmware firmware, bool forceUpdate, IProgress<int> progress = default)
         {
             var flushDelay = TimeSpan.FromMilliseconds(FlushDelayMilliseconds);
-            using (var device = new AsyncDevice(portName))
+            try
             {
-                try
+                using (var device = new AsyncDevice(portName))
                 {
                     progress?.Report(10);
                     if (!forceUpdate)
@@ -87,43 +87,59 @@ namespace Bonsai.Harp
                     await Observable.Timer(flushDelay);
                     progress?.Report(30);
                 }
-                catch (TimeoutException)
+            }
+            catch (Exception ex) when (ex is TimeoutException || ex is IOException)
+            {
+                if (!forceUpdate)
                 {
-                    if (!forceUpdate)
-                    {
-                        throw;
-                    }
+                    throw;
                 }
             }
 
+            const int MaxAttempts = 10;
             const int DefaultBaudRate = 1000000;
-            using (var bootloader = new SerialPort(portName, DefaultBaudRate, Parity.None, 8, StopBits.One))
+            for (int i = 1; i <= MaxAttempts; i++)
             {
-                bootloader.Handshake = Handshake.None;
-                bootloader.Open();
-                await Observable.Timer(flushDelay);
-                var pageSize = await ReadPageSizeAsync(bootloader.BaseStream);
-                progress?.Report(40);
-
-                var bytesWritten = 0;
-                var reportSize = pageSize * 8;
-                var dataMessage = new byte[pageSize + HeaderSize];
-                while (bytesWritten < firmware.Data.Length)
+                try
                 {
-                    CreateBootloaderMessage(dataMessage, WritePage, bytesWritten, firmware.Data, bytesWritten, pageSize);
-                    await BootloaderCommandAsync(bootloader.BaseStream, dataMessage);
-                    bytesWritten += pageSize;
-                    if (bytesWritten % reportSize == 0)
+                    using (var bootloader = new SerialPort(portName, DefaultBaudRate, Parity.None, 8, StopBits.One))
                     {
-                        progress?.Report(40 + bytesWritten * 50 / firmware.Data.Length);
-                    }
-                }
+                        bootloader.Handshake = Handshake.None;
+                        bootloader.Open();
+                        await Observable.Timer(flushDelay);
+                        var pageSize = await ReadPageSizeAsync(bootloader.BaseStream);
+                        progress?.Report(40);
 
-                progress?.Report(90);
-                CreateBootloaderMessage(dataMessage, ExitBootloader, 0, firmware.Data, 0, pageSize);
-                await BootloaderCommandAsync(bootloader.BaseStream, dataMessage);
-                progress?.Report(100);
-            };
+                        var bytesWritten = 0;
+                        var reportSize = pageSize * 8;
+                        var dataMessage = new byte[pageSize + HeaderSize];
+                        while (bytesWritten < firmware.Data.Length)
+                        {
+                            CreateBootloaderMessage(dataMessage, WritePage, bytesWritten, firmware.Data, bytesWritten, pageSize);
+                            await BootloaderCommandAsync(bootloader.BaseStream, dataMessage);
+                            bytesWritten += pageSize;
+                            if (bytesWritten % reportSize == 0)
+                            {
+                                progress?.Report(40 + bytesWritten * 50 / firmware.Data.Length);
+                            }
+                        }
+
+                        progress?.Report(90);
+                        CreateBootloaderMessage(dataMessage, ExitBootloader, 0, firmware.Data, 0, pageSize);
+                        await BootloaderCommandAsync(bootloader.BaseStream, dataMessage);
+                        progress?.Report(100);
+                        break;
+                    };
+                }
+                catch (IOException)
+                {
+                    if (!forceUpdate || i == MaxAttempts)
+                    {
+                        throw;
+                    }
+                    else await Observable.Timer(flushDelay);
+                }
+            }
         }
 
         static async Task<T> WithTimeout<T>(this Task<T> task, int millisecondsDelay)
