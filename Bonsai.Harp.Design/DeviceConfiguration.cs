@@ -9,21 +9,22 @@ namespace Bonsai.Harp.Design
         [Browsable(false)]
         public string Id
         {
-            get { return $"{WhoAmI}-{SerialNumber:x4}"; }
+            get { return !SerialNumber.HasValue ? $"{WhoAmI}" : $"{WhoAmI}-{SerialNumber:x4}"; }
             set
             {
                 var parts = value?.Split('-');
-                if (parts?.Length != 2)
+                if (parts?.Length <= 2)
                 {
-                    throw new ArgumentException("The id string is empty or has an invalid format.", nameof(value));
+                    throw new ArgumentException("The id string is null or has an invalid format.", nameof(value));
                 }
 
                 WhoAmI = int.Parse(parts[0]);
-                SerialNumber = int.Parse(parts[1], NumberStyles.HexNumber);
+                if (parts.Length == 2)
+                {
+                    SerialNumber = int.Parse(parts[1], NumberStyles.HexNumber);
+                }
             }
         }
-
-        internal int WhoAmI { get; set; }
 
         public string DeviceName { get; set; }
 
@@ -56,7 +57,9 @@ namespace Bonsai.Harp.Design
 
         public int AssemblyVersion { get; internal set; }
 
-        internal int? SerialNumber { get; set; }
+        public int WhoAmI { get; internal set; }
+
+        public int? SerialNumber { get; internal set; }
 
         [DisplayName("Timestamp (s)")]
         public uint Timestamp { get; internal set; }
