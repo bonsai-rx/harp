@@ -59,7 +59,7 @@ namespace Bonsai.Harp.Design
             this.statusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.connectionStatusLabel});
-            this.statusStrip.Location = new System.Drawing.Point(0, 273);
+            this.statusStrip.Location = new System.Drawing.Point(0, 282);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
             this.statusStrip.Size = new System.Drawing.Size(932, 32);
@@ -85,7 +85,7 @@ namespace Bonsai.Harp.Design
             this.tableLayoutPanel.Name = "tableLayoutPanel";
             this.tableLayoutPanel.RowCount = 1;
             this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(932, 273);
+            this.tableLayoutPanel.Size = new System.Drawing.Size(932, 282);
             this.tableLayoutPanel.TabIndex = 1;
             // 
             // deviceInfoGroupBox
@@ -98,7 +98,7 @@ namespace Bonsai.Harp.Design
             this.deviceInfoGroupBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.deviceInfoGroupBox.Name = "deviceInfoGroupBox";
             this.deviceInfoGroupBox.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.deviceInfoGroupBox.Size = new System.Drawing.Size(348, 265);
+            this.deviceInfoGroupBox.Size = new System.Drawing.Size(348, 274);
             this.deviceInfoGroupBox.TabIndex = 0;
             this.deviceInfoGroupBox.TabStop = false;
             this.deviceInfoGroupBox.Text = "Device Info";
@@ -108,7 +108,7 @@ namespace Bonsai.Harp.Design
             this.portNameComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.portNameComboBox.DataSource = this.portNameBindingSource;
             this.portNameComboBox.FormattingEnabled = true;
-            this.portNameComboBox.Location = new System.Drawing.Point(10, 223);
+            this.portNameComboBox.Location = new System.Drawing.Point(10, 232);
             this.portNameComboBox.Name = "portNameComboBox";
             this.portNameComboBox.Size = new System.Drawing.Size(94, 28);
             this.portNameComboBox.TabIndex = 2;
@@ -127,7 +127,7 @@ namespace Bonsai.Harp.Design
             this.propertyGrid.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.propertyGrid.Name = "propertyGrid";
             this.propertyGrid.PropertySort = System.Windows.Forms.PropertySort.NoSort;
-            this.propertyGrid.Size = new System.Drawing.Size(331, 181);
+            this.propertyGrid.Size = new System.Drawing.Size(331, 190);
             this.propertyGrid.TabIndex = 1;
             this.propertyGrid.ToolbarVisible = false;
             this.propertyGrid.PropertyValueChanged += new System.Windows.Forms.PropertyValueChangedEventHandler(this.propertyGrid_PropertyValueChanged);
@@ -135,7 +135,7 @@ namespace Bonsai.Harp.Design
             // bootloaderButton
             // 
             this.bootloaderButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bootloaderButton.Location = new System.Drawing.Point(214, 215);
+            this.bootloaderButton.Location = new System.Drawing.Point(214, 224);
             this.bootloaderButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.bootloaderButton.Name = "bootloaderButton";
             this.bootloaderButton.Size = new System.Drawing.Size(127, 42);
@@ -157,7 +157,7 @@ namespace Bonsai.Harp.Design
             this.bootloaderGroupBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.bootloaderGroupBox.Name = "bootloaderGroupBox";
             this.bootloaderGroupBox.Padding = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.bootloaderGroupBox.Size = new System.Drawing.Size(572, 265);
+            this.bootloaderGroupBox.Size = new System.Drawing.Size(572, 274);
             this.bootloaderGroupBox.TabIndex = 1;
             this.bootloaderGroupBox.TabStop = false;
             this.bootloaderGroupBox.Text = "Update Firmware";
@@ -195,7 +195,7 @@ namespace Bonsai.Harp.Design
             this.firmwarePropertyGrid.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.firmwarePropertyGrid.Name = "firmwarePropertyGrid";
             this.firmwarePropertyGrid.PropertySort = System.Windows.Forms.PropertySort.NoSort;
-            this.firmwarePropertyGrid.Size = new System.Drawing.Size(385, 181);
+            this.firmwarePropertyGrid.Size = new System.Drawing.Size(385, 190);
             this.firmwarePropertyGrid.TabIndex = 4;
             this.firmwarePropertyGrid.ToolbarVisible = false;
             // 
@@ -203,7 +203,7 @@ namespace Bonsai.Harp.Design
             // 
             this.warningTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.warningTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.warningTextBox.Location = new System.Drawing.Point(7, 215);
+            this.warningTextBox.Location = new System.Drawing.Point(7, 224);
             this.warningTextBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.warningTextBox.Name = "warningTextBox";
             this.warningTextBox.ReadOnly = true;
@@ -215,7 +215,7 @@ namespace Bonsai.Harp.Design
             // selectFirmwareButton
             // 
             this.selectFirmwareButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.selectFirmwareButton.Location = new System.Drawing.Point(395, 215);
+            this.selectFirmwareButton.Location = new System.Drawing.Point(395, 224);
             this.selectFirmwareButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.selectFirmwareButton.Name = "selectFirmwareButton";
             this.selectFirmwareButton.Size = new System.Drawing.Size(80, 42);
@@ -228,7 +228,7 @@ namespace Bonsai.Harp.Design
             // 
             this.updateFirmwareButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.updateFirmwareButton.Enabled = false;
-            this.updateFirmwareButton.Location = new System.Drawing.Point(482, 215);
+            this.updateFirmwareButton.Location = new System.Drawing.Point(482, 224);
             this.updateFirmwareButton.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.updateFirmwareButton.Name = "updateFirmwareButton";
             this.updateFirmwareButton.Size = new System.Drawing.Size(80, 42);
@@ -245,14 +245,14 @@ namespace Bonsai.Harp.Design
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(932, 305);
+            this.ClientSize = new System.Drawing.Size(932, 314);
             this.Controls.Add(this.tableLayoutPanel);
             this.Controls.Add(this.statusStrip);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(954, 361);
-            this.MinimumSize = new System.Drawing.Size(954, 361);
+            this.MaximumSize = new System.Drawing.Size(954, 370);
+            this.MinimumSize = new System.Drawing.Size(954, 370);
             this.Name = "DeviceConfigurationDialog";
             this.Text = "Device Setup";
             this.statusStrip.ResumeLayout(false);
