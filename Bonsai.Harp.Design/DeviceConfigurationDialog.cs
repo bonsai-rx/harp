@@ -190,7 +190,7 @@ namespace Bonsai.Harp.Design
                     connectionStatusLabel.Text = "Connecting to device...";
                     break;
                 case ConnectionStatus.Ready:
-                    connectionStatusLabel.Text = $"Ready ({instance.PortName}: {configuration.Id})";
+                    connectionStatusLabel.Text = $"Ready ({instance.PortName})";
                     break;
                 case ConnectionStatus.Reset:
                     connectionStatusLabel.Text = "Resetting device...";
@@ -200,7 +200,6 @@ namespace Bonsai.Harp.Design
                     break;
                 default:
                     break;
-         
             }
         }
 
