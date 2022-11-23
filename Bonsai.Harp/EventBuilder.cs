@@ -3,14 +3,15 @@
 namespace Bonsai.Harp
 {
     /// <summary>
-    /// Provides the abstract base class for polymorphic operators used to parse
-    /// event messages for Harp devices.
+    /// Provides the abstract base class for polymorphic operators used to filter
+    /// and parse event messages from Harp devices.
     /// </summary>
     [DefaultProperty(nameof(Event))]
     public abstract class EventBuilder : HarpCombinatorBuilder
     {
         /// <summary>
-        /// Gets or sets the type of the device event message to select.
+        /// Gets or sets the event parser used to filter and select event messages
+        /// reported by the device.
         /// </summary>
         [DesignOnly(true)]
         [DisplayName("Type")]
