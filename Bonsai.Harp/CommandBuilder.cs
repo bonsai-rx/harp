@@ -10,7 +10,7 @@ namespace Bonsai.Harp
     public abstract class CommandBuilder : HarpCombinatorBuilder
     {
         /// <summary>
-        /// Gets or sets the type of the device command message to create.
+        /// Gets or sets the command formatter used to create command messages.
         /// </summary>
         [DesignOnly(true)]
         [DisplayName("Type")]

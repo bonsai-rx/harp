@@ -1,82 +1,61 @@
-﻿using Bonsai.Expressions;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.ComponentModel;
+using System.Xml.Serialization;
 
 namespace Bonsai.Harp
 {
     /// <summary>
-    /// Represents an operator which filters and selects specific event messages reported by all Harp devices
+    /// Represents an operator which filters and selects specific event messages
+    /// reported by all Harp devices.
     /// </summary>
+    [XmlInclude(typeof(Heartbeat))]
+    [XmlInclude(typeof(MessageTimestamp))]
     [Description("Filters and selects event messages reported by all Harp devices.")]
-    [TypeDescriptionProvider(typeof(DeviceTypeDescriptionProvider<DeviceEvent>))]
-    public class DeviceEvent : SingleArgumentExpressionBuilder, INamedElement
+    public class DeviceEvent : EventBuilder
     {
         /// <summary>
-        /// Gets or sets the type of the device event message to select.
+        /// Initializes a new instance of the <see cref="DeviceEvent"/> class.
         /// </summary>
-        [RefreshProperties(RefreshProperties.All)]
-        [Description("The type of the device event message to select.")]
-        public DeviceEventType Type { get; set; } = DeviceEventType.Heartbeat;
+        public DeviceEvent()
+        {
+            Event = new Heartbeat();
+        }
 
-        string INamedElement.Name => $"{nameof(Device)}.{Type}";
-
-        string Description
+        /// <summary>
+        /// Gets or sets a value specifying the type of the event message to select.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#pragma warning disable CS0612 // Type or member is obsolete
+        public DeviceEventType Type
         {
             get
             {
-                switch (Type)
+                return Event?.GetType() switch
                 {
-                    case DeviceEventType.Heartbeat: return "The periodic timing signal, reported once every second, used to synchronize Harp devices.";
-                    case DeviceEventType.MessageTimestamp: return "Gets the timestamp, in seconds, for each input event.";
-                    default: return null;
-                }
+                    Type type when type == typeof(Heartbeat) => DeviceEventType.Heartbeat,
+                    Type type when type == typeof(MessageTimestamp) => DeviceEventType.MessageTimestamp,
+                    _ => default,
+                };
             }
-        }
-
-        /// <summary>
-        /// Returns the expression that specifies how standard event messages are filtered and selected.
-        /// </summary>
-        /// <param name="arguments">
-        /// A collection of <see cref="Expression"/> nodes that represents the input arguments.
-        /// </param>
-        /// <returns>
-        /// The <see cref="Expression"/> that maps the single input argument to the
-        /// contents of the standard event message.
-        /// </returns>
-        public override Expression Build(IEnumerable<Expression> arguments)
-        {
-            var expression = arguments.First();
-            switch (Type)
+            set
             {
-                case DeviceEventType.Heartbeat:
-                    return Expression.Call(typeof(DeviceEvent), nameof(Heartbeat), null, expression);
-                case DeviceEventType.MessageTimestamp:
-                    return Expression.Call(typeof(DeviceEvent), nameof(MessageTimestamp), null, expression);
-                default:
-                    throw new InvalidOperationException("Invalid selection or not supported yet.");
+                Event = value switch
+                {
+                    DeviceEventType.MessageTimestamp => new MessageTimestamp(),
+                    _ => new Heartbeat(),
+                };
             }
         }
-
-        static IObservable<uint> Heartbeat(IObservable<HarpMessage> source)
-        {
-            return source.Event(DeviceRegisters.TimestampSecond).Select(input => input.GetPayloadUInt32());
-        }
-
-        static IObservable<double> MessageTimestamp(IObservable<HarpMessage> source)
-        {
-            return source
-                .Where(input => input.MessageType == MessageType.Event && input.IsTimestamped)
-                .Select(input => input.GetTimestamp());
-        }
+#pragma warning restore CS0612 // Type or member is obsolete
     }
 
     /// <summary>
     /// Specifies standard device events available on all Harp devices.
     /// </summary>
+    [Obsolete]
     public enum DeviceEventType : byte
     {
         /// <summary>
@@ -88,5 +67,51 @@ namespace Bonsai.Harp
         /// Specifies that the timestamp, in seconds, should be selected for each input event.
         /// </summary>
         MessageTimestamp
+    }
+
+    /// <summary>
+    /// Represents an operator that filters and selects the current time of the device,
+    /// reported once every second after synchronizing with the periodic timing signal.
+    /// </summary>
+    [Description("Filters and selects the current time of the device, reported once every second after synchronizing with the periodic timing signal.")]
+    public class Heartbeat : Combinator<HarpMessage, uint>
+    {
+        /// <summary>
+        /// Filters and selects the current time of the device, reported once every
+        /// second after synchronizing with the periodic timing signal.
+        /// </summary>
+        /// <param name="source">The sequence of Harp event messages.</param>
+        /// <returns>
+        /// A sequence of 32-bit unsigned integers representing the whole
+        /// part of the device timestamp, in seconds.
+        /// </returns>
+        public override IObservable<uint> Process(IObservable<HarpMessage> source)
+        {
+            return source.Event(DeviceRegisters.TimestampSecond).Select(input => input.GetPayloadUInt32());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that selects the timestamp, in seconds, for each
+    /// event message in the source sequence.
+    /// </summary>
+    [Description("Selects the timestamp, in seconds, for each event message in the source sequence.")]
+    public class MessageTimestamp : Combinator<HarpMessage, double>
+    {
+        /// <summary>
+        /// Selects the timestamp, in seconds, for each event message in the
+        /// source sequence.
+        /// </summary>
+        /// <param name="source">The sequence of Harp event messages.</param>
+        /// <returns>
+        /// A sequence of double precision floating-point values representing
+        /// the message timestamp, in whole and fractional seconds.
+        /// </returns>
+        public override IObservable<double> Process(IObservable<HarpMessage> source)
+        {
+            return source
+                .Where(input => input.MessageType == MessageType.Event && input.IsTimestamped)
+                .Select(input => input.GetTimestamp());
+        }
     }
 }
