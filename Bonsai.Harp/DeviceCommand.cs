@@ -9,6 +9,8 @@ namespace Bonsai.Harp
     /// </summary>
     [XmlInclude(typeof(SetTimestamp))]
     [XmlInclude(typeof(SynchronizeTimestamp))]
+    [XmlInclude(typeof(OperationControl))]
+    [XmlInclude(typeof(ResetDevice))]
     [Description("Creates standard command messages available to all Harp devices.")]
     public class DeviceCommand : CommandBuilder
     {
@@ -110,6 +112,95 @@ namespace Bonsai.Harp
         {
             var unixTimestamp = (uint)(DateTime.UtcNow.Subtract(new DateTime(1904, 1, 1))).TotalSeconds;
             return HarpCommand.WriteUInt32(DeviceRegisters.TimestampSecond, unixTimestamp);
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a command message to initialize the
+    /// operation control register in a Harp device.
+    /// </summary>
+    [DesignTimeVisible(false)]
+    [Description("Creates a command message to initialize the operation control register in a Harp device.")]
+    public class OperationControl : CommandFormatter
+    {
+        /// <summary>
+        /// Gets or sets a value specifying the desired operation mode of the device.
+        /// </summary>
+        [Description("Specifies the desired operation mode of the device.")]
+        public DeviceState OperationMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether the device should report the state
+        /// of all registers following initialization.
+        /// </summary>
+        [Description("Specifies whether the device should report the state of all registers following initialization.")]
+        public bool DumpRegisters { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether the operation mode LED should
+        /// report the device state.
+        /// </summary>
+        [Description("Specifies whether the operation mode LED should report the device state.")]
+        public LedState LedState { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether the visual indicator LEDs in the
+        /// device should be enabled.
+        /// </summary>
+        [Description("Specifies whether the visual indicator LEDs in the Harp device should be enabled.")]
+        public LedState VisualIndicators { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying whether the device should report the
+        /// current timestamp every second.
+        /// </summary>
+        [Description("Specifies whether the device should report the current timestamp every second.")]
+        public EnableType Heartbeat { get; set; }
+
+        /// <summary>
+        /// Creates a command message to initialize the operation control register
+        /// in a Harp device.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="HarpMessage"/> object representing the command to initialize
+        /// the operation control register in a Harp device.
+        /// </returns>
+        protected override HarpMessage Format()
+        {
+            return HarpCommand.OperationControl(
+                OperationMode,
+                LedState,
+                VisualIndicators,
+                Heartbeat,
+                replies: EnableType.Enable,
+                DumpRegisters);
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a command message to reset the device
+    /// and save non-volatile registers.
+    /// </summary>
+    [Description("Creates a command message to reset the device and save non-volatile registers.")]
+    public class ResetDevice : CommandFormatter
+    {
+        /// <summary>
+        /// Gets or sets a value specifying the the behavior of the non-volatile
+        /// registers when resetting the device.
+        /// </summary>
+        [Description("Specifies the behavior of the non-volatile registers when resetting the device.")]
+        public ResetMode Mode { get; set; }
+
+        /// <summary>
+        /// Creates a command message to reset the device and save non-volatile registers.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="HarpMessage"/> object representing the command to reset
+        /// the device and save non-volatile registers.
+        /// </returns>
+        protected override HarpMessage Format()
+        {
+            return HarpCommand.ResetDevice(Mode);
         }
     }
 }
