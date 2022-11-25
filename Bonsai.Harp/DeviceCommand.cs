@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.ComponentModel;
+using System.Reactive.Linq;
 using System.Xml.Serialization;
 
 namespace Bonsai.Harp
@@ -75,20 +76,23 @@ namespace Bonsai.Harp
     /// </summary>
     [DesignTimeVisible(false)]
     [Description("Creates a command message to set the value of the timestamp register in the Harp device, in whole seconds.")]
-    public class SetTimestamp : CommandFormatter<uint>
+    public class SetTimestamp : Combinator<uint, HarpMessage>
     {
         /// <summary>
-        /// Creates a command message to set the value of the timestamp register
-        /// in the Harp device, in whole seconds.
+        /// Creates an observable sequence of command messages to set the value of the
+        /// timestamp register in the Harp device.
         /// </summary>
-        /// <param name="value">The value of the timestamp, in whole seconds.</param>
+        /// <param name="source">
+        /// The sequence of timestamp values, in whole seconds, used to reset the Harp
+        /// clock register.
+        /// </param>
         /// <returns>
-        /// A <see cref="HarpMessage"/> object representing the command to set
-        /// the timestamp register in the Harp device.
+        /// A sequence of <see cref="HarpMessage"/> objects representing the command
+        /// to set the value of the timestamp register in the Harp device.
         /// </returns>
-        protected override HarpMessage Format(uint value)
+        public override IObservable<HarpMessage> Process(IObservable<uint> source)
         {
-            return HarpCommand.WriteUInt32(DeviceRegisters.TimestampSecond, value);
+            return source.Select(value => HarpCommand.WriteUInt32(DeviceRegisters.TimestampSecond, value));
         }
     }
 
@@ -98,20 +102,31 @@ namespace Bonsai.Harp
     /// </summary>
     [DesignTimeVisible(false)]
     [Description("Creates a command message to set the value of the timestamp register in the Harp device to the current UTC time of the host.")]
-    public class SynchronizeTimestamp : CommandFormatter
+    public class SynchronizeTimestamp : Combinator<HarpMessage>
     {
         /// <summary>
-        /// Creates a command message to set the value of the timestamp register
-        /// in the Harp device to the current UTC time of the host.
+        /// Creates an observable sequence of command messages to set the value of
+        /// the timestamp register in the Harp device to the current UTC time of
+        /// the host.
         /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for creating new command
+        /// messages.
+        /// </param>
         /// <returns>
-        /// A <see cref="HarpMessage"/> object representing the command to synchronize
-        /// the timestamp register in the Harp device.
+        /// A sequence of <see cref="HarpMessage"/> objects representing the command
+        /// to set the value of the timestamp register in the Harp device.
         /// </returns>
-        protected override HarpMessage Format()
+        public override IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
         {
-            var unixTimestamp = (uint)(DateTime.UtcNow.Subtract(new DateTime(1904, 1, 1))).TotalSeconds;
-            return HarpCommand.WriteUInt32(DeviceRegisters.TimestampSecond, unixTimestamp);
+            return source.Select(_ =>
+            {
+                var unixTimestamp = (uint)(DateTime.UtcNow.Subtract(new DateTime(1904, 1, 1))).TotalSeconds;
+                return HarpCommand.WriteUInt32(DeviceRegisters.TimestampSecond, unixTimestamp);
+            });
         }
     }
 
@@ -121,7 +136,7 @@ namespace Bonsai.Harp
     /// </summary>
     [DesignTimeVisible(false)]
     [Description("Creates a command message to initialize the operation control register in a Harp device.")]
-    public class OperationControl : CommandFormatter
+    public class OperationControl : Combinator<HarpMessage>
     {
         /// <summary>
         /// Gets or sets a value specifying the desired operation mode of the device.
@@ -158,22 +173,29 @@ namespace Bonsai.Harp
         public EnableType Heartbeat { get; set; }
 
         /// <summary>
-        /// Creates a command message to initialize the operation control register
-        /// in a Harp device.
+        /// Creates an observable sequence of command messages to initialize the
+        /// operation control register in a Harp device.
         /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for creating new command
+        /// messages.
+        /// </param>
         /// <returns>
-        /// A <see cref="HarpMessage"/> object representing the command to initialize
-        /// the operation control register in a Harp device.
+        /// A sequence of <see cref="HarpMessage"/> objects representing the command
+        /// to initialize the operation control register in a Harp device.
         /// </returns>
-        protected override HarpMessage Format()
+        public override IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
         {
-            return HarpCommand.OperationControl(
+            return source.Select(_ => HarpCommand.OperationControl(
                 OperationMode,
                 LedState,
                 VisualIndicators,
                 Heartbeat,
                 replies: EnableType.Enable,
-                DumpRegisters);
+                DumpRegisters));
         }
     }
 
@@ -182,7 +204,7 @@ namespace Bonsai.Harp
     /// and save non-volatile registers.
     /// </summary>
     [Description("Creates a command message to reset the device and save non-volatile registers.")]
-    public class ResetDevice : CommandFormatter
+    public class ResetDevice : Combinator<HarpMessage>
     {
         /// <summary>
         /// Gets or sets a value specifying the the behavior of the non-volatile
@@ -192,15 +214,23 @@ namespace Bonsai.Harp
         public ResetMode Mode { get; set; }
 
         /// <summary>
-        /// Creates a command message to reset the device and save non-volatile registers.
+        /// Creates an observable sequence of command messages to reset the device
+        /// and save non-volatile registers.
         /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for creating new command
+        /// messages.
+        /// </param>
         /// <returns>
-        /// A <see cref="HarpMessage"/> object representing the command to reset
-        /// the device and save non-volatile registers.
+        /// A sequence of <see cref="HarpMessage"/> objects representing the command
+        /// to reset the device and save non-volatile registers.
         /// </returns>
-        protected override HarpMessage Format()
+        public override IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
         {
-            return HarpCommand.ResetDevice(Mode);
+            return source.Select(_ => HarpCommand.ResetDevice(Mode));
         }
     }
 }
