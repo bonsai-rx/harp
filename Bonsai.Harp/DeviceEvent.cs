@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.ComponentModel;
@@ -10,6 +10,8 @@ namespace Bonsai.Harp
     /// Represents an operator which filters and selects specific event messages
     /// reported by all Harp devices.
     /// </summary>
+    /// <seealso cref="Heartbeat"/>
+    /// <seealso cref="MessageTimestamp"/>
     [XmlInclude(typeof(Heartbeat))]
     [XmlInclude(typeof(MessageTimestamp))]
     [Description("Filters and selects event messages reported by all Harp devices.")]
