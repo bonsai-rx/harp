@@ -135,7 +135,7 @@ namespace Bonsai.Harp
 
         static Timestamped<TArray[]> ProcessTimestampedArray<TArray>(HarpMessage input) where TArray : unmanaged
         {
-            return input.GetTimestampedPayloadArray<TArray>();
+            return Timestamped.Create(input.GetPayloadArray<TArray>(out double timestamp), timestamp);
         }
 
         static byte ProcessU8(HarpMessage input)
@@ -147,7 +147,7 @@ namespace Bonsai.Harp
         static Timestamped<byte> ProcessTimestampedU8(HarpMessage input)
         {
             CheckErrors(input, PayloadType.U8);
-            return input.GetTimestampedPayloadByte();
+            return Timestamped.Create(input.GetPayloadByte(out double timestamp), timestamp);
         }
 
         static sbyte ProcessS8(HarpMessage input)
@@ -159,7 +159,7 @@ namespace Bonsai.Harp
         static Timestamped<sbyte> ProcessTimestampedS8(HarpMessage input)
         {
             CheckErrors(input, PayloadType.S8);
-            return input.GetTimestampedPayloadSByte();
+            return Timestamped.Create(input.GetPayloadSByte(out double timestamp), timestamp);
         }
 
         static ushort ProcessU16(HarpMessage input)
@@ -171,7 +171,7 @@ namespace Bonsai.Harp
         static Timestamped<ushort> ProcessTimestampedU16(HarpMessage input)
         {
             CheckErrors(input, PayloadType.U16);
-            return input.GetTimestampedPayloadUInt16();
+            return Timestamped.Create(input.GetPayloadUInt16(out double timestamp), timestamp);
         }
 
         static short ProcessS16(HarpMessage input)
@@ -183,7 +183,7 @@ namespace Bonsai.Harp
         static Timestamped<short> ProcessTimestampedS16(HarpMessage input)
         {
             CheckErrors(input, PayloadType.S16);
-            return input.GetTimestampedPayloadInt16();
+            return Timestamped.Create(input.GetPayloadInt16(out double timestamp), timestamp);
         }
 
         static uint ProcessU32(HarpMessage input)
@@ -195,7 +195,7 @@ namespace Bonsai.Harp
         static Timestamped<uint> ProcessTimestampedU32(HarpMessage input)
         {
             CheckErrors(input, PayloadType.U32);
-            return input.GetTimestampedPayloadUInt32();
+            return Timestamped.Create(input.GetPayloadUInt32(out double timestamp), timestamp);
         }
 
         static int ProcessS32(HarpMessage input)
@@ -207,7 +207,7 @@ namespace Bonsai.Harp
         static Timestamped<int> ProcessTimestampedS32(HarpMessage input)
         {
             CheckErrors(input, PayloadType.S32);
-            return input.GetTimestampedPayloadInt32();
+            return Timestamped.Create(input.GetPayloadInt32(out double timestamp), timestamp);
         }
 
         static ulong ProcessU64(HarpMessage input)
@@ -219,7 +219,7 @@ namespace Bonsai.Harp
         static Timestamped<ulong> ProcessTimestampedU64(HarpMessage input)
         {
             CheckErrors(input, PayloadType.U64);
-            return input.GetTimestampedPayloadUInt64();
+            return Timestamped.Create(input.GetPayloadUInt64(out double timestamp), timestamp);
         }
 
         static long ProcessS64(HarpMessage input)
@@ -231,7 +231,7 @@ namespace Bonsai.Harp
         static Timestamped<long> ProcessTimestampedS64(HarpMessage input)
         {
             CheckErrors(input, PayloadType.S64);
-            return input.GetTimestampedPayloadInt64();
+            return Timestamped.Create(input.GetPayloadInt64(out double timestamp), timestamp);
         }
 
         static float ProcessFloat(HarpMessage input)
@@ -243,7 +243,7 @@ namespace Bonsai.Harp
         static Timestamped<float> ProcessTimestampedFloat(HarpMessage input)
         {
             CheckErrors(input, PayloadType.Float);
-            return input.GetTimestampedPayloadSingle();
+            return Timestamped.Create(input.GetPayloadSingle(out double timestamp), timestamp);
         }
 
         static double ProcessTimestamp(HarpMessage input)
