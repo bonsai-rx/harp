@@ -8,6 +8,10 @@ namespace Bonsai.Harp
     /// <summary>
     /// Represents an operator which creates standard command messages available to all Harp devices.
     /// </summary>
+    /// <seealso cref="SetTimestamp"/>
+    /// <seealso cref="SynchronizeTimestamp"/>
+    /// <seealso cref="OperationControl"/>
+    /// <seealso cref="ResetDevice"/>
     [XmlInclude(typeof(SetTimestamp))]
     [XmlInclude(typeof(SynchronizeTimestamp))]
     [XmlInclude(typeof(OperationControl))]
