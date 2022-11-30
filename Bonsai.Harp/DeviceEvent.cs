@@ -51,6 +51,16 @@ namespace Bonsai.Harp
                 };
             }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether the <see cref="Type"/> property should be serialized.
+        /// </summary>
+        [Obsolete]
+        [Browsable(false)]
+        public bool TypeSpecified
+        {
+            get { return false; }
+        }
 #pragma warning restore CS0612 // Type or member is obsolete
     }
 
