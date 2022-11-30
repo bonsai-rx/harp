@@ -75,6 +75,7 @@ namespace Bonsai.Harp
     /// Represents an operator that filters and selects the current time of the device,
     /// reported once every second after synchronizing with the periodic timing signal.
     /// </summary>
+    [DesignTimeVisible(false)]
     [Description("Filters and selects the current time of the device, reported once every second after synchronizing with the periodic timing signal.")]
     public class Heartbeat : Combinator<HarpMessage, uint>
     {
@@ -97,6 +98,7 @@ namespace Bonsai.Harp
     /// Represents an operator that selects the timestamp, in seconds, for each
     /// event message in the source sequence.
     /// </summary>
+    [DesignTimeVisible(false)]
     [Description("Selects the timestamp, in seconds, for each event message in the source sequence.")]
     public class MessageTimestamp : Combinator<HarpMessage, double>
     {
