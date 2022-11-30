@@ -7,8 +7,10 @@ namespace Bonsai.Harp
     /// and parse event messages from Harp devices.
     /// </summary>
     [DefaultProperty(nameof(Event))]
-    public abstract class EventBuilder : HarpCombinatorBuilder
+    public abstract class EventBuilder : HarpCombinatorBuilder, INamedElement
     {
+        string INamedElement.Name => $"{RemoveSuffix(GetType().Name, nameof(Event))}.{GetElementDisplayName(Event)}";
+
         /// <summary>
         /// Gets or sets the event parser used to filter and select event messages
         /// reported by the device.
