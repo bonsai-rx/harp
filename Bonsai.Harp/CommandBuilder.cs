@@ -7,8 +7,10 @@ namespace Bonsai.Harp
     /// command messages for Harp devices.
     /// </summary>
     [DefaultProperty(nameof(Command))]
-    public abstract class CommandBuilder : HarpCombinatorBuilder
+    public abstract class CommandBuilder : HarpCombinatorBuilder, INamedElement
     {
+        string INamedElement.Name => $"{RemoveSuffix(GetType().Name, nameof(Command))}.{GetElementDisplayName(Command)}";
+
         /// <summary>
         /// Gets or sets the command formatter used to create command messages.
         /// </summary>

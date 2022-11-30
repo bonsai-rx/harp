@@ -10,14 +10,22 @@ namespace Bonsai.Harp
     /// Provides the abstract base class for polymorphic operators used to manipulate
     /// command and event messages for Harp devices.
     /// </summary>
-    public abstract class HarpCombinatorBuilder : ExpressionBuilder, INamedElement, ICustomTypeDescriptor
+    public abstract class HarpCombinatorBuilder : ExpressionBuilder, ICustomTypeDescriptor
     {
         readonly CombinatorBuilder builder = new CombinatorBuilder();
 
+        internal HarpCombinatorBuilder()
+        {
+        }
+
+        internal static string RemoveSuffix(string source, string suffix)
+        {
+            var suffixStart = source.LastIndexOf(suffix);
+            return suffixStart >= 0 ? source.Remove(suffixStart) : source;
+        }
+
         /// <inheritdoc/>
         public override Range<int> ArgumentRange => builder.ArgumentRange;
-
-        string INamedElement.Name => builder.Name;
 
         /// <summary>
         /// Gets or sets the combinator instance used to process command and
