@@ -16,6 +16,7 @@ namespace Bonsai.Harp
     [XmlInclude(typeof(SynchronizeTimestamp))]
     [XmlInclude(typeof(OperationControl))]
     [XmlInclude(typeof(ResetDevice))]
+    [WorkflowElementCategory(ElementCategory.Transform)]
     [Description("Creates standard command messages available to all Harp devices.")]
     public class DeviceCommand : CommandBuilder
     {
