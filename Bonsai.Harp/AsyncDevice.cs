@@ -206,6 +206,20 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously returns the response from an Harp device to a harp message sent by the host.
+        /// </summary>
+        /// <param name="harpMessage">The Harp message used to query the Harp device.</param>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
+        /// parameter contains the Harp message returned by the device.
+        /// </returns>
+        public async Task<HarpMessage> ReadMessageAsync(HarpMessage harpMessage)
+        {
+            var reply = await CommandAsync(harpMessage);
+            return reply;
+        }
+
+        /// <summary>
         /// Asynchronously updates the display name of the device.
         /// </summary>
         /// <param name="name">
@@ -414,6 +428,15 @@ namespace Bonsai.Harp
         /// The task object representing the asynchronous write operation.
         /// </returns>
         public async Task WriteSingleAsync(int address, params float[] values) => await CommandAsync(HarpCommand.WriteSingle(address, values));
+
+        /// <summary>
+        /// Asynchronously writes to a Harp device register with a Harp message.
+        /// </summary>
+        /// <param name="harpMessage">The Harp message used to write to the device's register.</param>
+        /// <returns>
+        /// The task object representing the asynchronous write operation.
+        /// </returns>
+        public async Task WriteMessageAsync(HarpMessage harpMessage) => await CommandAsync(harpMessage);
 
         /// <summary>
         /// Sends a command to the Harp device and awaits the response as an asynchronous operation.
