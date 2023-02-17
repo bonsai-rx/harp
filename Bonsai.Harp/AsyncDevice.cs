@@ -31,8 +31,8 @@ namespace Bonsai.Harp
         /// Asynchronously reads the hardware version of the device.
         /// </summary>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the hardware version of the device.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the hardware version of the device.
         /// </returns>
         public async Task<HarpVersion> ReadHardwareVersionAsync()
         {
@@ -45,8 +45,8 @@ namespace Bonsai.Harp
         /// Asynchronously reads the firmware version of the device.
         /// </summary>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the firmware version of the device.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the firmware version of the device.
         /// </returns>
         public async Task<HarpVersion> ReadFirmwareVersionAsync()
         {
@@ -59,8 +59,8 @@ namespace Bonsai.Harp
         /// Asynchronously reads the display name of the device.
         /// </summary>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the name of the device.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the name of the device.
         /// </returns>
         public async Task<string> ReadDeviceNameAsync()
         {
@@ -76,8 +76,8 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the value of the register.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the value of the register.
         /// </returns>
         public async Task<byte> ReadByteAsync(int address)
         {
@@ -86,13 +86,28 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously reads the value of an 8-bit unsigned integer array register with
+        /// the specified address.
+        /// </summary>
+        /// <param name="address">The address of the register to read.</param>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the state of the array register.
+        /// </returns>
+        public async Task<byte[]> ReadByteArrayAsync(int address)
+        {
+            var reply = await CommandAsync(HarpCommand.ReadByte(address));
+            return reply.GetPayloadArray<byte>();
+        }
+
+        /// <summary>
         /// Asynchronously reads the value of an 8-bit signed integer register with
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the value of the register.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the value of the register.
         /// </returns>
         public async Task<sbyte> ReadSByteAsync(int address)
         {
@@ -101,13 +116,28 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously reads the value of an 8-bit signed integer array register with
+        /// the specified address.
+        /// </summary>
+        /// <param name="address">The address of the register to read.</param>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the state of the array register.
+        /// </returns>
+        public async Task<sbyte[]> ReadSByteArrayAsync(int address)
+        {
+            var reply = await CommandAsync(HarpCommand.ReadSByte(address));
+            return reply.GetPayloadArray<sbyte>();
+        }
+
+        /// <summary>
         /// Asynchronously reads the value of a 16-bit unsigned integer register with
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the value of the register.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the value of the register.
         /// </returns>
         public async Task<ushort> ReadUInt16Async(int address)
         {
@@ -116,13 +146,28 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously reads the value of a 16-bit unsigned integer array register with
+        /// the specified address.
+        /// </summary>
+        /// <param name="address">The address of the register to read.</param>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the state of the array register.
+        /// </returns>
+        public async Task<ushort[]> ReadUInt16ArrayAsync(int address)
+        {
+            var reply = await CommandAsync(HarpCommand.ReadUInt16(address));
+            return reply.GetPayloadArray<ushort>();
+        }
+
+        /// <summary>
         /// Asynchronously reads the value of a 16-bit signed integer register with
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the value of the register.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the value of the register.
         /// </returns>
         public async Task<short> ReadInt16Async(int address)
         {
@@ -131,13 +176,28 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously reads the value of a 16-bit signed integer array register with
+        /// the specified address.
+        /// </summary>
+        /// <param name="address">The address of the register to read.</param>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the state of the array register.
+        /// </returns>
+        public async Task<short[]> ReadInt16ArrayAsync(int address)
+        {
+            var reply = await CommandAsync(HarpCommand.ReadInt16(address));
+            return reply.GetPayloadArray<short>();
+        }
+
+        /// <summary>
         /// Asynchronously reads the value of a 32-bit unsigned integer register with
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the value of the register.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the value of the register.
         /// </returns>
         public async Task<uint> ReadUInt32Async(int address)
         {
@@ -146,13 +206,28 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously reads the value of a 32-bit unsigned integer array register with
+        /// the specified address.
+        /// </summary>
+        /// <param name="address">The address of the register to read.</param>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the state of the array register.
+        /// </returns>
+        public async Task<uint[]> ReadUInt32ArrayAsync(int address)
+        {
+            var reply = await CommandAsync(HarpCommand.ReadUInt32(address));
+            return reply.GetPayloadArray<uint>();
+        }
+
+        /// <summary>
         /// Asynchronously reads the value of a 32-bit signed integer register with
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the value of the register.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the value of the register.
         /// </returns>
         public async Task<int> ReadInt32Async(int address)
         {
@@ -161,13 +236,28 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously reads the value of a 32-bit signed integer array register with
+        /// the specified address.
+        /// </summary>
+        /// <param name="address">The address of the register to read.</param>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the state of the array register.
+        /// </returns>
+        public async Task<int[]> ReadInt32ArrayAsync(int address)
+        {
+            var reply = await CommandAsync(HarpCommand.ReadInt32(address));
+            return reply.GetPayloadArray<int>();
+        }
+
+        /// <summary>
         /// Asynchronously reads the value of a 64-bit unsigned integer register with
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the value of the register.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the value of the register.
         /// </returns>
         public async Task<ulong> ReadUInt64Async(int address)
         {
@@ -176,13 +266,28 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously reads the value of a 64-bit unsigned integer array register with
+        /// the specified address.
+        /// </summary>
+        /// <param name="address">The address of the register to read.</param>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the state of the array register.
+        /// </returns>
+        public async Task<ulong[]> ReadUInt64ArrayAsync(int address)
+        {
+            var reply = await CommandAsync(HarpCommand.ReadUInt64(address));
+            return reply.GetPayloadArray<ulong>();
+        }
+
+        /// <summary>
         /// Asynchronously reads the value of a 64-bit signed integer register with
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the value of the register.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the value of the register.
         /// </returns>
         public async Task<long> ReadInt64Async(int address)
         {
@@ -191,18 +296,48 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously reads the value of a 64-bit signed integer array register with
+        /// the specified address.
+        /// </summary>
+        /// <param name="address">The address of the register to read.</param>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the state of the array register.
+        /// </returns>
+        public async Task<long[]> ReadInt64ArrayAsync(int address)
+        {
+            var reply = await CommandAsync(HarpCommand.ReadInt64(address));
+            return reply.GetPayloadArray<long>();
+        }
+
+        /// <summary>
         /// Asynchronously reads the value of a single-precision floating point register with
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
         /// <returns>
-        /// A task that represents the asynchronous read operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the value of the register.
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the value of the register.
         /// </returns>
         public async Task<float> ReadSingleAsync(int address)
         {
             var reply = await CommandAsync(HarpCommand.ReadSingle(address));
             return reply.GetPayloadSingle();
+        }
+
+        /// <summary>
+        /// Asynchronously reads the value of a single-precision floating point array register with
+        /// the specified address.
+        /// </summary>
+        /// <param name="address">The address of the register to read.</param>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the state of the array register.
+        /// </returns>
+        public async Task<float[]> ReadSingleArrayAsync(int address)
+        {
+            var reply = await CommandAsync(HarpCommand.ReadSingle(address));
+            return reply.GetPayloadArray<float>();
         }
 
         /// <summary>
@@ -420,8 +555,8 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="command">The <see cref="HarpMessage"/> specifying the command to send.</param>
         /// <returns>
-        /// The task object representing the asynchronous operation. The value of the <see cref="Task{TResult}.Result"/>
-        /// parameter contains the message representing the response of the device to the asynchronous command.
+        /// The task object representing the asynchronous operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the message representing the response of the device to the asynchronous command.
         /// </returns>
         public async Task<HarpMessage> CommandAsync(HarpMessage command)
         {
