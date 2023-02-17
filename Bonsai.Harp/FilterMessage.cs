@@ -8,7 +8,7 @@ namespace Bonsai.Harp
     /// <summary>
     /// Represents an operator which filters a sequence of Harp messages for elements that match the specified address and message type.
     /// </summary>
-    [WorkflowElementCategory(ElementCategory.Condition)]
+    [WorkflowElementCategory(ElementCategory.Combinator)]
     [Description("Filters a sequence of Harp messages for elements that match the specified address and message type.")]
     public class FilterMessage : Combinator<HarpMessage, HarpMessage>
     {
