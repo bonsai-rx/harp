@@ -5,12 +5,14 @@ using System.Reactive.Linq;
 using System.Reactive;
 using System.Text;
 using System.Reactive.Concurrency;
+using System.Xml.Serialization;
 
 namespace Bonsai.Harp
 {
     /// <summary>
     /// Represents an observable source of messages from the Harp device connected at the specified serial port.
     /// </summary>
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [Editor("Bonsai.Harp.Design.DeviceConfigurationEditor, Bonsai.Harp.Design", typeof(ComponentEditor))]
     [Description("Produces a sequence of messages from the Harp device connected at the specified serial port.")]
     public class Device : Source<HarpMessage>, INamedElement
