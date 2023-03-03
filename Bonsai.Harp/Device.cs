@@ -233,7 +233,7 @@ namespace Bonsai.Harp
             });
         }
 
-        string INamedElement.Name => !string.IsNullOrEmpty(name) ? name : nameof(Device);
+        string INamedElement.Name => !string.IsNullOrEmpty(name) ? name : default;
 
         SerialTransport CreateTransport(IObserver<HarpMessage> observer)
         {
