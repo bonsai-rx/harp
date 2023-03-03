@@ -28,6 +28,18 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously reads the identity class of the device.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the identity class of the device.
+        /// </returns>
+        public async Task<int> ReadWhoAmIAsync()
+        {
+            return await ReadUInt16Async(DeviceRegisters.WhoAmI);
+        }
+
+        /// <summary>
         /// Asynchronously reads the hardware version of the device.
         /// </summary>
         /// <returns>
@@ -38,6 +50,33 @@ namespace Bonsai.Harp
         {
             var major = await ReadByteAsync(DeviceRegisters.HardwareVersionHigh);
             var minor = await ReadByteAsync(DeviceRegisters.HardwareVersionLow);
+            return new HarpVersion(major, minor);
+        }
+
+        /// <summary>
+        /// Asynchronously reads the assembly version of the device.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the assembly version of the device.
+        /// </returns>
+        public async Task<int> ReadAssemblyVersionAsync()
+        {
+            return await ReadByteAsync(DeviceRegisters.AssemblyVersion);
+        }
+
+        /// <summary>
+        /// Asynchronously reads the version of the Harp core implemented
+        /// by the device firmware.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the version of the Harp core implemented by the device firmware.
+        /// </returns>
+        public async Task<HarpVersion> ReadCoreVersionAsync()
+        {
+            var major = await ReadByteAsync(DeviceRegisters.CoreVersionHigh);
+            var minor = await ReadByteAsync(DeviceRegisters.CoreVersionLow);
             return new HarpVersion(major, minor);
         }
 
@@ -68,6 +107,18 @@ namespace Bonsai.Harp
             var namePayload = deviceName.GetPayload();
             var count = Array.IndexOf(namePayload.Array, (byte)0, namePayload.Offset, namePayload.Count) - namePayload.Offset;
             return Encoding.ASCII.GetString(namePayload.Array, namePayload.Offset, count);
+        }
+
+        /// <summary>
+        /// Asynchronously reads the unique serial number of the device.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the unique serial number of the device.
+        /// </returns>
+        public async Task<int> ReadSerialNumberAsync()
+        {
+            return await ReadUInt16Async(DeviceRegisters.SerialNumber);
         }
 
         /// <summary>
