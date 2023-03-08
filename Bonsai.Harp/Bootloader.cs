@@ -74,7 +74,7 @@ namespace Bonsai.Harp
                     const byte ResetDefault = 0x1;
                     const byte ResetEeprom = 0x2;
                     progress?.Report(20);
-                    var reset = await device.ReadByteAsync(DeviceRegisters.ResetDevice);
+                    var reset = await device.ReadByteAsync(DeviceRegisters.ResetDevice).WithTimeout(FlushDelayMilliseconds);
                     if ((reset & BootEeprom) != 0)
                     {
                         await device.WriteByteAsync(DeviceRegisters.ResetDevice, ResetEeprom);
