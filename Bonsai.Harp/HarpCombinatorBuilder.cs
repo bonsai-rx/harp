@@ -8,7 +8,7 @@ namespace Bonsai.Harp
 {
     /// <summary>
     /// Provides the abstract base class for polymorphic operators used to manipulate
-    /// command and event messages for Harp devices.
+    /// Harp device messages.
     /// </summary>
     public abstract class HarpCombinatorBuilder : ExpressionBuilder, ICustomTypeDescriptor
     {
@@ -28,8 +28,7 @@ namespace Bonsai.Harp
         public override Range<int> ArgumentRange => builder.ArgumentRange;
 
         /// <summary>
-        /// Gets or sets the combinator instance used to process command and
-        /// event messages.
+        /// Gets or sets the combinator instance used to process device messages.
         /// </summary>
         protected object Combinator
         {

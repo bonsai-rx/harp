@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
 namespace Bonsai.Harp
 {
@@ -6,6 +7,7 @@ namespace Bonsai.Harp
     /// Provides the abstract base class for polymorphic operators used to filter
     /// and parse event messages from Harp devices.
     /// </summary>
+    [Obsolete]
     [DefaultProperty(nameof(Event))]
     public abstract class EventBuilder : HarpCombinatorBuilder, INamedElement
     {

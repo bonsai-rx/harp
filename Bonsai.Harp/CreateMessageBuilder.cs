@@ -1,27 +1,23 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace Bonsai.Harp
 {
     /// <summary>
     /// Provides the abstract base class for polymorphic operators used to create
-    /// command messages for Harp devices.
+    /// specific Harp device register messages.
     /// </summary>
-    [Obsolete]
     [DefaultProperty(nameof(Command))]
-    public abstract class CommandBuilder : HarpCombinatorBuilder, INamedElement
+    [WorkflowElementCategory(ElementCategory.Source)]
+    public abstract class CreateMessageBuilder : HarpCombinatorBuilder
     {
-        string INamedElement.Name => $"{RemoveSuffix(GetType().Name, nameof(Command))}.{GetElementDisplayName(Command)}";
-
         /// <summary>
-        /// Gets or sets the command formatter used to create command messages.
+        /// Gets or sets the operator used to create specific Harp device register messages.
         /// </summary>
         [DesignOnly(true)]
-        [DisplayName("Type")]
         [Externalizable(false)]
         [RefreshProperties(RefreshProperties.All)]
         [Category(nameof(CategoryAttribute.Design))]
-        [Description("The type of the device command message to create.")]
+        [Description("The operator used to create specific Harp device register messages.")]
         [TypeConverter(typeof(CombinatorTypeConverter))]
         public object Command
         {
