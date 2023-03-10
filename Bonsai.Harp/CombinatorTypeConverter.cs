@@ -13,16 +13,16 @@ namespace Bonsai.Harp
     /// </summary>
     class CombinatorTypeConverter : TypeConverter
     {
-        static IEnumerable<Type> GetInstanceTypes(ITypeDescriptorContext context)
+        internal static IEnumerable<Type> GetInstanceTypes(ITypeDescriptorContext context)
         {
-            var commandType = context.Instance?.GetType() ?? context.PropertyDescriptor.ComponentType;
-            var includeAttributes = (XmlIncludeAttribute[])commandType.GetCustomAttributes(typeof(XmlIncludeAttribute), inherit: true);
+            var builderType = context.Instance?.GetType() ?? context.PropertyDescriptor.ComponentType;
+            var includeAttributes = (XmlIncludeAttribute[])builderType.GetCustomAttributes(typeof(XmlIncludeAttribute), inherit: true);
             if (includeAttributes.Length > 0)
             {
                 return includeAttributes.Select(attribute => attribute.Type);
             }
 
-            var propertyInfo = commandType.GetProperty(context.PropertyDescriptor.Name);
+            var propertyInfo = builderType.GetProperty(context.PropertyDescriptor.Name);
             var elementAttributes = (XmlElementAttribute[])propertyInfo.GetCustomAttributes(typeof(XmlElementAttribute), inherit: true);
             if (elementAttributes.Length > 0)
             {
