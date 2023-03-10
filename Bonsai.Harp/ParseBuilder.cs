@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Xml.Serialization;
 
 namespace Bonsai.Harp
 {
@@ -10,6 +11,7 @@ namespace Bonsai.Harp
     /// and select messages from specific registers in a Harp device.
     /// </summary>
     [DefaultProperty(nameof(Register))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     public abstract class ParseBuilder : HarpCombinatorBuilder
     {
         static readonly Range<int> argumentRange = Range.Create(lowerBound: 1, upperBound: 1);

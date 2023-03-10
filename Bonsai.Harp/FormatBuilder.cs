@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Xml.Serialization;
 
 namespace Bonsai.Harp
 {
@@ -10,6 +11,7 @@ namespace Bonsai.Harp
     /// a sequence of values as specific Harp device register messages.
     /// </summary>
     [DefaultProperty(nameof(Register))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Transform)]
     public abstract class FormatBuilder : HarpCombinatorBuilder
     {

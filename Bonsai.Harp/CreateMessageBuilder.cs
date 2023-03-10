@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Xml.Serialization;
 
 namespace Bonsai.Harp
 {
@@ -7,6 +8,7 @@ namespace Bonsai.Harp
     /// specific Harp device register messages.
     /// </summary>
     [DefaultProperty(nameof(Command))]
+    [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Source)]
     public abstract class CreateMessageBuilder : HarpCombinatorBuilder
     {
