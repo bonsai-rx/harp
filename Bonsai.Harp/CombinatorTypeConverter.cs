@@ -32,6 +32,17 @@ namespace Bonsai.Harp
             return propertyInfo.PropertyType.GetCustomAttributes<XmlIncludeAttribute>().Select(attribute => attribute.Type);
         }
 
+        static string GetDisplayName(Type type)
+        {
+            var displayNameAttribute = (DisplayNameAttribute)type.GetCustomAttribute(typeof(DisplayNameAttribute));
+            if (!string.IsNullOrEmpty(displayNameAttribute?.DisplayName))
+            {
+                return displayNameAttribute.DisplayName;
+            }
+
+            return type.Name;
+        }
+
         /// <inheritdoc/>
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
@@ -44,7 +55,7 @@ namespace Bonsai.Harp
             if (value is string typeName)
             {
                 return GetInstanceTypes(context).FirstOrDefault(
-                    type => string.Equals(type.Name, typeName, StringComparison.OrdinalIgnoreCase));
+                    type => string.Equals(GetDisplayName(type), typeName, StringComparison.OrdinalIgnoreCase));
             }
 
             return null;
@@ -55,7 +66,7 @@ namespace Bonsai.Harp
         {
             if (destinationType == typeof(string) && value is Type valueType)
             {
-                return valueType.Name;
+                return GetDisplayName(valueType);
             }
 
             return null;
