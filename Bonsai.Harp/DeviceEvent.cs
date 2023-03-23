@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.ComponentModel;
@@ -12,6 +12,7 @@ namespace Bonsai.Harp
     /// </summary>
     /// <seealso cref="Heartbeat"/>
     /// <seealso cref="MessageTimestamp"/>
+    [Obsolete]
     [XmlInclude(typeof(Heartbeat))]
     [XmlInclude(typeof(MessageTimestamp))]
     [Description("Filters and selects event messages reported by all Harp devices.")]
@@ -85,6 +86,7 @@ namespace Bonsai.Harp
     /// Represents an operator that filters and selects the current time of the device,
     /// reported once every second after synchronizing with the periodic timing signal.
     /// </summary>
+    [Obsolete]
     [DesignTimeVisible(false)]
     [Description("Filters and selects the current time of the device, reported once every second after synchronizing with the periodic timing signal.")]
     public class Heartbeat : Combinator<HarpMessage, uint>
@@ -108,6 +110,7 @@ namespace Bonsai.Harp
     /// Represents an operator that selects the timestamp, in seconds, for each
     /// event message in the source sequence.
     /// </summary>
+    [Obsolete]
     [DesignTimeVisible(false)]
     [Description("Selects the timestamp, in seconds, for each event message in the source sequence.")]
     public class MessageTimestamp : Combinator<HarpMessage, double>

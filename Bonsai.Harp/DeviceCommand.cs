@@ -12,6 +12,7 @@ namespace Bonsai.Harp
     /// <seealso cref="SynchronizeTimestamp"/>
     /// <seealso cref="OperationControl"/>
     /// <seealso cref="ResetDevice"/>
+    [Obsolete]
     [XmlInclude(typeof(SetTimestamp))]
     [XmlInclude(typeof(SynchronizeTimestamp))]
     [XmlInclude(typeof(OperationControl))]
@@ -89,6 +90,7 @@ namespace Bonsai.Harp
     /// Represents an operator that creates a command message to set the value of
     /// the timestamp register in the Harp device, in whole seconds.
     /// </summary>
+    [Obsolete]
     [DesignTimeVisible(false)]
     [Description("Creates a command message to set the value of the timestamp register in the Harp device, in whole seconds.")]
     public class SetTimestamp : Combinator<uint, HarpMessage>
@@ -115,6 +117,7 @@ namespace Bonsai.Harp
     /// Represents an operator that creates a command message to set the value of
     /// the timestamp register in the Harp device to the current UTC time of the host.
     /// </summary>
+    [Obsolete]
     [DesignTimeVisible(false)]
     [Description("Creates a command message to set the value of the timestamp register in the Harp device to the current UTC time of the host.")]
     public class SynchronizeTimestamp : Combinator<HarpMessage>
@@ -142,110 +145,6 @@ namespace Bonsai.Harp
                 var unixTimestamp = (uint)(DateTime.UtcNow.Subtract(new DateTime(1904, 1, 1))).TotalSeconds;
                 return HarpCommand.WriteUInt32(DeviceRegisters.TimestampSecond, unixTimestamp);
             });
-        }
-    }
-
-    /// <summary>
-    /// Represents an operator that creates a command message to initialize the
-    /// operation control register in a Harp device.
-    /// </summary>
-    [DesignTimeVisible(false)]
-    [Description("Creates a command message to initialize the operation control register in a Harp device.")]
-    public class OperationControl : Combinator<HarpMessage>
-    {
-        /// <summary>
-        /// Gets or sets a value specifying the desired operation mode of the device.
-        /// </summary>
-        [Description("Specifies the desired operation mode of the device.")]
-        public DeviceState OperationMode { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value specifying whether the device should report the state
-        /// of all registers following initialization.
-        /// </summary>
-        [Description("Specifies whether the device should report the state of all registers following initialization.")]
-        public bool DumpRegisters { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value specifying whether the operation mode LED should
-        /// report the device state.
-        /// </summary>
-        [Description("Specifies whether the operation mode LED should report the device state.")]
-        public LedState LedState { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value specifying whether the visual indicator LEDs in the
-        /// device should be enabled.
-        /// </summary>
-        [Description("Specifies whether the visual indicator LEDs in the Harp device should be enabled.")]
-        public LedState VisualIndicators { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value specifying whether the device should report the
-        /// current timestamp every second.
-        /// </summary>
-        [Description("Specifies whether the device should report the current timestamp every second.")]
-        public EnableType Heartbeat { get; set; }
-
-        /// <summary>
-        /// Creates an observable sequence of command messages to initialize the
-        /// operation control register in a Harp device.
-        /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for creating new command
-        /// messages.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing the command
-        /// to initialize the operation control register in a Harp device.
-        /// </returns>
-        public override IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
-        {
-            return source.Select(_ => HarpCommand.OperationControl(
-                OperationMode,
-                LedState,
-                VisualIndicators,
-                Heartbeat,
-                replies: EnableType.Enable,
-                DumpRegisters));
-        }
-    }
-
-    /// <summary>
-    /// Represents an operator that creates a command message to reset the device
-    /// and save non-volatile registers.
-    /// </summary>
-    [Description("Creates a command message to reset the device and save non-volatile registers.")]
-    public class ResetDevice : Combinator<HarpMessage>
-    {
-        /// <summary>
-        /// Gets or sets a value specifying the the behavior of the non-volatile
-        /// registers when resetting the device.
-        /// </summary>
-        [Description("Specifies the behavior of the non-volatile registers when resetting the device.")]
-        public ResetMode Mode { get; set; }
-
-        /// <summary>
-        /// Creates an observable sequence of command messages to reset the device
-        /// and save non-volatile registers.
-        /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for creating new command
-        /// messages.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing the command
-        /// to reset the device and save non-volatile registers.
-        /// </returns>
-        public override IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
-        {
-            return source.Select(_ => HarpCommand.ResetDevice(Mode));
         }
     }
 }
