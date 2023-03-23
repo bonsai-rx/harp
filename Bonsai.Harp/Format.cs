@@ -82,12 +82,15 @@ namespace Bonsai.Harp
             set { if (Register is FormatMessagePayload formatMessage) formatMessage.PayloadType = value; }
         }
 
+        [Obsolete]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ShouldSerializeMessageType() => false;
 
+        [Obsolete]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ShouldSerializeAddress() => false;
 
+        [Obsolete]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ShouldSerializePayloadType() => false;
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

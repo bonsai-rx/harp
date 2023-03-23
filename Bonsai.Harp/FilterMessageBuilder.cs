@@ -46,6 +46,7 @@ namespace Bonsai.Harp
         /// <see langword="true"/> if the <see cref="MessageType"/> should be serialized;
         /// otherwise, <see langword="false"/>.
         /// </returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ShouldSerializeMessageType() => MessageType.HasValue;
 
         /// <inheritdoc/>

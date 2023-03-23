@@ -150,9 +150,25 @@ namespace Bonsai.Harp
         [Description("Indicates whether the payload is an array.")]
         public bool IsArray { get; set; }
 
+        /// <summary>
+        /// Returns a value indicating whether the <see cref="Address"/> property
+        /// should be serialized.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true"/> if the <see cref="Address"/> should be serialized;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ShouldSerializeAddress() => Address.HasValue;
 
+        /// <summary>
+        /// Returns a value indicating whether the <see cref="MessageType"/> property
+        /// should be serialized.
+        /// </summary>
+        /// <returns>
+        /// <see langword="true"/> if the <see cref="MessageType"/> should be serialized;
+        /// otherwise, <see langword="false"/>.
+        /// </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ShouldSerializeMessageType() => MessageType.HasValue;
 

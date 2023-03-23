@@ -32,6 +32,9 @@ namespace Bonsai.Harp
     [Description("Filters register-specific messages reported by the Device device.")]
     public class FilterMessage : FilterMessageBuilder, INamedElement
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FilterMessage"/> class.
+        /// </summary>
         public FilterMessage()
         {
             Register = new TypeMapping<FilterMessageAddress>();
