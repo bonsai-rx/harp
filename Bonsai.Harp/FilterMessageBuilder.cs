@@ -17,13 +17,14 @@ namespace Bonsai.Harp
     [DefaultProperty(nameof(Register))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Combinator)]
-    public abstract class FilterMessageBuilder : SingleArgumentExpressionBuilder
+    public abstract class FilterMessageBuilder : SingleArgumentExpressionBuilder, ICustomTypeDescriptor
     {
         /// <summary>
         /// Gets or sets the register used to filter Harp device messages.
         /// </summary>
         [DesignOnly(true)]
         [Externalizable(false)]
+        [RefreshProperties(RefreshProperties.All)]
         [Category(nameof(CategoryAttribute.Design))]
         [TypeConverter(typeof(CombinatorTypeMappingConverter))]
         [Description("The register used to filter Harp device messages.")]
@@ -100,5 +101,96 @@ namespace Bonsai.Harp
                 return new StandardValuesCollection(includeTypes);
             }
         }
+
+        #region ICustomTypeDescriptor Members
+
+        AttributeCollection ICustomTypeDescriptor.GetAttributes()
+        {
+            var attributes = TypeDescriptor.GetAttributes(GetType());
+            var defaultProperty = TypeDescriptor.GetDefaultProperty(GetType());
+            if (defaultProperty != null)
+            {
+                var instance = defaultProperty.GetValue(this);
+                if (instance is TypeMapping)
+                {
+                    var mappingAttributes = TypeDescriptor.GetAttributes(instance.GetType().GenericTypeArguments[0]);
+                    if (mappingAttributes[typeof(DescriptionAttribute)] is DescriptionAttribute description)
+                    {
+                        return AttributeCollection.FromExisting(attributes, description);
+                    }
+                }
+            }
+
+            return attributes;
+        }
+
+        string ICustomTypeDescriptor.GetClassName()
+        {
+            return TypeDescriptor.GetClassName(GetType());
+        }
+
+        string ICustomTypeDescriptor.GetComponentName()
+        {
+            return null;
+        }
+
+        TypeConverter ICustomTypeDescriptor.GetConverter()
+        {
+            return TypeDescriptor.GetConverter(GetType());
+        }
+
+        EventDescriptor ICustomTypeDescriptor.GetDefaultEvent()
+        {
+            return null;
+        }
+
+        PropertyDescriptor ICustomTypeDescriptor.GetDefaultProperty()
+        {
+            return TypeDescriptor.GetDefaultProperty(GetType());
+        }
+
+        object ICustomTypeDescriptor.GetEditor(Type editorBaseType)
+        {
+            return TypeDescriptor.GetEditor(GetType(), editorBaseType);
+        }
+
+        EventDescriptorCollection ICustomTypeDescriptor.GetEvents()
+        {
+            return EventDescriptorCollection.Empty;
+        }
+
+        EventDescriptorCollection ICustomTypeDescriptor.GetEvents(Attribute[] attributes)
+        {
+            return EventDescriptorCollection.Empty;
+        }
+
+        PropertyDescriptorCollection ICustomTypeDescriptor.GetProperties()
+        {
+            return ((ICustomTypeDescriptor)this).GetProperties(new Attribute[0]);
+        }
+
+        PropertyDescriptorCollection ICustomTypeDescriptor.GetProperties(Attribute[] attributes)
+        {
+            var properties = TypeDescriptor.GetProperties(GetType(), attributes);
+            var defaultProperty = TypeDescriptor.GetDefaultProperty(GetType());
+            if (defaultProperty != null)
+            {
+                var instance = defaultProperty.GetValue(this);
+                var includeAddress = instance is TypeMapping<FilterMessageAddress>;
+                return new PropertyDescriptorCollection(properties
+                    .Cast<PropertyDescriptor>()
+                    .Where(property => includeAddress || property.Name != nameof(FilterMessageAddress.Address))
+                    .ToArray());
+            }
+
+            return properties;
+        }
+
+        object ICustomTypeDescriptor.GetPropertyOwner(PropertyDescriptor pd)
+        {
+            return this;
+        }
+
+        #endregion
     }
 }
