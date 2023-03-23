@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive;
-using System.Text;
 using System.Reactive.Concurrency;
 using System.Xml.Serialization;
 
@@ -15,7 +14,7 @@ namespace Bonsai.Harp
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Editor("Bonsai.Harp.Design.DeviceConfigurationEditor, Bonsai.Harp.Design", typeof(ComponentEditor))]
     [Description("Produces a sequence of messages from the Harp device connected at the specified serial port.")]
-    public class Device : Source<HarpMessage>, INamedElement
+    public partial class Device : Source<HarpMessage>, INamedElement
     {
         string name;
         string portName;
@@ -38,19 +37,75 @@ namespace Bonsai.Harp
         {
             deviceId = whoAmI;
             portName = "COMx";
-            DeviceState = DeviceState.Active;
-            LedState = LedState.On;
+            OperationMode = OperationMode.Active;
+            OperationLed = LedState.On;
             VisualIndicators = LedState.On;
             DumpRegisters = true;
-            Heartbeat = EnableType.Disable;
-            CommandReplies = EnableType.Enable;
+            Heartbeat = EnableFlag.Disabled;
+            MuteReplies = false;
         }
 
         /// <summary>
+        /// Gets or sets a value specifying the operation mode of the device at initialization.
+        /// </summary>
+        [Description("Specifies the operation mode of the device at initialization.")]
+        public OperationMode OperationMode { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value specifying the state of the LED reporting device operation.
+        /// </summary>
+        [Description("Specifies the state of the LED reporting device operation.")]
+        public LedState OperationLed { get; set; }
+
+#pragma warning disable CS0612 // Type or member is obsolete
+        /// <summary>
         /// Gets or sets the state of the device at run time.
         /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Description("Specifies the state of the device at run time.")]
-        public DeviceState DeviceState { get; set; }
+        public DeviceState DeviceState
+        {
+            get { return OperationMode == OperationMode.Active ? DeviceState.Active : DeviceState.Standby; }
+            set { OperationMode = value == DeviceState.Active ? OperationMode.Active : OperationMode.Standby; }
+        }
+
+        /// <summary>
+        /// Gets or sets the state of the device LED.
+        /// </summary>
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Description("Specifies the state of the device LED.")]
+        public LedState LedState
+        {
+            get { return OperationLed; }
+            set { OperationLed = value; }
+        }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the <see cref="DeviceState"/> property should be serialized.
+        /// </summary>
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool ShouldSerializeDeviceState() => false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the <see cref="LedState"/> property should be serialized.
+        /// </summary>
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool ShouldSerializeLedState() => false;
+
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        public void set_Heartbeat(EnableType value)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+        {
+            Heartbeat = value == EnableType.Enable ? EnableFlag.Enabled : EnableFlag.Disabled;
+        }
+#pragma warning restore CS0612 // Type or member is obsolete
 
         /// <summary>
         /// Gets or sets a value indicating whether the device should send the content of all registers during initialization.
@@ -59,13 +114,7 @@ namespace Bonsai.Harp
         public bool DumpRegisters { get; set; }
 
         /// <summary>
-        /// Gets or sets the state of the device LED.
-        /// </summary>
-        [Description("Specifies the state of the device LED.")]
-        public LedState LedState { get; set; }
-
-        /// <summary>
-        /// Gets or sets the state of all the visual indicators in the device.
+        /// Gets or sets a value specifying the state of all the visual indicators in the device.
         /// </summary>
         [Description("Specifies the state of all the visual indicators in the device.")]
         public LedState VisualIndicators { get; set; }
@@ -74,10 +123,10 @@ namespace Bonsai.Harp
         /// Gets or sets a value indicating whether the Device sends the Timestamp event each second.
         /// </summary>
         [Description("Specifies if the Device sends the Timestamp event each second.")]
-        public EnableType Heartbeat { get; set; }
+        public EnableFlag Heartbeat { get; set; }
 
         [Description("Specifies if the Device replies to commands.")]
-        EnableType CommandReplies { get; set; }
+        bool MuteReplies { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether error messages parsed during acquisition should be ignored or raise an exception.
@@ -100,20 +149,26 @@ namespace Bonsai.Harp
             }
         }
 
-        static IObservable<string> GetDeviceName(int deviceId, string portName, LedState ledState, LedState visualIndicators, EnableType heartbeat)
+        static IObservable<string> GetDeviceName(int deviceId, string portName, LedState ledState, LedState visualIndicators, EnableFlag heartbeat)
         {
             return Observable.Create<string>(observer =>
             {
                 var transport = default(SerialTransport);
-                var writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, ledState, visualIndicators, heartbeat, EnableType.Enable, false);
-                var cmdReadWhoAmI = HarpCommand.ReadUInt16(DeviceRegisters.WhoAmI);
-                var cmdReadMajorHardwareVersion = HarpCommand.ReadByte(DeviceRegisters.HardwareVersionHigh);
-                var cmdReadMinorHardwareVersion = HarpCommand.ReadByte(DeviceRegisters.HardwareVersionLow);
-                var cmdReadMajorFirmwareVersion = HarpCommand.ReadByte(DeviceRegisters.FirmwareVersionHigh);
-                var cmdReadMinorFirmwareVersion = HarpCommand.ReadByte(DeviceRegisters.FirmwareVersionLow);
-                var cmdReadTimestampSeconds = HarpCommand.ReadUInt32(DeviceRegisters.TimestampSecond);
-                var cmdReadDeviceName = HarpCommand.ReadByte(DeviceRegisters.DeviceName);
-                var cmdReadSerialNumber = HarpCommand.ReadUInt16(DeviceRegisters.SerialNumber);
+                var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
+                    OperationMode.Standby,
+                    dumpRegisters: false,
+                    muteReplies: false,
+                    ledState,
+                    visualIndicators,
+                    heartbeat));
+                var cmdReadWhoAmI = HarpCommand.ReadUInt16(WhoAmI.Address);
+                var cmdReadMajorHardwareVersion = HarpCommand.ReadByte(HardwareVersionHigh.Address);
+                var cmdReadMinorHardwareVersion = HarpCommand.ReadByte(HardwareVersionLow.Address);
+                var cmdReadMajorFirmwareVersion = HarpCommand.ReadByte(FirmwareVersionHigh.Address);
+                var cmdReadMinorFirmwareVersion = HarpCommand.ReadByte(FirmwareVersionLow.Address);
+                var cmdReadTimestampSeconds = HarpCommand.ReadUInt32(TimestampSeconds.Address);
+                var cmdReadDeviceName = HarpCommand.ReadByte(DeviceName.Address);
+                var cmdReadSerialNumber = HarpCommand.ReadUInt16(SerialNumber.Address);
 
                 var whoAmI = 0;
                 var timestamp = 0u;
@@ -127,7 +182,7 @@ namespace Bonsai.Harp
                     {
                         switch (message.Address)
                         {
-                            case DeviceRegisters.OperationControl:
+                            case OperationControl.Address:
                                 transport.Write(cmdReadWhoAmI);
                                 transport.Write(cmdReadMajorHardwareVersion);
                                 transport.Write(cmdReadMinorHardwareVersion);
@@ -137,20 +192,16 @@ namespace Bonsai.Harp
                                 transport.Write(cmdReadSerialNumber);
                                 transport.Write(cmdReadDeviceName);
                                 break;
-                            case DeviceRegisters.WhoAmI: whoAmI = message.GetPayloadUInt16(); break;
-                            case DeviceRegisters.HardwareVersionHigh: hardwareVersionHigh = message.GetPayloadByte(); break;
-                            case DeviceRegisters.HardwareVersionLow: hardwareVersionLow = message.GetPayloadByte(); break;
-                            case DeviceRegisters.FirmwareVersionHigh: firmwareVersionHigh = message.GetPayloadByte(); break;
-                            case DeviceRegisters.FirmwareVersionLow: firmwareVersionLow = message.GetPayloadByte(); break;
-                            case DeviceRegisters.TimestampSecond: timestamp = message.GetPayloadUInt32(); break;
-                            case DeviceRegisters.SerialNumber: if (!message.Error) serialNumber = message.GetPayloadUInt16(); break;
-                            case DeviceRegisters.DeviceName:
+                            case WhoAmI.Address: whoAmI = WhoAmI.GetPayload(message); break;
+                            case HardwareVersionHigh.Address: hardwareVersionHigh = HardwareVersionHigh.GetPayload(message); break;
+                            case HardwareVersionLow.Address: hardwareVersionLow = HardwareVersionLow.GetPayload(message); break;
+                            case FirmwareVersionHigh.Address: firmwareVersionHigh = FirmwareVersionHigh.GetPayload(message); break;
+                            case FirmwareVersionLow.Address: firmwareVersionLow = FirmwareVersionLow.GetPayload(message); break;
+                            case TimestampSeconds.Address: timestamp = TimestampSeconds.GetPayload(message); break;
+                            case SerialNumber.Address: if (!message.Error) serialNumber = SerialNumber.GetPayload(message); break;
+                            case DeviceName.Address:
                                 var deviceName = nameof(Device);
-                                if (!message.Error)
-                                {
-                                    var namePayload = message.GetPayload();
-                                    deviceName = Encoding.ASCII.GetString(namePayload.Array, namePayload.Offset, namePayload.Count);
-                                }
+                                if (!message.Error) deviceName = DeviceName.GetPayload(message);
                                 Console.WriteLine("Serial Harp device.");
                                 if (deviceId > 0 && deviceId != whoAmI) Console.WriteLine("WARNING: Unexpected device identifier!");
                                 if (!serialNumber.HasValue) Console.WriteLine($"WhoAmI: {whoAmI}");
@@ -193,7 +244,13 @@ namespace Bonsai.Harp
                 var transport = CreateTransport(observer);
                 var cleanup = Disposable.Create(() =>
                 {
-                    var writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, LedState, VisualIndicators, Heartbeat, CommandReplies, false);
+                    var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
+                        OperationMode.Standby,
+                        dumpRegisters: false,
+                        MuteReplies,
+                        VisualIndicators,
+                        OperationLed,
+                        Heartbeat));
                     transport.Write(writeOpCtrl);
                 });
 
@@ -222,7 +279,13 @@ namespace Bonsai.Harp
 
                 var cleanup = Disposable.Create(() =>
                 {
-                    var writeOpCtrl = HarpCommand.OperationControl(DeviceState.Standby, LedState, VisualIndicators, Heartbeat, CommandReplies, false);
+                    var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
+                        OperationMode.Standby,
+                        dumpRegisters: false,
+                        MuteReplies,
+                        VisualIndicators,
+                        OperationLed,
+                        Heartbeat));
                     transport.Write(writeOpCtrl);
                 });
 
@@ -246,13 +309,13 @@ namespace Bonsai.Harp
                 transport.SetObserver(Observer.Create<HarpMessage>(
                     message =>
                     {
-                        if (message.Address != DeviceRegisters.WhoAmI)
+                        if (message.Address != WhoAmI.Address)
                         {
                             Console.Error.WriteLine("Unexpected Harp data frame before identifier: {0}.", message);
                             return;
                         }
 
-                        var whoAmI = message.GetPayloadUInt16();
+                        var whoAmI = WhoAmI.GetPayload(message);
                         if (whoAmI != deviceId)
                         {
                             var errorMessage = string.Format(
@@ -268,12 +331,18 @@ namespace Bonsai.Harp
                     observer.OnCompleted));
                 transport.Open();
 
-                var cmdReadWhoAmI = HarpCommand.ReadUInt16(DeviceRegisters.WhoAmI);
+                var cmdReadWhoAmI = HarpCommand.ReadUInt16(WhoAmI.Address);
                 transport.Write(cmdReadWhoAmI);
             }
             else transport.Open();
 
-            var writeOpCtrl = HarpCommand.OperationControl(DeviceState, LedState, VisualIndicators, Heartbeat, CommandReplies, DumpRegisters);
+            var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
+                OperationMode,
+                DumpRegisters,
+                MuteReplies,
+                VisualIndicators,
+                OperationLed,
+                Heartbeat));
             transport.Write(writeOpCtrl);
             return transport;
         }

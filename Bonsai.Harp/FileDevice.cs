@@ -46,8 +46,8 @@ namespace Bonsai.Harp
                                         timestamp *= 1000.0 / playbackRate.Value; //ms
                                         if (!stopwatch.IsRunning ||
                                             value.MessageType == MessageType.Write &&
-                                            value.Address == DeviceRegisters.TimestampSecond &&
-                                            value.PayloadType == (PayloadType.Timestamp | DeviceRegisters.TimestampSecondPayload))
+                                            value.Address == TimestampSeconds.Address &&
+                                            value.PayloadType == (PayloadType.Timestamp | TimestampSeconds.RegisterType))
                                         {
                                             stopwatch.Restart();
                                             timestampOffset = timestamp;
