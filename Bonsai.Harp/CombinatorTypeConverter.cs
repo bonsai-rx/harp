@@ -23,6 +23,8 @@ namespace Bonsai.Harp
             }
 
             var propertyInfo = builderType.GetProperty(context.PropertyDescriptor.Name);
+            if (propertyInfo == null) return Enumerable.Empty<Type>();
+
             var elementAttributes = (XmlElementAttribute[])propertyInfo.GetCustomAttributes(typeof(XmlElementAttribute), inherit: true);
             if (elementAttributes.Length > 0)
             {
