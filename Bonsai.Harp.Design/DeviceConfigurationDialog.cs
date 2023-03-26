@@ -5,7 +5,6 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -45,7 +44,7 @@ namespace Bonsai.Harp.Design
                 handler => resetNameButton.Click -= handler)
                 .Select(evt => ShouldResetDeviceName())
                 .Where(result => result != DialogResult.Cancel)
-                .Select(result => HarpCommand.ResetDevice(ResetMode.RestoreName))
+                .Select(result => ResetDevice.FromPayload(MessageType.Write, ResetFlags.RestoreName))
                 .Publish().RefCount();
 
             var resetDeviceSettings = Observable.FromEventPattern(
@@ -59,7 +58,7 @@ namespace Bonsai.Harp.Design
             var device = Observable.Defer(() => new Device
             {
                 PortName = instance.PortName,
-                Heartbeat = EnableType.Disable,
+                Heartbeat = EnableFlag.Disabled,
                 IgnoreErrors = true
             }.Generate(resetDeviceName.Merge(resetDeviceSettings)));
 
@@ -70,9 +69,9 @@ namespace Bonsai.Harp.Design
                 .Do(message => ValidateDevice())
                 .DelaySubscription(TimeSpan.FromSeconds(0.2))
                 .TakeUntil(resetDeviceName.Merge(resetDeviceSettings)
-                    .Where(DeviceRegisters.ResetDevice)
+                    .Where(ResetDevice.Address)
                     .Delay(TimeSpan.FromSeconds(1)))
-                .Do(x => { }, () => BeginInvoke((Action)ResetDevice))
+                .Do(x => { }, () => BeginInvoke((Action)WaitForReset))
                 .Catch<HarpMessage, IOException>(ConnectionErrorHandler);
         }
 
@@ -97,7 +96,7 @@ namespace Bonsai.Harp.Design
             }
         }
 
-        private void ResetDevice()
+        private void WaitForReset()
         {
             CloseDevice();
             SetConnectionStatus(ConnectionStatus.Reset);
@@ -130,52 +129,48 @@ namespace Bonsai.Harp.Design
 
         IEnumerable<HarpMessage> ResetRegisters(bool resetDefault)
         {
-            var resetMode = resetDefault ? ResetMode.RestoreDefault : ResetMode.RestoreEeprom;
-            yield return HarpCommand.ResetDevice(resetMode);
+            var resetMode = resetDefault ? ResetFlags.RestoreDefault : ResetFlags.RestoreEeprom;
+            yield return ResetDevice.FromPayload(MessageType.Write, resetMode);
         }
 
         private void ReadRegister(HarpMessage message)
         {
             switch (message.Address)
             {
-                case DeviceRegisters.WhoAmI:
-                    configuration.WhoAmI = message.GetPayloadUInt16();
+                case WhoAmI.Address:
+                    configuration.WhoAmI = WhoAmI.GetPayload(message);
                     break;
-                case DeviceRegisters.HardwareVersionHigh:
-                    configuration.HardwareVersionHigh = message.GetPayloadByte();
+                case HardwareVersionHigh.Address:
+                    configuration.HardwareVersionHigh = HardwareVersionHigh.GetPayload(message);
                     break;
-                case DeviceRegisters.HardwareVersionLow:
-                    configuration.HardwareVersionLow = message.GetPayloadByte();
+                case HardwareVersionLow.Address:
+                    configuration.HardwareVersionLow = HardwareVersionLow.GetPayload(message);
                     break;
-                case DeviceRegisters.FirmwareVersionHigh:
-                    configuration.FirmwareVersionHigh = message.GetPayloadByte();
+                case FirmwareVersionHigh.Address:
+                    configuration.FirmwareVersionHigh = FirmwareVersionHigh.GetPayload(message);
                     break;
-                case DeviceRegisters.FirmwareVersionLow:
-                    configuration.FirmwareVersionLow = message.GetPayloadByte();
+                case FirmwareVersionLow.Address:
+                    configuration.FirmwareVersionLow = FirmwareVersionLow.GetPayload(message);
                     break;
-                case DeviceRegisters.CoreVersionHigh:
-                    configuration.CoreVersionHigh = message.GetPayloadByte();
+                case CoreVersionHigh.Address:
+                    configuration.CoreVersionHigh = CoreVersionHigh.GetPayload(message);
                     break;
-                case DeviceRegisters.CoreVersionLow:
-                    configuration.CoreVersionLow = message.GetPayloadByte();
+                case CoreVersionLow.Address:
+                    configuration.CoreVersionLow = CoreVersionLow.GetPayload(message);
                     break;
-                case DeviceRegisters.AssemblyVersion:
-                    configuration.AssemblyVersion = message.GetPayloadByte();
+                case AssemblyVersion.Address:
+                    configuration.AssemblyVersion = AssemblyVersion.GetPayload(message);
                     break;
-                case DeviceRegisters.TimestampSecond:
-                    configuration.Timestamp = message.GetPayloadUInt32();
+                case TimestampSeconds.Address:
+                    configuration.Timestamp = TimestampSeconds.GetPayload(message);
                     break;
-                case DeviceRegisters.DeviceName:
+                case DeviceName.Address:
                     var deviceName = nameof(Device);
-                    if (!message.Error)
-                    {
-                        var namePayload = message.GetPayload();
-                        deviceName = Encoding.ASCII.GetString(namePayload.Array, namePayload.Offset, namePayload.Count).Trim('\0');
-                    }
+                    if (!message.Error) deviceName = DeviceName.GetPayload(message);
                     configuration.DeviceName = deviceName;
                     break;
-                case DeviceRegisters.SerialNumber:
-                    configuration.SerialNumber = message.GetPayloadUInt16();
+                case SerialNumber.Address:
+                    configuration.SerialNumber = SerialNumber.GetPayload(message);
                     break;
                 default:
                     break;
@@ -243,7 +238,7 @@ namespace Bonsai.Harp.Design
                 {
                     firmwareDialog.ShowDialog(this);
                 }
-                ResetDevice();
+                WaitForReset();
             }
         }
 
@@ -264,7 +259,7 @@ namespace Bonsai.Harp.Design
                 {
                     firmwareDialog.ShowDialog(this);
                 }
-                ResetDevice();
+                WaitForReset();
                 return true;
             }
 

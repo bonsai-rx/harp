@@ -8,7 +8,7 @@ namespace Bonsai.Harp
 {
     /// <summary>
     /// Provides the abstract base class for polymorphic operators used to manipulate
-    /// command and event messages for Harp devices.
+    /// Harp device messages.
     /// </summary>
     public abstract class HarpCombinatorBuilder : ExpressionBuilder, ICustomTypeDescriptor
     {
@@ -28,8 +28,7 @@ namespace Bonsai.Harp
         public override Range<int> ArgumentRange => builder.ArgumentRange;
 
         /// <summary>
-        /// Gets or sets the combinator instance used to process command and
-        /// event messages.
+        /// Gets or sets the combinator instance used to process device messages.
         /// </summary>
         protected object Combinator
         {
@@ -167,8 +166,22 @@ namespace Bonsai.Harp
 
             public override void SetValue(object component, object value)
             {
-                var command = Activator.CreateInstance((Type)value);
-                descriptor.SetValue(component, command);
+                var currentValue = descriptor.GetValue(component);
+                var newValue = Activator.CreateInstance((Type)value);
+
+                var newProperties = TypeDescriptor.GetProperties(newValue);
+                var currentProperties = TypeDescriptor.GetProperties(currentValue);
+                foreach (PropertyDescriptor property in newProperties)
+                {
+                    var mergeProperty = currentProperties[property.Name];
+                    if (mergeProperty?.PropertyType == property.PropertyType)
+                    {
+                        var propertyValue = mergeProperty.GetValue(currentValue);
+                        property.SetValue(newValue, propertyValue);
+                    }
+                }
+
+                descriptor.SetValue(component, newValue);
             }
 
             public override bool ShouldSerializeValue(object component)

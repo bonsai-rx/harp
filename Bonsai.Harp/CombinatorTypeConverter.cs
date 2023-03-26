@@ -13,16 +13,18 @@ namespace Bonsai.Harp
     /// </summary>
     class CombinatorTypeConverter : TypeConverter
     {
-        static IEnumerable<Type> GetInstanceTypes(ITypeDescriptorContext context)
+        internal static IEnumerable<Type> GetInstanceTypes(ITypeDescriptorContext context)
         {
-            var commandType = context.Instance?.GetType() ?? context.PropertyDescriptor.ComponentType;
-            var includeAttributes = (XmlIncludeAttribute[])commandType.GetCustomAttributes(typeof(XmlIncludeAttribute), inherit: true);
+            var builderType = context.Instance?.GetType() ?? context.PropertyDescriptor.ComponentType;
+            var includeAttributes = (XmlIncludeAttribute[])builderType.GetCustomAttributes(typeof(XmlIncludeAttribute), inherit: true);
             if (includeAttributes.Length > 0)
             {
                 return includeAttributes.Select(attribute => attribute.Type);
             }
 
-            var propertyInfo = commandType.GetProperty(context.PropertyDescriptor.Name);
+            var propertyInfo = builderType.GetProperty(context.PropertyDescriptor.Name);
+            if (propertyInfo == null) return Enumerable.Empty<Type>();
+
             var elementAttributes = (XmlElementAttribute[])propertyInfo.GetCustomAttributes(typeof(XmlElementAttribute), inherit: true);
             if (elementAttributes.Length > 0)
             {
@@ -30,6 +32,17 @@ namespace Bonsai.Harp
             }
 
             return propertyInfo.PropertyType.GetCustomAttributes<XmlIncludeAttribute>().Select(attribute => attribute.Type);
+        }
+
+        static string GetDisplayName(Type type)
+        {
+            var displayNameAttribute = (DisplayNameAttribute)type.GetCustomAttribute(typeof(DisplayNameAttribute));
+            if (!string.IsNullOrEmpty(displayNameAttribute?.DisplayName))
+            {
+                return displayNameAttribute.DisplayName;
+            }
+
+            return type.Name;
         }
 
         /// <inheritdoc/>
@@ -44,7 +57,7 @@ namespace Bonsai.Harp
             if (value is string typeName)
             {
                 return GetInstanceTypes(context).FirstOrDefault(
-                    type => string.Equals(type.Name, typeName, StringComparison.OrdinalIgnoreCase));
+                    type => string.Equals(GetDisplayName(type), typeName, StringComparison.OrdinalIgnoreCase));
             }
 
             return null;
@@ -55,7 +68,7 @@ namespace Bonsai.Harp
         {
             if (destinationType == typeof(string) && value is Type valueType)
             {
-                return valueType.Name;
+                return GetDisplayName(valueType);
             }
 
             return null;

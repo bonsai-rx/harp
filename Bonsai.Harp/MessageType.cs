@@ -6,12 +6,12 @@
     public enum MessageType : byte
     {
         /// <summary>
-        /// The device should read the contents of the register at the specified address.
+        /// The device is reading the contents of the register at the specified address.
         /// </summary>
         Read = 0x01,
 
         /// <summary>
-        /// The device should write the message payload to the register at the specified address.
+        /// The device is writing the message payload to the register at the specified address.
         /// </summary>
         Write = 0x02,
 

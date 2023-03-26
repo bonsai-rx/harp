@@ -69,19 +69,15 @@ namespace Bonsai.Harp
                         }
                     }
 
-                    const byte BootEeprom = 0x80;
-                    const byte BootDefault = 0x40;
-                    const byte ResetDefault = 0x1;
-                    const byte ResetEeprom = 0x2;
                     progress?.Report(20);
-                    var reset = await device.ReadByteAsync(DeviceRegisters.ResetDevice).WithTimeout(FlushDelayMilliseconds);
-                    if ((reset & BootEeprom) != 0)
+                    var reset = await device.ReadResetDeviceAsync().WithTimeout(FlushDelayMilliseconds);
+                    if ((reset & ResetFlags.BootFromEeprom) != 0)
                     {
-                        await device.WriteByteAsync(DeviceRegisters.ResetDevice, ResetEeprom);
+                        await device.WriteResetDeviceAsync(ResetFlags.RestoreEeprom);
                     }
-                    else if ((reset & BootDefault) != 0)
+                    else if ((reset & ResetFlags.BootFromDefault) != 0)
                     {
-                        await device.WriteByteAsync(DeviceRegisters.ResetDevice, ResetDefault);
+                        await device.WriteResetDeviceAsync(ResetFlags.RestoreDefault);
                     }
                     else throw new HarpException("The device is in an unexpected boot mode.");
                     await Observable.Timer(flushDelay);

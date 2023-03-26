@@ -2,19 +2,111 @@
 using System;
 using System.ComponentModel;
 using System.Linq.Expressions;
+using System.Xml.Serialization;
 
 namespace Bonsai.Harp
 {
     /// <summary>
-    /// Represents an operator which formats input data as a Harp message payload.
+    /// Represents an operator which formats a sequence of values as specific
+    /// Harp device register messages.
     /// </summary>
-    [Description("Formats input data as a Harp message.")]
-    public class Format : SelectBuilder
+    /// <seealso cref="FormatMessagePayload"/>
+    /// <seealso cref="WhoAmI"/>
+    /// <seealso cref="HardwareVersionHigh"/>
+    /// <seealso cref="HardwareVersionLow"/>
+    /// <seealso cref="AssemblyVersion"/>
+    /// <seealso cref="CoreVersionHigh"/>
+    /// <seealso cref="CoreVersionLow"/>
+    /// <seealso cref="FirmwareVersionHigh"/>
+    /// <seealso cref="FirmwareVersionLow"/>
+    /// <seealso cref="TimestampSeconds"/>
+    /// <seealso cref="TimestampMicroseconds"/>
+    /// <seealso cref="OperationControl"/>
+    /// <seealso cref="ResetDevice"/>
+    /// <seealso cref="DeviceName"/>
+    /// <seealso cref="SerialNumber"/>
+    /// <seealso cref="ClockConfiguration"/>
+    [XmlInclude(typeof(FormatMessagePayload))]
+    [XmlInclude(typeof(WhoAmI))]
+    [XmlInclude(typeof(HardwareVersionHigh))]
+    [XmlInclude(typeof(HardwareVersionLow))]
+    [XmlInclude(typeof(AssemblyVersion))]
+    [XmlInclude(typeof(CoreVersionHigh))]
+    [XmlInclude(typeof(CoreVersionLow))]
+    [XmlInclude(typeof(FirmwareVersionHigh))]
+    [XmlInclude(typeof(FirmwareVersionLow))]
+    [XmlInclude(typeof(TimestampSeconds))]
+    [XmlInclude(typeof(TimestampMicroseconds))]
+    [XmlInclude(typeof(OperationControl))]
+    [XmlInclude(typeof(ResetDevice))]
+    [XmlInclude(typeof(DeviceName))]
+    [XmlInclude(typeof(SerialNumber))]
+    [XmlInclude(typeof(ClockConfiguration))]
+    [Description("Formats a sequence of values as specific Device register messages.")]
+    public class Format : FormatBuilder, INamedElement
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Format"/> class.
         /// </summary>
         public Format()
+        {
+            Register = new FormatMessagePayload();
+        }
+
+        string INamedElement.Name => Register is FormatMessagePayload
+            ? default
+            : $"Device.{GetElementDisplayName(Register)}";
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public MessageType MessageType
+        {
+            get { return Register is FormatMessagePayload formatMessage ? formatMessage.MessageType : default; }
+            set { if (Register is FormatMessagePayload formatMessage) formatMessage.MessageType = value; }
+        }
+
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int Address
+        {
+            get { return Register is FormatMessagePayload formatMessage ? formatMessage.Address : default; }
+            set { if (Register is FormatMessagePayload formatMessage) formatMessage.Address = value; }
+        }
+
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public PayloadType PayloadType
+        {
+            get { return Register is FormatMessagePayload formatMessage ? formatMessage.PayloadType : default; }
+            set { if (Register is FormatMessagePayload formatMessage) formatMessage.PayloadType = value; }
+        }
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool ShouldSerializeMessageType() => false;
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool ShouldSerializeAddress() => false;
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool ShouldSerializePayloadType() => false;
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+    }
+
+    /// <summary>
+    /// Represents an operator which formats input data as a Harp message payload.
+    /// </summary>
+    [DesignTimeVisible(false)]
+    [Description("Formats input data as a Harp message.")]
+    public class FormatMessagePayload : SelectBuilder
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FormatMessagePayload"/> class.
+        /// </summary>
+        public FormatMessagePayload()
         {
             Address = 32;
             MessageType = MessageType.Write;
@@ -24,6 +116,7 @@ namespace Bonsai.Harp
         /// <summary>
         /// Gets or sets the type of the Harp message.
         /// </summary>
+        [Category(nameof(CategoryAttribute.Design))]
         [Description("The type of the Harp message.")]
         public MessageType MessageType { get; set; }
 

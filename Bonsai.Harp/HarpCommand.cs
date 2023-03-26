@@ -10,17 +10,12 @@ namespace Bonsai.Harp
     {
         #region Common
 
-        /// <summary>
-        /// Returns a <see cref="HarpMessage"/> command to initialize the device operation control register.
-        /// </summary>
-        /// <param name="operationMode">The desired operation mode of the device.</param>
-        /// <param name="ledState">Specifies whether the operation mode LED should report the device state.</param>
-        /// <param name="visualIndicators">Specifies whether any visual indicator LEDs should be enabled on the Harp device.</param>
-        /// <param name="heartbeat">Specifies whether to enable or disable the heartbeat register.</param>
-        /// <param name="replies">Specifies whether write commands should report back the state of the register.</param>
-        /// <param name="dumpRegisters">Specifies whether the state of all registers should be reported after initialization.</param>
-        /// <returns>A valid <see cref="HarpMessage"/> command to set the device operation mode.</returns>
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public static HarpMessage OperationControl(DeviceState operationMode, LedState ledState, LedState visualIndicators, EnableType heartbeat, EnableType replies, bool dumpRegisters)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             int operationFlags;
             operationFlags  = heartbeat == EnableType.Enable      ? 0x80 : 0x00;
@@ -41,12 +36,11 @@ namespace Bonsai.Harp
             return ResetDevice(resetMode);
         }
 
-        /// <summary>
-        /// Returns a <see cref="HarpMessage"/> command to reset the device and restore or save non-volatile registers.
-        /// </summary>
-        /// <param name="resetMode">Specifies whether to restore or save non-volatile registers.</param>
-        /// <returns>A valid <see cref="HarpMessage"/> command to reset the device.</returns>
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public static HarpMessage ResetDevice(ResetMode resetMode)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             return WriteByte(DeviceRegisters.ResetDevice, (byte)(1 << (byte)resetMode));
         }

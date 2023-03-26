@@ -1,9 +1,12 @@
-﻿namespace Bonsai.Harp
+﻿using System;
+
+namespace Bonsai.Harp
 {
     /// <summary>
     /// Provides address and payload types for common registers and operation control
     /// of all Harp devices.
     /// </summary>
+    [Obsolete]
     public static class DeviceRegisters
     {
         /// <summary>

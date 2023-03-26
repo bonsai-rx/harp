@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bonsai.Harp
@@ -36,7 +35,7 @@ namespace Bonsai.Harp
         /// </returns>
         public async Task<int> ReadWhoAmIAsync()
         {
-            return await ReadUInt16Async(DeviceRegisters.WhoAmI);
+            return await ReadUInt16Async(WhoAmI.Address);
         }
 
         /// <summary>
@@ -48,8 +47,8 @@ namespace Bonsai.Harp
         /// </returns>
         public async Task<HarpVersion> ReadHardwareVersionAsync()
         {
-            var major = await ReadByteAsync(DeviceRegisters.HardwareVersionHigh);
-            var minor = await ReadByteAsync(DeviceRegisters.HardwareVersionLow);
+            var major = await ReadByteAsync(HardwareVersionHigh.Address);
+            var minor = await ReadByteAsync(HardwareVersionLow.Address);
             return new HarpVersion(major, minor);
         }
 
@@ -62,7 +61,7 @@ namespace Bonsai.Harp
         /// </returns>
         public async Task<int> ReadAssemblyVersionAsync()
         {
-            return await ReadByteAsync(DeviceRegisters.AssemblyVersion);
+            return await ReadByteAsync(AssemblyVersion.Address);
         }
 
         /// <summary>
@@ -75,8 +74,8 @@ namespace Bonsai.Harp
         /// </returns>
         public async Task<HarpVersion> ReadCoreVersionAsync()
         {
-            var major = await ReadByteAsync(DeviceRegisters.CoreVersionHigh);
-            var minor = await ReadByteAsync(DeviceRegisters.CoreVersionLow);
+            var major = await ReadByteAsync(CoreVersionHigh.Address);
+            var minor = await ReadByteAsync(CoreVersionLow.Address);
             return new HarpVersion(major, minor);
         }
 
@@ -89,9 +88,58 @@ namespace Bonsai.Harp
         /// </returns>
         public async Task<HarpVersion> ReadFirmwareVersionAsync()
         {
-            var major = await ReadByteAsync(DeviceRegisters.FirmwareVersionHigh);
-            var minor = await ReadByteAsync(DeviceRegisters.FirmwareVersionLow);
+            var major = await ReadByteAsync(FirmwareVersionHigh.Address);
+            var minor = await ReadByteAsync(FirmwareVersionLow.Address);
             return new HarpVersion(major, minor);
+        }
+
+        /// <summary>
+        /// Asynchronously reads the integral part of the system timestamp, in seconds.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the integral part of the system timestamp, in seconds.
+        /// </returns>
+        public async Task<uint> ReadTimestampSecondsAsync()
+        {
+            return await ReadUInt32Async(TimestampSeconds.Address);
+        }
+
+        /// <summary>
+        /// Asynchronously reads the fractional part of the system timestamp, in microseconds.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the fractional part of the system timestamp, in microseconds.
+        /// </returns>
+        public async Task<ushort> ReadTimestampMicrosecondsAsync()
+        {
+            return await ReadUInt16Async(TimestampMicroseconds.Address);
+        }
+
+        /// <summary>
+        /// Asynchronously reads the contents of the OperationControl register.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the register payload.
+        /// </returns>
+        public async Task<OperationControlPayload> ReadOperationControlAsync()
+        {
+            var reply = await CommandAsync(HarpCommand.ReadByte(OperationControl.Address));
+            return OperationControl.GetPayload(reply);
+        }
+
+        /// <summary>
+        /// Asynchronously reads the contents of the ResetDevice register.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the register payload.
+        /// </returns>
+        public async Task<ResetFlags> ReadResetDeviceAsync()
+        {
+            return (ResetFlags)await ReadByteAsync(ResetDevice.Address);
         }
 
         /// <summary>
@@ -103,10 +151,8 @@ namespace Bonsai.Harp
         /// </returns>
         public async Task<string> ReadDeviceNameAsync()
         {
-            var deviceName = await CommandAsync(HarpCommand.ReadByte(DeviceRegisters.DeviceName));
-            var namePayload = deviceName.GetPayload();
-            var count = Array.IndexOf(namePayload.Array, (byte)0, namePayload.Offset, namePayload.Count) - namePayload.Offset;
-            return Encoding.ASCII.GetString(namePayload.Array, namePayload.Offset, count);
+            var deviceName = await CommandAsync(HarpCommand.ReadByte(DeviceName.Address));
+            return DeviceName.GetPayload(deviceName);
         }
 
         /// <summary>
@@ -118,7 +164,19 @@ namespace Bonsai.Harp
         /// </returns>
         public async Task<int> ReadSerialNumberAsync()
         {
-            return await ReadUInt16Async(DeviceRegisters.SerialNumber);
+            return await ReadUInt16Async(SerialNumber.Address);
+        }
+
+        /// <summary>
+        /// Asynchronously reads the configuration for the device synchronization clock.
+        /// </summary>
+        /// <returns>
+        /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
+        /// property contains the configuration for the device synchronization clock.
+        /// </returns>
+        public async Task<ClockConfigurationFlags> ReadClockConfigurationAsync()
+        {
+            return (ClockConfigurationFlags)await ReadByteAsync(ClockConfiguration.Address);
         }
 
         /// <summary>
@@ -392,6 +450,31 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Asynchronously updates the integral part of the system timestamp, in seconds.
+        /// </summary>
+        /// <param name="seconds">The value to be stored in the register.</param>
+        /// <returns>The task object representing the asynchronous write operation.</returns>
+        public async Task WriteTimestampSecondsAsync(uint seconds)
+        {
+            await WriteUInt32Async(TimestampSeconds.Address, seconds);
+        }
+
+        /// <summary>
+        /// Asynchronously sends a command to reset the device and restore or
+        /// save non-volatile registers.
+        /// </summary>
+        /// <param name="reset">
+        /// A value specifying whether to restore or save non-volatile registers.
+        /// </param>
+        /// <returns>
+        /// The task object representing the asynchronous reset operation.
+        /// </returns>
+        public async Task WriteResetDeviceAsync(ResetFlags reset)
+        {
+            await WriteByteAsync(ResetDevice.Address, (byte)reset);
+        }
+
+        /// <summary>
         /// Asynchronously updates the display name of the device.
         /// </summary>
         /// <param name="name">
@@ -408,10 +491,17 @@ namespace Bonsai.Harp
                 throw new ArgumentException("The specified device name cannot be null or empty.", nameof(name));
             }
 
-            const int DeviceNameLength = 25;
-            var payload = new byte[DeviceNameLength];
-            Encoding.ASCII.GetBytes(name, 0, Math.Min(name.Length, DeviceNameLength - 1), payload, 0);
-            await CommandAsync(HarpCommand.WriteByte(DeviceRegisters.DeviceName, payload));
+            await CommandAsync(DeviceName.FromPayload(MessageType.Write, name));
+        }
+
+        /// <summary>
+        /// Asynchronously updates the configuration for the device synchronization clock.
+        /// </summary>
+        /// <param name="value">A value specifying configuration flags for the device synchronization clock.</param>
+        /// <returns>The task object representing the asynchronous write operation.</returns>
+        public async Task WriteClockConfigurationAsync(ClockConfigurationFlags value)
+        {
+            await WriteByteAsync(ClockConfiguration.Address, (byte)value);
         }
 
         /// <summary>

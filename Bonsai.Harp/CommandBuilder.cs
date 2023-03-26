@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 
 namespace Bonsai.Harp
 {
@@ -6,6 +7,7 @@ namespace Bonsai.Harp
     /// Provides the abstract base class for polymorphic operators used to create
     /// command messages for Harp devices.
     /// </summary>
+    [Obsolete]
     [DefaultProperty(nameof(Command))]
     public abstract class CommandBuilder : HarpCombinatorBuilder, INamedElement
     {
