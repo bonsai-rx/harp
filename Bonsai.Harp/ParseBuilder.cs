@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Linq.Expressions;
+using System.Reactive.Linq;
 using System.Xml.Serialization;
+using Bonsai.Expressions;
 
 namespace Bonsai.Harp
 {
@@ -10,36 +10,30 @@ namespace Bonsai.Harp
     /// Provides the abstract base class for polymorphic operators used to filter
     /// and select messages from specific registers in a Harp device.
     /// </summary>
-    [DefaultProperty(nameof(Register))]
     [XmlType(Namespace = Constants.XmlNamespace)]
-    public abstract class ParseBuilder : HarpCombinatorBuilder
+    public abstract class ParseBuilder : FilterMessageBuilder
     {
-        static readonly Range<int> argumentRange = Range.Create(lowerBound: 1, upperBound: 1);
-
-        /// <inheritdoc/>
-        public override Range<int> ArgumentRange => argumentRange;
-
-        /// <summary>
-        /// Gets or sets the operator used to filter and select messages from
-        /// specific device registers.
-        /// </summary>
-        [DesignOnly(true)]
-        [Externalizable(false)]
-        [RefreshProperties(RefreshProperties.All)]
-        [Category(nameof(CategoryAttribute.Design))]
-        [Description("The operator used to filter and select messages from specific device registers.")]
-        [TypeConverter(typeof(CombinatorTypeConverter))]
-        public object Register
-        {
-            get { return Combinator; }
-            set { Combinator = value; }
-        }
-
         /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            return base.Build(arguments
-                .Where(expression => expression.Type.GenericTypeArguments[0] == typeof(HarpMessage)));
+            var register = Register;
+            var source = base.Build(arguments);
+            if (register is ExpressionBuilder builder)
+            {
+                return builder.Build(new[] { source });
+            }
+
+            var registerType = register.GetType();
+            var payload = Expression.Parameter(typeof(HarpMessage));
+            var payloadSelector = Expression.Lambda(
+                Expression.Call(registerType, nameof(HarpMessage.GetPayload), null, payload),
+                payload);
+            return Expression.Call(
+                typeof(Observable),
+                nameof(Observable.Select),
+                new[] { payload.Type, payloadSelector.ReturnType },
+                source,
+                payloadSelector);
         }
     }
 }

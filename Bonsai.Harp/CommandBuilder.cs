@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq.Expressions;
+using Bonsai.Expressions;
 
 namespace Bonsai.Harp
 {
@@ -11,6 +14,8 @@ namespace Bonsai.Harp
     [DefaultProperty(nameof(Command))]
     public abstract class CommandBuilder : HarpCombinatorBuilder, INamedElement
     {
+        readonly CombinatorBuilder builder = new CombinatorBuilder();
+
         string INamedElement.Name => $"{RemoveSuffix(GetType().Name, nameof(Command))}.{GetElementDisplayName(Command)}";
 
         /// <summary>
@@ -25,8 +30,17 @@ namespace Bonsai.Harp
         [TypeConverter(typeof(CombinatorTypeConverter))]
         public object Command
         {
-            get { return Combinator; }
-            set { Combinator = value; }
+            get { return Operator; }
+            set { builder.Combinator = Operator = value; }
+        }
+
+        /// <inheritdoc/>
+        public override Range<int> ArgumentRange => builder.ArgumentRange;
+
+        /// <inheritdoc/>
+        public override Expression Build(IEnumerable<Expression> arguments)
+        {
+            return builder.Build(arguments);
         }
     }
 }

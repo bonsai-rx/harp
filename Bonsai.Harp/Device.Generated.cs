@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reactive.Linq;
@@ -32,10 +32,10 @@ namespace Bonsai.Harp
     }
 
     /// <summary>
-    /// Represents an operator that specifies the identity class of the device.
+    /// Represents a register that specifies the identity class of the device.
     /// </summary>
     [Description("Specifies the identity class of the device.")]
-    public partial class WhoAmI : HarpCombinator
+    public partial class WhoAmI
     {
         /// <summary>
         /// Represents the address of the <see cref="WhoAmI"/> register. This field is constant.
@@ -51,14 +51,6 @@ namespace Bonsai.Harp
         /// Represents the length of the <see cref="WhoAmI"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WhoAmI"/> class.
-        /// </summary>
-        public WhoAmI()
-        {
-            MessageType = MessageType.Read;
-        }
 
         /// <summary>
         /// Returns the payload data for <see cref="WhoAmI"/> register messages.
@@ -110,83 +102,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromUInt16(Address, timestamp, messageType, (ushort)value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="WhoAmI"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="int"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<int> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="WhoAmI"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="int"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="WhoAmI"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<int> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="WhoAmI"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="int"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="WhoAmI"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<int>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the WhoAmI register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// WhoAmI register.
     /// </summary>
+    /// <seealso cref="WhoAmI"/>
     [Description("Filters and selects timestamped messages from the WhoAmI register.")]
-    public partial class TimestampedWhoAmI : HarpCombinator
+    public partial class TimestampedWhoAmI
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="WhoAmI"/> register.
+        /// Represents the address of the <see cref="WhoAmI"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="int"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<int>> Process(IObservable<HarpMessage> source)
+        public const int Address = WhoAmI.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="WhoAmI"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<int> GetPayload(HarpMessage message)
         {
-            return source.Where(WhoAmI.Address, MessageType).Select(WhoAmI.GetTimestampedPayload);
+            return WhoAmI.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that specifies the major hardware version of the device.
+    /// Represents a register that specifies the major hardware version of the device.
     /// </summary>
     [Description("Specifies the major hardware version of the device.")]
-    public partial class HardwareVersionHigh : HarpCombinator
+    public partial class HardwareVersionHigh
     {
         /// <summary>
         /// Represents the address of the <see cref="HardwareVersionHigh"/> register. This field is constant.
@@ -202,14 +148,6 @@ namespace Bonsai.Harp
         /// Represents the length of the <see cref="HardwareVersionHigh"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HardwareVersionHigh"/> class.
-        /// </summary>
-        public HardwareVersionHigh()
-        {
-            MessageType = MessageType.Read;
-        }
 
         /// <summary>
         /// Returns the payload data for <see cref="HardwareVersionHigh"/> register messages.
@@ -260,83 +198,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="HardwareVersionHigh"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<byte> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="HardwareVersionHigh"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="HardwareVersionHigh"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<byte> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="HardwareVersionHigh"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="byte"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="HardwareVersionHigh"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<byte>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the HardwareVersionHigh register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// HardwareVersionHigh register.
     /// </summary>
+    /// <seealso cref="HardwareVersionHigh"/>
     [Description("Filters and selects timestamped messages from the HardwareVersionHigh register.")]
-    public partial class TimestampedHardwareVersionHigh : HarpCombinator
+    public partial class TimestampedHardwareVersionHigh
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="HardwareVersionHigh"/> register.
+        /// Represents the address of the <see cref="HardwareVersionHigh"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="byte"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<byte>> Process(IObservable<HarpMessage> source)
+        public const int Address = HardwareVersionHigh.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="HardwareVersionHigh"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<byte> GetPayload(HarpMessage message)
         {
-            return source.Where(HardwareVersionHigh.Address, MessageType).Select(HardwareVersionHigh.GetTimestampedPayload);
+            return HardwareVersionHigh.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that specifies the minor hardware version of the device.
+    /// Represents a register that specifies the minor hardware version of the device.
     /// </summary>
     [Description("Specifies the minor hardware version of the device.")]
-    public partial class HardwareVersionLow : HarpCombinator
+    public partial class HardwareVersionLow
     {
         /// <summary>
         /// Represents the address of the <see cref="HardwareVersionLow"/> register. This field is constant.
@@ -352,14 +244,6 @@ namespace Bonsai.Harp
         /// Represents the length of the <see cref="HardwareVersionLow"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="HardwareVersionLow"/> class.
-        /// </summary>
-        public HardwareVersionLow()
-        {
-            MessageType = MessageType.Read;
-        }
 
         /// <summary>
         /// Returns the payload data for <see cref="HardwareVersionLow"/> register messages.
@@ -410,83 +294,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="HardwareVersionLow"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<byte> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="HardwareVersionLow"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="HardwareVersionLow"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<byte> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="HardwareVersionLow"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="byte"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="HardwareVersionLow"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<byte>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the HardwareVersionLow register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// HardwareVersionLow register.
     /// </summary>
+    /// <seealso cref="HardwareVersionLow"/>
     [Description("Filters and selects timestamped messages from the HardwareVersionLow register.")]
-    public partial class TimestampedHardwareVersionLow : HarpCombinator
+    public partial class TimestampedHardwareVersionLow
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="HardwareVersionLow"/> register.
+        /// Represents the address of the <see cref="HardwareVersionLow"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="byte"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<byte>> Process(IObservable<HarpMessage> source)
+        public const int Address = HardwareVersionLow.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="HardwareVersionLow"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<byte> GetPayload(HarpMessage message)
         {
-            return source.Where(HardwareVersionLow.Address, MessageType).Select(HardwareVersionLow.GetTimestampedPayload);
+            return HardwareVersionLow.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that specifies the version of the assembled components in the device.
+    /// Represents a register that specifies the version of the assembled components in the device.
     /// </summary>
     [Description("Specifies the version of the assembled components in the device.")]
-    public partial class AssemblyVersion : HarpCombinator
+    public partial class AssemblyVersion
     {
         /// <summary>
         /// Represents the address of the <see cref="AssemblyVersion"/> register. This field is constant.
@@ -502,14 +340,6 @@ namespace Bonsai.Harp
         /// Represents the length of the <see cref="AssemblyVersion"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AssemblyVersion"/> class.
-        /// </summary>
-        public AssemblyVersion()
-        {
-            MessageType = MessageType.Read;
-        }
 
         /// <summary>
         /// Returns the payload data for <see cref="AssemblyVersion"/> register messages.
@@ -560,83 +390,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="AssemblyVersion"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<byte> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="AssemblyVersion"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="AssemblyVersion"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<byte> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="AssemblyVersion"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="byte"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="AssemblyVersion"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<byte>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the AssemblyVersion register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// AssemblyVersion register.
     /// </summary>
+    /// <seealso cref="AssemblyVersion"/>
     [Description("Filters and selects timestamped messages from the AssemblyVersion register.")]
-    public partial class TimestampedAssemblyVersion : HarpCombinator
+    public partial class TimestampedAssemblyVersion
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="AssemblyVersion"/> register.
+        /// Represents the address of the <see cref="AssemblyVersion"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="byte"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<byte>> Process(IObservable<HarpMessage> source)
+        public const int Address = AssemblyVersion.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="AssemblyVersion"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<byte> GetPayload(HarpMessage message)
         {
-            return source.Where(AssemblyVersion.Address, MessageType).Select(AssemblyVersion.GetTimestampedPayload);
+            return AssemblyVersion.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that specifies the major version of the Harp core implemented by the device.
+    /// Represents a register that specifies the major version of the Harp core implemented by the device.
     /// </summary>
     [Description("Specifies the major version of the Harp core implemented by the device.")]
-    public partial class CoreVersionHigh : HarpCombinator
+    public partial class CoreVersionHigh
     {
         /// <summary>
         /// Represents the address of the <see cref="CoreVersionHigh"/> register. This field is constant.
@@ -652,14 +436,6 @@ namespace Bonsai.Harp
         /// Represents the length of the <see cref="CoreVersionHigh"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CoreVersionHigh"/> class.
-        /// </summary>
-        public CoreVersionHigh()
-        {
-            MessageType = MessageType.Read;
-        }
 
         /// <summary>
         /// Returns the payload data for <see cref="CoreVersionHigh"/> register messages.
@@ -710,83 +486,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="CoreVersionHigh"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<byte> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="CoreVersionHigh"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="CoreVersionHigh"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<byte> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="CoreVersionHigh"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="byte"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="CoreVersionHigh"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<byte>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the CoreVersionHigh register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// CoreVersionHigh register.
     /// </summary>
+    /// <seealso cref="CoreVersionHigh"/>
     [Description("Filters and selects timestamped messages from the CoreVersionHigh register.")]
-    public partial class TimestampedCoreVersionHigh : HarpCombinator
+    public partial class TimestampedCoreVersionHigh
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="CoreVersionHigh"/> register.
+        /// Represents the address of the <see cref="CoreVersionHigh"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="byte"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<byte>> Process(IObservable<HarpMessage> source)
+        public const int Address = CoreVersionHigh.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="CoreVersionHigh"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<byte> GetPayload(HarpMessage message)
         {
-            return source.Where(CoreVersionHigh.Address, MessageType).Select(CoreVersionHigh.GetTimestampedPayload);
+            return CoreVersionHigh.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that specifies the minor version of the Harp core implemented by the device.
+    /// Represents a register that specifies the minor version of the Harp core implemented by the device.
     /// </summary>
     [Description("Specifies the minor version of the Harp core implemented by the device.")]
-    public partial class CoreVersionLow : HarpCombinator
+    public partial class CoreVersionLow
     {
         /// <summary>
         /// Represents the address of the <see cref="CoreVersionLow"/> register. This field is constant.
@@ -802,14 +532,6 @@ namespace Bonsai.Harp
         /// Represents the length of the <see cref="CoreVersionLow"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CoreVersionLow"/> class.
-        /// </summary>
-        public CoreVersionLow()
-        {
-            MessageType = MessageType.Read;
-        }
 
         /// <summary>
         /// Returns the payload data for <see cref="CoreVersionLow"/> register messages.
@@ -860,83 +582,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="CoreVersionLow"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<byte> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="CoreVersionLow"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="CoreVersionLow"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<byte> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="CoreVersionLow"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="byte"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="CoreVersionLow"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<byte>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the CoreVersionLow register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// CoreVersionLow register.
     /// </summary>
+    /// <seealso cref="CoreVersionLow"/>
     [Description("Filters and selects timestamped messages from the CoreVersionLow register.")]
-    public partial class TimestampedCoreVersionLow : HarpCombinator
+    public partial class TimestampedCoreVersionLow
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="CoreVersionLow"/> register.
+        /// Represents the address of the <see cref="CoreVersionLow"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="byte"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<byte>> Process(IObservable<HarpMessage> source)
+        public const int Address = CoreVersionLow.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="CoreVersionLow"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<byte> GetPayload(HarpMessage message)
         {
-            return source.Where(CoreVersionLow.Address, MessageType).Select(CoreVersionLow.GetTimestampedPayload);
+            return CoreVersionLow.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that specifies the major version of the Harp core implemented by the device.
+    /// Represents a register that specifies the major version of the Harp core implemented by the device.
     /// </summary>
     [Description("Specifies the major version of the Harp core implemented by the device.")]
-    public partial class FirmwareVersionHigh : HarpCombinator
+    public partial class FirmwareVersionHigh
     {
         /// <summary>
         /// Represents the address of the <see cref="FirmwareVersionHigh"/> register. This field is constant.
@@ -952,14 +628,6 @@ namespace Bonsai.Harp
         /// Represents the length of the <see cref="FirmwareVersionHigh"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FirmwareVersionHigh"/> class.
-        /// </summary>
-        public FirmwareVersionHigh()
-        {
-            MessageType = MessageType.Read;
-        }
 
         /// <summary>
         /// Returns the payload data for <see cref="FirmwareVersionHigh"/> register messages.
@@ -1010,83 +678,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="FirmwareVersionHigh"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<byte> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="FirmwareVersionHigh"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="FirmwareVersionHigh"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<byte> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="FirmwareVersionHigh"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="byte"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="FirmwareVersionHigh"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<byte>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the FirmwareVersionHigh register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// FirmwareVersionHigh register.
     /// </summary>
+    /// <seealso cref="FirmwareVersionHigh"/>
     [Description("Filters and selects timestamped messages from the FirmwareVersionHigh register.")]
-    public partial class TimestampedFirmwareVersionHigh : HarpCombinator
+    public partial class TimestampedFirmwareVersionHigh
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="FirmwareVersionHigh"/> register.
+        /// Represents the address of the <see cref="FirmwareVersionHigh"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="byte"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<byte>> Process(IObservable<HarpMessage> source)
+        public const int Address = FirmwareVersionHigh.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="FirmwareVersionHigh"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<byte> GetPayload(HarpMessage message)
         {
-            return source.Where(FirmwareVersionHigh.Address, MessageType).Select(FirmwareVersionHigh.GetTimestampedPayload);
+            return FirmwareVersionHigh.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that specifies the minor version of the Harp core implemented by the device.
+    /// Represents a register that specifies the minor version of the Harp core implemented by the device.
     /// </summary>
     [Description("Specifies the minor version of the Harp core implemented by the device.")]
-    public partial class FirmwareVersionLow : HarpCombinator
+    public partial class FirmwareVersionLow
     {
         /// <summary>
         /// Represents the address of the <see cref="FirmwareVersionLow"/> register. This field is constant.
@@ -1102,14 +724,6 @@ namespace Bonsai.Harp
         /// Represents the length of the <see cref="FirmwareVersionLow"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FirmwareVersionLow"/> class.
-        /// </summary>
-        public FirmwareVersionLow()
-        {
-            MessageType = MessageType.Read;
-        }
 
         /// <summary>
         /// Returns the payload data for <see cref="FirmwareVersionLow"/> register messages.
@@ -1160,83 +774,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="FirmwareVersionLow"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<byte> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="FirmwareVersionLow"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="byte"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="FirmwareVersionLow"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<byte> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="FirmwareVersionLow"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="byte"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="FirmwareVersionLow"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<byte>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the FirmwareVersionLow register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// FirmwareVersionLow register.
     /// </summary>
+    /// <seealso cref="FirmwareVersionLow"/>
     [Description("Filters and selects timestamped messages from the FirmwareVersionLow register.")]
-    public partial class TimestampedFirmwareVersionLow : HarpCombinator
+    public partial class TimestampedFirmwareVersionLow
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="FirmwareVersionLow"/> register.
+        /// Represents the address of the <see cref="FirmwareVersionLow"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="byte"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<byte>> Process(IObservable<HarpMessage> source)
+        public const int Address = FirmwareVersionLow.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="FirmwareVersionLow"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<byte> GetPayload(HarpMessage message)
         {
-            return source.Where(FirmwareVersionLow.Address, MessageType).Select(FirmwareVersionLow.GetTimestampedPayload);
+            return FirmwareVersionLow.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that stores the integral part of the system timestamp, in seconds.
+    /// Represents a register that stores the integral part of the system timestamp, in seconds.
     /// </summary>
     [Description("Stores the integral part of the system timestamp, in seconds.")]
-    public partial class TimestampSeconds : HarpCombinator
+    public partial class TimestampSeconds
     {
         /// <summary>
         /// Represents the address of the <see cref="TimestampSeconds"/> register. This field is constant.
@@ -1252,14 +820,6 @@ namespace Bonsai.Harp
         /// Represents the length of the <see cref="TimestampSeconds"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TimestampSeconds"/> class.
-        /// </summary>
-        public TimestampSeconds()
-        {
-            MessageType = MessageType.Event;
-        }
 
         /// <summary>
         /// Returns the payload data for <see cref="TimestampSeconds"/> register messages.
@@ -1310,83 +870,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromUInt32(Address, timestamp, messageType, value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="TimestampSeconds"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="uint"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<uint> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="TimestampSeconds"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="uint"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="TimestampSeconds"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<uint> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="TimestampSeconds"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="uint"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="TimestampSeconds"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<uint>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the TimestampSeconds register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// TimestampSeconds register.
     /// </summary>
+    /// <seealso cref="TimestampSeconds"/>
     [Description("Filters and selects timestamped messages from the TimestampSeconds register.")]
-    public partial class TimestampedTimestampSeconds : HarpCombinator
+    public partial class TimestampedTimestampSeconds
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="TimestampSeconds"/> register.
+        /// Represents the address of the <see cref="TimestampSeconds"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="uint"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<uint>> Process(IObservable<HarpMessage> source)
+        public const int Address = TimestampSeconds.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="TimestampSeconds"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<uint> GetPayload(HarpMessage message)
         {
-            return source.Where(TimestampSeconds.Address, MessageType).Select(TimestampSeconds.GetTimestampedPayload);
+            return TimestampSeconds.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that stores the fractional part of the system timestamp, in microseconds.
+    /// Represents a register that stores the fractional part of the system timestamp, in microseconds.
     /// </summary>
     [Description("Stores the fractional part of the system timestamp, in microseconds.")]
-    public partial class TimestampMicroseconds : HarpCombinator
+    public partial class TimestampMicroseconds
     {
         /// <summary>
         /// Represents the address of the <see cref="TimestampMicroseconds"/> register. This field is constant.
@@ -1402,14 +916,6 @@ namespace Bonsai.Harp
         /// Represents the length of the <see cref="TimestampMicroseconds"/> register. This field is constant.
         /// </summary>
         public const int RegisterLength = 1;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TimestampMicroseconds"/> class.
-        /// </summary>
-        public TimestampMicroseconds()
-        {
-            MessageType = MessageType.Read;
-        }
 
         /// <summary>
         /// Returns the payload data for <see cref="TimestampMicroseconds"/> register messages.
@@ -1460,83 +966,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromUInt16(Address, timestamp, messageType, value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="TimestampMicroseconds"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="ushort"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<ushort> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="TimestampMicroseconds"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="ushort"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="TimestampMicroseconds"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<ushort> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="TimestampMicroseconds"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="ushort"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="TimestampMicroseconds"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<ushort>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the TimestampMicroseconds register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// TimestampMicroseconds register.
     /// </summary>
+    /// <seealso cref="TimestampMicroseconds"/>
     [Description("Filters and selects timestamped messages from the TimestampMicroseconds register.")]
-    public partial class TimestampedTimestampMicroseconds : HarpCombinator
+    public partial class TimestampedTimestampMicroseconds
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="TimestampMicroseconds"/> register.
+        /// Represents the address of the <see cref="TimestampMicroseconds"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="ushort"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<ushort>> Process(IObservable<HarpMessage> source)
+        public const int Address = TimestampMicroseconds.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="TimestampMicroseconds"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<ushort> GetPayload(HarpMessage message)
         {
-            return source.Where(TimestampMicroseconds.Address, MessageType).Select(TimestampMicroseconds.GetTimestampedPayload);
+            return TimestampMicroseconds.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that stores the configuration mode of the device.
+    /// Represents a register that stores the configuration mode of the device.
     /// </summary>
     [Description("Stores the configuration mode of the device.")]
-    public partial class OperationControl : HarpCombinator
+    public partial class OperationControl
     {
         /// <summary>
         /// Represents the address of the <see cref="OperationControl"/> register. This field is constant.
@@ -1627,83 +1087,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, FormatPayload(value));
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="OperationControl"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="OperationControlPayload"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<OperationControlPayload> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="OperationControl"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="OperationControlPayload"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="OperationControl"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<OperationControlPayload> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="OperationControl"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="OperationControlPayload"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="OperationControl"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<OperationControlPayload>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the OperationControl register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// OperationControl register.
     /// </summary>
+    /// <seealso cref="OperationControl"/>
     [Description("Filters and selects timestamped messages from the OperationControl register.")]
-    public partial class TimestampedOperationControl : HarpCombinator
+    public partial class TimestampedOperationControl
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="OperationControl"/> register.
+        /// Represents the address of the <see cref="OperationControl"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="OperationControlPayload"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<OperationControlPayload>> Process(IObservable<HarpMessage> source)
+        public const int Address = OperationControl.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="OperationControl"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<OperationControlPayload> GetPayload(HarpMessage message)
         {
-            return source.Where(OperationControl.Address, MessageType).Select(OperationControl.GetTimestampedPayload);
+            return OperationControl.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that resets the device and saves non-volatile registers.
+    /// Represents a register that resets the device and saves non-volatile registers.
     /// </summary>
     [Description("Resets the device and saves non-volatile registers.")]
-    public partial class ResetDevice : HarpCombinator
+    public partial class ResetDevice
     {
         /// <summary>
         /// Represents the address of the <see cref="ResetDevice"/> register. This field is constant.
@@ -1770,83 +1184,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, (byte)value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="ResetDevice"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="ResetFlags"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<ResetFlags> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="ResetDevice"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="ResetFlags"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="ResetDevice"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<ResetFlags> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="ResetDevice"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="ResetFlags"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="ResetDevice"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<ResetFlags>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the ResetDevice register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// ResetDevice register.
     /// </summary>
+    /// <seealso cref="ResetDevice"/>
     [Description("Filters and selects timestamped messages from the ResetDevice register.")]
-    public partial class TimestampedResetDevice : HarpCombinator
+    public partial class TimestampedResetDevice
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="ResetDevice"/> register.
+        /// Represents the address of the <see cref="ResetDevice"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="ResetFlags"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<ResetFlags>> Process(IObservable<HarpMessage> source)
+        public const int Address = ResetDevice.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="ResetDevice"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<ResetFlags> GetPayload(HarpMessage message)
         {
-            return source.Where(ResetDevice.Address, MessageType).Select(ResetDevice.GetTimestampedPayload);
+            return ResetDevice.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that stores the user-specified device name.
+    /// Represents a register that stores the user-specified device name.
     /// </summary>
     [Description("Stores the user-specified device name.")]
-    public partial class DeviceName : HarpCombinator
+    public partial class DeviceName
     {
         /// <summary>
         /// Represents the address of the <see cref="DeviceName"/> register. This field is constant.
@@ -1926,83 +1294,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromPayload(Address, timestamp, messageType, PayloadType.U8, FormatPayload(value));
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="DeviceName"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="string"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<string> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="DeviceName"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="string"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="DeviceName"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<string> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="DeviceName"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="string"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="DeviceName"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<string>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the DeviceName register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// DeviceName register.
     /// </summary>
+    /// <seealso cref="DeviceName"/>
     [Description("Filters and selects timestamped messages from the DeviceName register.")]
-    public partial class TimestampedDeviceName : HarpCombinator
+    public partial class TimestampedDeviceName
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="DeviceName"/> register.
+        /// Represents the address of the <see cref="DeviceName"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="string"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<string>> Process(IObservable<HarpMessage> source)
+        public const int Address = DeviceName.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="DeviceName"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<string> GetPayload(HarpMessage message)
         {
-            return source.Where(DeviceName.Address, MessageType).Select(DeviceName.GetTimestampedPayload);
+            return DeviceName.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that specifies the unique serial number of the device.
+    /// Represents a register that specifies the unique serial number of the device.
     /// </summary>
     [Description("Specifies the unique serial number of the device.")]
-    public partial class SerialNumber : HarpCombinator
+    public partial class SerialNumber
     {
         /// <summary>
         /// Represents the address of the <see cref="SerialNumber"/> register. This field is constant.
@@ -2068,83 +1390,37 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromUInt16(Address, timestamp, messageType, value);
         }
-
-        /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="SerialNumber"/> register.
-        /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="ushort"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<ushort> Process(IObservable<HarpMessage> source)
-        {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="SerialNumber"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="ushort"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="SerialNumber"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<ushort> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="SerialNumber"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="ushort"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="SerialNumber"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<ushort>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
-        }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the SerialNumber register.
+    /// Provides methods for manipulating timestamped messages from the
+    /// SerialNumber register.
     /// </summary>
+    /// <seealso cref="SerialNumber"/>
     [Description("Filters and selects timestamped messages from the SerialNumber register.")]
-    public partial class TimestampedSerialNumber : HarpCombinator
+    public partial class TimestampedSerialNumber
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="SerialNumber"/> register.
+        /// Represents the address of the <see cref="SerialNumber"/> register. This field is constant.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="ushort"/> objects
-        /// representing the register payload.
-        /// </returns>
-        public IObservable<Timestamped<ushort>> Process(IObservable<HarpMessage> source)
+        public const int Address = SerialNumber.Address;
+
+        /// <summary>
+        /// Returns timestamped payload data for <see cref="SerialNumber"/> register messages.
+        /// </summary>
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<ushort> GetPayload(HarpMessage message)
         {
-            return source.Where(SerialNumber.Address, MessageType).Select(SerialNumber.GetTimestampedPayload);
+            return SerialNumber.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that specifies the configuration for the device synchronization clock.
+    /// Represents a register that specifies the configuration for the device synchronization clock.
     /// </summary>
     [Description("Specifies the configuration for the device synchronization clock.")]
-    public partial class ClockConfiguration : HarpCombinator
+    public partial class ClockConfiguration
     {
         /// <summary>
         /// Represents the address of the <see cref="ClockConfiguration"/> register. This field is constant.
@@ -2211,75 +1487,413 @@ namespace Bonsai.Harp
         {
             return HarpMessage.FromByte(Address, timestamp, messageType, (byte)value);
         }
+    }
+
+    /// <summary>
+    /// Provides methods for manipulating timestamped messages from the
+    /// ClockConfiguration register.
+    /// </summary>
+    /// <seealso cref="ClockConfiguration"/>
+    [Description("Filters and selects timestamped messages from the ClockConfiguration register.")]
+    public partial class TimestampedClockConfiguration
+    {
+        /// <summary>
+        /// Represents the address of the <see cref="ClockConfiguration"/> register. This field is constant.
+        /// </summary>
+        public const int Address = ClockConfiguration.Address;
 
         /// <summary>
-        /// Filters and selects an observable sequence of messages from the
-        /// <see cref="ClockConfiguration"/> register.
+        /// Returns timestamped payload data for <see cref="ClockConfiguration"/> register messages.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
-        /// <returns>
-        /// A sequence of <see cref="ClockConfigurationFlags"/> objects representing the
-        /// message payload.
-        /// </returns>
-        public IObservable<ClockConfigurationFlags> Process(IObservable<HarpMessage> source)
+        /// <param name="message">A <see cref="HarpMessage"/> object representing the register message.</param>
+        /// <returns>A value representing the timestamped message payload.</returns>
+        public static Timestamped<ClockConfigurationFlags> GetPayload(HarpMessage message)
         {
-            return source.Where(Address, MessageType).Select(GetPayload);
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into Harp messages
-        /// for the <see cref="ClockConfiguration"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of <see cref="ClockConfigurationFlags"/> objects representing the
-        /// message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects formatted for the
-        /// <see cref="ClockConfiguration"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<ClockConfigurationFlags> source)
-        {
-            return source.Select(value => FromPayload(MessageType, value));
-        }
-
-        /// <summary>
-        /// Formats an observable sequence of values into timestamped Harp messages
-        /// for the <see cref="ClockConfiguration"/> register.
-        /// </summary>
-        /// <param name="source">
-        /// A sequence of timestamped <see cref="ClockConfigurationFlags"/> objects representing
-        /// the message payload.
-        /// </param>
-        /// <returns>
-        /// A sequence of timestamped <see cref="HarpMessage"/> objects formatted for
-        /// the <see cref="ClockConfiguration"/> register.
-        /// </returns>
-        public IObservable<HarpMessage> Process(IObservable<Timestamped<ClockConfigurationFlags>> source)
-        {
-            return source.Select(payload => FromPayload(payload.Seconds, MessageType, payload.Value));
+            return ClockConfiguration.GetTimestampedPayload(message);
         }
     }
 
     /// <summary>
-    /// Represents an operator that filters and selects a sequence of timestamped messages
-    /// from the ClockConfiguration register.
+    /// Represents an operator that creates a sequence of message payloads
+    /// that specifies the identity class of the device.
     /// </summary>
-    [Description("Filters and selects timestamped messages from the ClockConfiguration register.")]
-    public partial class TimestampedClockConfiguration : HarpCombinator
+    [DisplayName("WhoAmIPayload")]
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Creates a sequence of message payloads that specifies the identity class of the device.")]
+    public partial class CreateWhoAmIPayload : HarpCombinator
     {
         /// <summary>
-        /// Filters and selects an observable sequence of timestamped messages from
-        /// the <see cref="ClockConfiguration"/> register.
+        /// Gets or sets the value that specifies the identity class of the device.
         /// </summary>
-        /// <param name="source">The sequence of Harp device messages.</param>
+        [Description("The value that specifies the identity class of the device.")]
+        public int Value { get; set; }
+
+        /// <summary>
+        /// Creates an observable sequence that contains a single message
+        /// that specifies the identity class of the device.
+        /// </summary>
         /// <returns>
-        /// A sequence of timestamped <see cref="ClockConfigurationFlags"/> objects
-        /// representing the register payload.
+        /// A sequence containing a single <see cref="HarpMessage"/> object
+        /// representing the created message payload.
         /// </returns>
-        public IObservable<Timestamped<ClockConfigurationFlags>> Process(IObservable<HarpMessage> source)
+        public IObservable<HarpMessage> Process()
         {
-            return source.Where(ClockConfiguration.Address, MessageType).Select(ClockConfiguration.GetTimestampedPayload);
+            return Process(Observable.Return(System.Reactive.Unit.Default));
+        }
+
+        /// <summary>
+        /// Creates an observable sequence of message payloads
+        /// that specifies the identity class of the device.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting message payloads.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="HarpMessage"/> objects representing each
+        /// created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(_ => WhoAmI.FromPayload(MessageType, Value));
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a sequence of message payloads
+    /// that specifies the major hardware version of the device.
+    /// </summary>
+    [DisplayName("HardwareVersionHighPayload")]
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Creates a sequence of message payloads that specifies the major hardware version of the device.")]
+    public partial class CreateHardwareVersionHighPayload : HarpCombinator
+    {
+        /// <summary>
+        /// Gets or sets the value that specifies the major hardware version of the device.
+        /// </summary>
+        [Description("The value that specifies the major hardware version of the device.")]
+        public byte Value { get; set; }
+
+        /// <summary>
+        /// Creates an observable sequence that contains a single message
+        /// that specifies the major hardware version of the device.
+        /// </summary>
+        /// <returns>
+        /// A sequence containing a single <see cref="HarpMessage"/> object
+        /// representing the created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process()
+        {
+            return Process(Observable.Return(System.Reactive.Unit.Default));
+        }
+
+        /// <summary>
+        /// Creates an observable sequence of message payloads
+        /// that specifies the major hardware version of the device.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting message payloads.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="HarpMessage"/> objects representing each
+        /// created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(_ => HardwareVersionHigh.FromPayload(MessageType, Value));
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a sequence of message payloads
+    /// that specifies the minor hardware version of the device.
+    /// </summary>
+    [DisplayName("HardwareVersionLowPayload")]
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Creates a sequence of message payloads that specifies the minor hardware version of the device.")]
+    public partial class CreateHardwareVersionLowPayload : HarpCombinator
+    {
+        /// <summary>
+        /// Gets or sets the value that specifies the minor hardware version of the device.
+        /// </summary>
+        [Description("The value that specifies the minor hardware version of the device.")]
+        public byte Value { get; set; }
+
+        /// <summary>
+        /// Creates an observable sequence that contains a single message
+        /// that specifies the minor hardware version of the device.
+        /// </summary>
+        /// <returns>
+        /// A sequence containing a single <see cref="HarpMessage"/> object
+        /// representing the created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process()
+        {
+            return Process(Observable.Return(System.Reactive.Unit.Default));
+        }
+
+        /// <summary>
+        /// Creates an observable sequence of message payloads
+        /// that specifies the minor hardware version of the device.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting message payloads.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="HarpMessage"/> objects representing each
+        /// created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(_ => HardwareVersionLow.FromPayload(MessageType, Value));
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a sequence of message payloads
+    /// that specifies the version of the assembled components in the device.
+    /// </summary>
+    [DisplayName("AssemblyVersionPayload")]
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Creates a sequence of message payloads that specifies the version of the assembled components in the device.")]
+    public partial class CreateAssemblyVersionPayload : HarpCombinator
+    {
+        /// <summary>
+        /// Gets or sets the value that specifies the version of the assembled components in the device.
+        /// </summary>
+        [Description("The value that specifies the version of the assembled components in the device.")]
+        public byte Value { get; set; }
+
+        /// <summary>
+        /// Creates an observable sequence that contains a single message
+        /// that specifies the version of the assembled components in the device.
+        /// </summary>
+        /// <returns>
+        /// A sequence containing a single <see cref="HarpMessage"/> object
+        /// representing the created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process()
+        {
+            return Process(Observable.Return(System.Reactive.Unit.Default));
+        }
+
+        /// <summary>
+        /// Creates an observable sequence of message payloads
+        /// that specifies the version of the assembled components in the device.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting message payloads.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="HarpMessage"/> objects representing each
+        /// created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(_ => AssemblyVersion.FromPayload(MessageType, Value));
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a sequence of message payloads
+    /// that specifies the major version of the Harp core implemented by the device.
+    /// </summary>
+    [DisplayName("CoreVersionHighPayload")]
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Creates a sequence of message payloads that specifies the major version of the Harp core implemented by the device.")]
+    public partial class CreateCoreVersionHighPayload : HarpCombinator
+    {
+        /// <summary>
+        /// Gets or sets the value that specifies the major version of the Harp core implemented by the device.
+        /// </summary>
+        [Description("The value that specifies the major version of the Harp core implemented by the device.")]
+        public byte Value { get; set; }
+
+        /// <summary>
+        /// Creates an observable sequence that contains a single message
+        /// that specifies the major version of the Harp core implemented by the device.
+        /// </summary>
+        /// <returns>
+        /// A sequence containing a single <see cref="HarpMessage"/> object
+        /// representing the created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process()
+        {
+            return Process(Observable.Return(System.Reactive.Unit.Default));
+        }
+
+        /// <summary>
+        /// Creates an observable sequence of message payloads
+        /// that specifies the major version of the Harp core implemented by the device.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting message payloads.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="HarpMessage"/> objects representing each
+        /// created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(_ => CoreVersionHigh.FromPayload(MessageType, Value));
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a sequence of message payloads
+    /// that specifies the minor version of the Harp core implemented by the device.
+    /// </summary>
+    [DisplayName("CoreVersionLowPayload")]
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Creates a sequence of message payloads that specifies the minor version of the Harp core implemented by the device.")]
+    public partial class CreateCoreVersionLowPayload : HarpCombinator
+    {
+        /// <summary>
+        /// Gets or sets the value that specifies the minor version of the Harp core implemented by the device.
+        /// </summary>
+        [Description("The value that specifies the minor version of the Harp core implemented by the device.")]
+        public byte Value { get; set; }
+
+        /// <summary>
+        /// Creates an observable sequence that contains a single message
+        /// that specifies the minor version of the Harp core implemented by the device.
+        /// </summary>
+        /// <returns>
+        /// A sequence containing a single <see cref="HarpMessage"/> object
+        /// representing the created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process()
+        {
+            return Process(Observable.Return(System.Reactive.Unit.Default));
+        }
+
+        /// <summary>
+        /// Creates an observable sequence of message payloads
+        /// that specifies the minor version of the Harp core implemented by the device.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting message payloads.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="HarpMessage"/> objects representing each
+        /// created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(_ => CoreVersionLow.FromPayload(MessageType, Value));
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a sequence of message payloads
+    /// that specifies the major version of the Harp core implemented by the device.
+    /// </summary>
+    [DisplayName("FirmwareVersionHighPayload")]
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Creates a sequence of message payloads that specifies the major version of the Harp core implemented by the device.")]
+    public partial class CreateFirmwareVersionHighPayload : HarpCombinator
+    {
+        /// <summary>
+        /// Gets or sets the value that specifies the major version of the Harp core implemented by the device.
+        /// </summary>
+        [Description("The value that specifies the major version of the Harp core implemented by the device.")]
+        public byte Value { get; set; }
+
+        /// <summary>
+        /// Creates an observable sequence that contains a single message
+        /// that specifies the major version of the Harp core implemented by the device.
+        /// </summary>
+        /// <returns>
+        /// A sequence containing a single <see cref="HarpMessage"/> object
+        /// representing the created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process()
+        {
+            return Process(Observable.Return(System.Reactive.Unit.Default));
+        }
+
+        /// <summary>
+        /// Creates an observable sequence of message payloads
+        /// that specifies the major version of the Harp core implemented by the device.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting message payloads.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="HarpMessage"/> objects representing each
+        /// created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(_ => FirmwareVersionHigh.FromPayload(MessageType, Value));
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a sequence of message payloads
+    /// that specifies the minor version of the Harp core implemented by the device.
+    /// </summary>
+    [DisplayName("FirmwareVersionLowPayload")]
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Creates a sequence of message payloads that specifies the minor version of the Harp core implemented by the device.")]
+    public partial class CreateFirmwareVersionLowPayload : HarpCombinator
+    {
+        /// <summary>
+        /// Gets or sets the value that specifies the minor version of the Harp core implemented by the device.
+        /// </summary>
+        [Description("The value that specifies the minor version of the Harp core implemented by the device.")]
+        public byte Value { get; set; }
+
+        /// <summary>
+        /// Creates an observable sequence that contains a single message
+        /// that specifies the minor version of the Harp core implemented by the device.
+        /// </summary>
+        /// <returns>
+        /// A sequence containing a single <see cref="HarpMessage"/> object
+        /// representing the created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process()
+        {
+            return Process(Observable.Return(System.Reactive.Unit.Default));
+        }
+
+        /// <summary>
+        /// Creates an observable sequence of message payloads
+        /// that specifies the minor version of the Harp core implemented by the device.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting message payloads.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="HarpMessage"/> objects representing each
+        /// created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(_ => FirmwareVersionLow.FromPayload(MessageType, Value));
         }
     }
 
@@ -2328,6 +1942,54 @@ namespace Bonsai.Harp
         public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
         {
             return source.Select(_ => TimestampSeconds.FromPayload(MessageType, Value));
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a sequence of message payloads
+    /// that stores the fractional part of the system timestamp, in microseconds.
+    /// </summary>
+    [DisplayName("TimestampMicrosecondsPayload")]
+    [WorkflowElementCategory(ElementCategory.Transform)]
+    [Description("Creates a sequence of message payloads that stores the fractional part of the system timestamp, in microseconds.")]
+    public partial class CreateTimestampMicrosecondsPayload : HarpCombinator
+    {
+        /// <summary>
+        /// Gets or sets the value that stores the fractional part of the system timestamp, in microseconds.
+        /// </summary>
+        [Description("The value that stores the fractional part of the system timestamp, in microseconds.")]
+        public ushort Value { get; set; }
+
+        /// <summary>
+        /// Creates an observable sequence that contains a single message
+        /// that stores the fractional part of the system timestamp, in microseconds.
+        /// </summary>
+        /// <returns>
+        /// A sequence containing a single <see cref="HarpMessage"/> object
+        /// representing the created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process()
+        {
+            return Process(Observable.Return(System.Reactive.Unit.Default));
+        }
+
+        /// <summary>
+        /// Creates an observable sequence of message payloads
+        /// that stores the fractional part of the system timestamp, in microseconds.
+        /// </summary>
+        /// <typeparam name="TSource">
+        /// The type of the elements in the <paramref name="source"/> sequence.
+        /// </typeparam>
+        /// <param name="source">
+        /// The sequence containing the notifications used for emitting message payloads.
+        /// </param>
+        /// <returns>
+        /// A sequence of <see cref="HarpMessage"/> objects representing each
+        /// created message payload.
+        /// </returns>
+        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        {
+            return source.Select(_ => TimestampMicroseconds.FromPayload(MessageType, Value));
         }
     }
 

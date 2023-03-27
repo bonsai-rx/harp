@@ -1,8 +1,6 @@
 ﻿using Bonsai.Expressions;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq.Expressions;
 
 namespace Bonsai.Harp
 {
@@ -12,8 +10,6 @@ namespace Bonsai.Harp
     /// </summary>
     public abstract class HarpCombinatorBuilder : ExpressionBuilder, ICustomTypeDescriptor
     {
-        readonly CombinatorBuilder builder = new CombinatorBuilder();
-
         internal HarpCombinatorBuilder()
         {
         }
@@ -24,25 +20,11 @@ namespace Bonsai.Harp
             return suffixStart >= 0 ? source.Remove(suffixStart) : source;
         }
 
-        /// <inheritdoc/>
-        public override Range<int> ArgumentRange => builder.ArgumentRange;
-
-        /// <summary>
-        /// Gets or sets the combinator instance used to process device messages.
-        /// </summary>
-        protected object Combinator
-        {
-            get { return builder.Combinator; }
-            set { builder.Combinator = value; }
-        }
-
-        /// <inheritdoc/>
-        public override Expression Build(IEnumerable<Expression> arguments)
-        {
-            return builder.Build(arguments);
-        }
+        internal object Operator { get; set; }
 
         #region ICustomTypeDescriptor Members
+
+        static readonly Attribute[] EmptyAttributes = new Attribute[0];
 
         AttributeCollection ICustomTypeDescriptor.GetAttributes()
         {
@@ -104,32 +86,43 @@ namespace Bonsai.Harp
 
         PropertyDescriptorCollection ICustomTypeDescriptor.GetProperties()
         {
-            return ((ICustomTypeDescriptor)this).GetProperties(new Attribute[0]);
+            return ((ICustomTypeDescriptor)this).GetProperties(EmptyAttributes);
         }
 
         PropertyDescriptorCollection ICustomTypeDescriptor.GetProperties(Attribute[] attributes)
         {
+            var baseProperties = TypeDescriptor.GetProperties(GetType(), attributes);
             var defaultProperty = TypeDescriptor.GetDefaultProperty(GetType());
             if (defaultProperty != null)
             {
                 var instance = defaultProperty.GetValue(this);
                 var instanceProperties = TypeDescriptor.GetProperties(instance, attributes);
-                var properties = new PropertyDescriptor[instanceProperties.Count + 1];
-                properties[0] = new FactoryTypePropertyDescriptor(defaultProperty);
+                var properties = new PropertyDescriptor[baseProperties.Count + instanceProperties.Count];
+                for (int i = 0; i < baseProperties.Count; i++)
+                {
+                    var baseProperty = baseProperties[i];
+                    if (baseProperty == defaultProperty)
+                    {
+                        baseProperty = new FactoryTypePropertyDescriptor(defaultProperty);
+                    }
+
+                    properties[i] = baseProperty;
+                }
+
                 for (int i = 0; i < instanceProperties.Count; i++)
                 {
                     var expandedProperty = instanceProperties[i];
-                    properties[i + 1] = expandedProperty;
+                    properties[i + baseProperties.Count] = expandedProperty;
                 }
                 return new PropertyDescriptorCollection(properties);
             }
 
-            return TypeDescriptor.GetProperties(this, attributes);
+            return baseProperties;
         }
 
         object ICustomTypeDescriptor.GetPropertyOwner(PropertyDescriptor pd)
         {
-            return pd?.ComponentType.IsAssignableFrom(GetType()) == true ? this : builder.Combinator;
+            return pd?.ComponentType.IsAssignableFrom(GetType()) == true ? this : Operator;
         }
 
         class FactoryTypePropertyDescriptor : PropertyDescriptor

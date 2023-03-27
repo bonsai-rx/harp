@@ -8,24 +8,42 @@ using System.Xml.Serialization;
 namespace Bonsai.Harp
 {
     /// <summary>
-    /// Represents an operator which creates standard message payloads for
-    /// Harp devices.
+    /// Represents an operator which creates a sequence of standard message payloads
+    /// for Harp devices.
     /// </summary>
     /// <seealso cref="CreateMessagePayload"/>
+    /// <seealso cref="CreateWhoAmIPayload"/>
+    /// <seealso cref="CreateHardwareVersionHighPayload"/>
+    /// <seealso cref="CreateHardwareVersionLowPayload"/>
+    /// <seealso cref="CreateAssemblyVersionPayload"/>
+    /// <seealso cref="CreateCoreVersionHighPayload"/>
+    /// <seealso cref="CreateCoreVersionLowPayload"/>
+    /// <seealso cref="CreateFirmwareVersionHighPayload"/>
+    /// <seealso cref="CreateFirmwareVersionLowPayload"/>
     /// <seealso cref="CreateTimestampSecondsPayload"/>
+    /// <seealso cref="CreateTimestampMicrosecondsPayload"/>
     /// <seealso cref="CreateOperationControlPayload"/>
     /// <seealso cref="CreateResetDevicePayload"/>
     /// <seealso cref="CreateDeviceNamePayload"/>
     /// <seealso cref="CreateSerialNumberPayload"/>
     /// <seealso cref="CreateClockConfigurationPayload"/>
     [XmlInclude(typeof(CreateMessagePayload))]
+    [XmlInclude(typeof(CreateWhoAmIPayload))]
+    [XmlInclude(typeof(CreateHardwareVersionHighPayload))]
+    [XmlInclude(typeof(CreateHardwareVersionLowPayload))]
+    [XmlInclude(typeof(CreateAssemblyVersionPayload))]
+    [XmlInclude(typeof(CreateCoreVersionHighPayload))]
+    [XmlInclude(typeof(CreateCoreVersionLowPayload))]
+    [XmlInclude(typeof(CreateFirmwareVersionHighPayload))]
+    [XmlInclude(typeof(CreateFirmwareVersionLowPayload))]
     [XmlInclude(typeof(CreateTimestampSecondsPayload))]
+    [XmlInclude(typeof(CreateTimestampMicrosecondsPayload))]
     [XmlInclude(typeof(CreateOperationControlPayload))]
     [XmlInclude(typeof(CreateResetDevicePayload))]
     [XmlInclude(typeof(CreateDeviceNamePayload))]
     [XmlInclude(typeof(CreateSerialNumberPayload))]
     [XmlInclude(typeof(CreateClockConfigurationPayload))]
-    [Description("Creates standard message payloads for Harp devices.")]
+    [Description("Creates a sequence of standard message payloads for Harp devices.")]
     public class CreateMessage : CreateMessageBuilder, INamedElement
     {
         /// <summary>
@@ -53,7 +71,7 @@ namespace Bonsai.Harp
                 if (base.Payload is CreateMessagePayload createMessage &&
                     value is XmlNode[] xmlNode && xmlNode.Length == 1)
                 {
-                    createMessage.Payload = double.Parse(xmlNode[0].InnerText);
+                    createMessage.Value = double.Parse(xmlNode[0].InnerText);
                 }
                 else base.Payload = value;
             }
@@ -103,56 +121,46 @@ namespace Bonsai.Harp
     }
 
     /// <summary>
-    /// Represents an operator which creates an observable source of Harp messages.
+    /// Represents an operator which creates a sequence of Harp messages with
+    /// the specified payload.
     /// </summary>
     [DesignTimeVisible(false)]
-    [Description("Creates a new Harp message with the specified payload.")]
+    [Description("Creates a sequence of Harp messages with the specified payload.")]
     public class CreateMessagePayload : Source<HarpMessage>
     {
-        double payload;
-        event Action<double> PayloadChanged;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CreateMessagePayload"/> class.
-        /// </summary>
-        public CreateMessagePayload()
-        {
-            Address = 32;
-            MessageType = MessageType.Write;
-            PayloadType = PayloadType.U8;
-            Payload = 0;
-        }
+        double value;
+        event Action<double> ValueChanged;
 
         /// <summary>
         /// Gets or sets the type of the Harp message.
         /// </summary>
         [Category(nameof(CategoryAttribute.Design))]
         [Description("The type of the Harp message.")]
-        public MessageType MessageType { get; set; }
+        public MessageType MessageType { get; set; } = MessageType.Write;
 
         /// <summary>
         /// Gets or sets the address of the register to which the Harp message refers to.
         /// </summary>
         [Description("The address of the register to which the Harp message refers to.")]
-        public int Address { get; set; }
+        public int Address { get; set; } = 32;
 
         /// <summary>
         /// Gets or sets the type of data to include in the message payload.
         /// </summary>
         [Description("The type of data to include in the message payload.")]
-        public PayloadType PayloadType { get; set; }
+        public PayloadType PayloadType { get; set; } = PayloadType.U8;
 
         /// <summary>
         /// Gets or sets the data to write in the message payload.
         /// </summary>
         [Description("The data to write in the message payload.")]
-        public double Payload
+        public double Value
         {
-            get { return payload; }
+            get { return value; }
             set
             {
-                this.payload = value;
-                PayloadChanged?.Invoke(value);
+                this.value = value;
+                ValueChanged?.Invoke(value);
             }
         }
 
@@ -187,10 +195,10 @@ namespace Bonsai.Harp
         public override IObservable<HarpMessage> Generate()
         {
             return Observable
-                .Defer(() => Observable.Return(GetMessage(payload)))
+                .Defer(() => Observable.Return(GetMessage(value)))
                 .Concat(Observable.FromEvent<double>(
-                    handler => PayloadChanged += handler,
-                    handler => PayloadChanged -= handler)
+                    handler => ValueChanged += handler,
+                    handler => ValueChanged -= handler)
                 .Select(payload => GetMessage(payload)));
         }
 
@@ -205,7 +213,7 @@ namespace Bonsai.Harp
         /// </returns>
         public IObservable<HarpMessage> Generate<TSource>(IObservable<TSource> source)
         {
-            return source.Select(x => GetMessage(payload));
+            return source.Select(x => GetMessage(value));
         }
     }
 }

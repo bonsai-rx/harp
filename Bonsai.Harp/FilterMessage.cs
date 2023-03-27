@@ -3,33 +3,49 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.ComponentModel;
 using System.Xml.Serialization;
-using Bonsai.Expressions;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Bonsai.Harp
 {
     /// <summary>
-    /// Represents an operator that filters register-specific messages
-    /// reported by the Harp device.
+    /// Represents an operator that filters the sequence for Harp messages matching
+    /// the specified register and message type.
     /// </summary>
-    [XmlInclude(typeof(TypeMapping<FilterMessageAddress>))]
-    [XmlInclude(typeof(TypeMapping<WhoAmI>))]
-    [XmlInclude(typeof(TypeMapping<HardwareVersionHigh>))]
-    [XmlInclude(typeof(TypeMapping<HardwareVersionLow>))]
-    [XmlInclude(typeof(TypeMapping<AssemblyVersion>))]
-    [XmlInclude(typeof(TypeMapping<CoreVersionHigh>))]
-    [XmlInclude(typeof(TypeMapping<CoreVersionLow>))]
-    [XmlInclude(typeof(TypeMapping<FirmwareVersionHigh>))]
-    [XmlInclude(typeof(TypeMapping<FirmwareVersionLow>))]
-    [XmlInclude(typeof(TypeMapping<TimestampSeconds>))]
-    [XmlInclude(typeof(TypeMapping<TimestampMicroseconds>))]
-    [XmlInclude(typeof(TypeMapping<OperationControl>))]
-    [XmlInclude(typeof(TypeMapping<ResetDevice>))]
-    [XmlInclude(typeof(TypeMapping<DeviceName>))]
-    [XmlInclude(typeof(TypeMapping<SerialNumber>))]
-    [XmlInclude(typeof(TypeMapping<ClockConfiguration>))]
-    [Description("Filters register-specific messages reported by the Device device.")]
+    /// <seealso cref="FilterMessageAddress"/>
+    /// <seealso cref="WhoAmI"/>
+    /// <seealso cref="HardwareVersionHigh"/>
+    /// <seealso cref="HardwareVersionLow"/>
+    /// <seealso cref="AssemblyVersion"/>
+    /// <seealso cref="CoreVersionHigh"/>
+    /// <seealso cref="CoreVersionLow"/>
+    /// <seealso cref="FirmwareVersionHigh"/>
+    /// <seealso cref="FirmwareVersionLow"/>
+    /// <seealso cref="TimestampSeconds"/>
+    /// <seealso cref="TimestampMicroseconds"/>
+    /// <seealso cref="OperationControl"/>
+    /// <seealso cref="ResetDevice"/>
+    /// <seealso cref="DeviceName"/>
+    /// <seealso cref="SerialNumber"/>
+    /// <seealso cref="ClockConfiguration"/>
+    [XmlInclude(typeof(FilterMessageAddress))]
+    [XmlInclude(typeof(WhoAmI))]
+    [XmlInclude(typeof(HardwareVersionHigh))]
+    [XmlInclude(typeof(HardwareVersionLow))]
+    [XmlInclude(typeof(AssemblyVersion))]
+    [XmlInclude(typeof(CoreVersionHigh))]
+    [XmlInclude(typeof(CoreVersionLow))]
+    [XmlInclude(typeof(FirmwareVersionHigh))]
+    [XmlInclude(typeof(FirmwareVersionLow))]
+    [XmlInclude(typeof(TimestampSeconds))]
+    [XmlInclude(typeof(TimestampMicroseconds))]
+    [XmlInclude(typeof(OperationControl))]
+    [XmlInclude(typeof(ResetDevice))]
+    [XmlInclude(typeof(DeviceName))]
+    [XmlInclude(typeof(SerialNumber))]
+    [XmlInclude(typeof(ClockConfiguration))]
+    [Description("Filters the sequence for Harp messages that match the specified register and message type.")]
+    [WorkflowElementIcon(typeof(ElementCategory), "Reactive.Condition")]
     public class FilterMessage : FilterMessageBuilder, INamedElement
     {
         /// <summary>
@@ -37,84 +53,90 @@ namespace Bonsai.Harp
         /// </summary>
         public FilterMessage()
         {
-            Register = new TypeMapping<FilterMessageAddress>();
+            Register = new FilterMessageAddress();
         }
 
-        string INamedElement.Name => Register is TypeMapping<FilterMessageAddress>
+        string INamedElement.Name => Register is FilterMessageAddress
             ? default
-            : $"Device.{GetElementDisplayName(Register?.GetType().GenericTypeArguments[0])}";
+            : $"Device.{GetElementDisplayName(Register)}";
 
         /// <summary>
-        /// Gets or sets the desired message address. This parameter is optional.
+        /// Gets or sets a value specifying the expected message type. This parameter is optional.
         /// </summary>
-        [Description("The desired message address. This parameter is optional.")]
-        public int? Address { get; set; }
+        [Category(nameof(CategoryAttribute.Design))]
+        [Description("Specifies the expected message type. This parameter is optional.")]
+        public new MessageType? MessageType
+        {
+            get { return base.MessageType; }
+            set
+            {
+                base.MessageType = value;
+                if (Register is FilterMessageAddress filterMessage)
+                {
+                    filterMessage.MessageType = value;
+                }
+            }
+        }
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+        [Browsable(false)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int? Address
+        {
+            get { return Register is FilterMessageAddress filterMessage ? filterMessage.Address : default; }
+            set { if (Register is FilterMessageAddress filterMessage) filterMessage.Address = value; }
+        }
+
+        [Obsolete]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool ShouldSerializeAddress() => false;
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)
         {
-            var register = Register;
-            var messageType = MessageType;
-            var source = arguments.First();
-            if (register == null)
+            if (Register is FilterMessageAddress filterMessage)
             {
-                throw new InvalidOperationException("The target register type cannot be null.");
+                var source = arguments.First();
+                var combinator = Expression.Constant(filterMessage);
+                return Expression.Call(combinator, nameof(FilterMessageAddress.Process), null, source);
             }
-
-            Expression[] filterArguments;
-            var registerType = register.GetType().GenericTypeArguments[0];
-            if (registerType == typeof(FilterMessageAddress))
-            {
-                var address = Address;
-                if (address == null && messageType == null) return source;
-                if (address == null) filterArguments = new[] { source, Expression.Constant(messageType.Value) };
-                if (messageType == null) filterArguments = new[] { source, Expression.Constant(address.Value) };
-                else filterArguments = new[] { source, Expression.Constant(address.Value), Expression.Constant(messageType.Value) };
-            }
-            else
-            {
-                var registerAddress = Expression.Field(null, registerType, nameof(HarpMessage.Address));
-                filterArguments = messageType.HasValue
-                    ? new[] { source, registerAddress, Expression.Constant(messageType.Value) }
-                    : new[] { source, registerAddress };
-            }
-
-            return Expression.Call(
-                typeof(ObservableExtensions),
-                nameof(ObservableExtensions.Where),
-                typeArguments: null,
-                filterArguments);
+            else return base.Build(arguments);
         }
     }
 
     /// <summary>
-    /// Represents an operator which filters a sequence of Harp messages for elements that match the specified address and message type.
+    /// Represents an operator that filters the sequence for Harp messages matching
+    /// the specified address and message type.
     /// </summary>
     [DesignTimeVisible(false)]
     [WorkflowElementCategory(ElementCategory.Combinator)]
-    [Description("Filters a sequence of Harp messages for elements that match the specified address and message type.")]
+    [Description("Filters the sequence for Harp messages matching the specified address and message type.")]
     public class FilterMessageAddress : Combinator<HarpMessage, HarpMessage>
     {
         /// <summary>
-        /// Gets or sets the desired message address. This parameter is optional.
+        /// Gets or sets a value specifying the expected message type. This parameter is optional.
         /// </summary>
-        [Description("The desired message address. This parameter is optional.")]
-        public int? Address { get; set; }
-
-        /// <summary>
-        /// Gets or sets the desired type of the message. This parameter is optional.
-        /// </summary>
-        [Description("The desired type of the message. This parameter is optional.")]
+        [XmlIgnore]
+        [Browsable(false)]
+        [Description("Specifies the expected message type. This parameter is optional.")]
         public MessageType? MessageType { get; set; }
 
         /// <summary>
-        /// Returns an observable sequence of Harp messages matching the specified address and message type.
+        /// Gets or sets the expected message address. This parameter is optional.
+        /// </summary>
+        [Description("The expected message address. This parameter is optional.")]
+        public int? Address { get; set; }
+
+        /// <summary>
+        /// Returns an observable sequence of Harp messages matching the specified
+        /// address and message type.
         /// </summary>
         /// <param name="source">An observable sequence of Harp messages.</param>
         /// <returns>
-        /// An observable sequence of Harp messages matching the specified address and message type. If
-        /// <c>Address</c> or <c>MessageType</c> are <c>null</c>, any address or message type, respectively,
-        /// are accepted.
+        /// An observable sequence of Harp messages matching the specified address
+        /// and message type. If message type or address are <see langword="null"/>,
+        /// messages of any type or from any address, respectively, are accepted.
         /// </returns>
         public override IObservable<HarpMessage> Process(IObservable<HarpMessage> source)
         {

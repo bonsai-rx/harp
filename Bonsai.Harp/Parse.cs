@@ -1,16 +1,14 @@
 ﻿using Bonsai.Expressions;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Serialization;
 
 namespace Bonsai.Harp
 {
     /// <summary>
-    /// Represents an operator which filters and selects specific messages
-    /// reported by the Device device.
+    /// Represents an operator which filters and selects standard Harp
+    /// messages reported by the device.
     /// </summary>
     /// <seealso cref="ParseMessagePayload"/>
     /// <seealso cref="WhoAmI"/>
@@ -59,6 +57,7 @@ namespace Bonsai.Harp
     [XmlInclude(typeof(TimestampedDeviceName))]
     [XmlInclude(typeof(TimestampedSerialNumber))]
     [XmlInclude(typeof(TimestampedClockConfiguration))]
+    [Description("Filters and selects standard Harp messages reported by the device.")]
     public class Parse : ParseBuilder, INamedElement
     {
         /// <summary>
@@ -107,8 +106,6 @@ namespace Bonsai.Harp
     [Description("Extracts the payload data from Harp messages.")]
     public class ParseMessagePayload : SelectBuilder
     {
-        readonly FilterMessageAddress filterMessage = new FilterMessageAddress();
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ParseMessagePayload"/> class.
         /// </summary>
@@ -118,25 +115,10 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
-        /// Gets or sets the desired message address. This parameter is optional.
+        /// Gets or sets the expected message address. This parameter is optional.
         /// </summary>
-        [Description("The desired message address. This parameter is optional.")]
-        public int? Address
-        {
-            get => filterMessage.Address;
-            set => filterMessage.Address = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the desired type of the message. This parameter is optional.
-        /// </summary>
-        [Category(nameof(CategoryAttribute.Design))]
-        [Description("The desired type of the message. This parameter is optional.")]
-        public MessageType? MessageType
-        {
-            get => filterMessage.MessageType;
-            set => filterMessage.MessageType = value;
-        }
+        [Description("The expected message address. This parameter is optional.")]
+        public int? Address { get; set; }
 
         /// <summary>
         /// Gets or sets the type of payload data to parse.
@@ -149,35 +131,6 @@ namespace Bonsai.Harp
         /// </summary>
         [Description("Indicates whether the payload is an array.")]
         public bool IsArray { get; set; }
-
-        /// <summary>
-        /// Returns a value indicating whether the <see cref="Address"/> property
-        /// should be serialized.
-        /// </summary>
-        /// <returns>
-        /// <see langword="true"/> if the <see cref="Address"/> should be serialized;
-        /// otherwise, <see langword="false"/>.
-        /// </returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool ShouldSerializeAddress() => Address.HasValue;
-
-        /// <summary>
-        /// Returns a value indicating whether the <see cref="MessageType"/> property
-        /// should be serialized.
-        /// </summary>
-        /// <returns>
-        /// <see langword="true"/> if the <see cref="MessageType"/> should be serialized;
-        /// otherwise, <see langword="false"/>.
-        /// </returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool ShouldSerializeMessageType() => MessageType.HasValue;
-
-        /// <inheritdoc/>
-        public override Expression Build(IEnumerable<Expression> arguments)
-        {
-            var filter = Expression.Constant(filterMessage);
-            return base.Build(arguments.Select(source => Expression.Call(filter, nameof(FilterMessageAddress.Process), null, source)));
-        }
 
         /// <summary>
         /// Returns the expression that specifies how to extract the payload data from a valid Harp message.
