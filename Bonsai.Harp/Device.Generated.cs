@@ -9,25 +9,25 @@ namespace Bonsai.Harp
     public partial class Device
     {
         /// <summary>
-        /// Gets a read-only mapping from address to register name.
+        /// Gets a read-only mapping from address to register type.
         /// </summary>
-        public static IReadOnlyDictionary<int, string> RegisterMap { get; } = new Dictionary<int, string>
+        public static IReadOnlyDictionary<int, Type> RegisterMap { get; } = new Dictionary<int, Type>
         {
-            { 0, "WhoAmI" },
-            { 1, "HardwareVersionHigh" },
-            { 2, "HardwareVersionLow" },
-            { 3, "AssemblyVersion" },
-            { 4, "CoreVersionHigh" },
-            { 5, "CoreVersionLow" },
-            { 6, "FirmwareVersionHigh" },
-            { 7, "FirmwareVersionLow" },
-            { 8, "TimestampSeconds" },
-            { 9, "TimestampMicroseconds" },
-            { 10, "OperationControl" },
-            { 11, "ResetDevice" },
-            { 12, "DeviceName" },
-            { 13, "SerialNumber" },
-            { 14, "ClockConfiguration" }
+            { 0, typeof(WhoAmI) },
+            { 1, typeof(HardwareVersionHigh) },
+            { 2, typeof(HardwareVersionLow) },
+            { 3, typeof(AssemblyVersion) },
+            { 4, typeof(CoreVersionHigh) },
+            { 5, typeof(CoreVersionLow) },
+            { 6, typeof(FirmwareVersionHigh) },
+            { 7, typeof(FirmwareVersionLow) },
+            { 8, typeof(TimestampSeconds) },
+            { 9, typeof(TimestampMicroseconds) },
+            { 10, typeof(OperationControl) },
+            { 11, typeof(ResetDevice) },
+            { 12, typeof(DeviceName) },
+            { 13, typeof(SerialNumber) },
+            { 14, typeof(ClockConfiguration) }
         };
     }
 
