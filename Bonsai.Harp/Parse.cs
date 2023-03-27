@@ -9,8 +9,8 @@ using System.Xml.Serialization;
 namespace Bonsai.Harp
 {
     /// <summary>
-    /// Represents an operator which filters and selects specific messages
-    /// reported by the Device device.
+    /// Represents an operator which filters and selects standard Harp
+    /// messages reported by the device.
     /// </summary>
     /// <seealso cref="ParseMessagePayload"/>
     /// <seealso cref="WhoAmI"/>
@@ -59,6 +59,7 @@ namespace Bonsai.Harp
     [XmlInclude(typeof(TimestampedDeviceName))]
     [XmlInclude(typeof(TimestampedSerialNumber))]
     [XmlInclude(typeof(TimestampedClockConfiguration))]
+    [Description("Filters and selects standard Harp messages reported by the device.")]
     public class Parse : ParseBuilder, INamedElement
     {
         /// <summary>
@@ -72,6 +73,24 @@ namespace Bonsai.Harp
         string INamedElement.Name => Register is ParseMessagePayload
             ? default
             : $"Device.{GetElementDisplayName(Register)}";
+
+        /// <summary>
+        /// Gets or sets a value specifying the expected message type. This parameter is optional.
+        /// </summary>
+        [Category(nameof(CategoryAttribute.Design))]
+        [Description("Specifies the expected message type. This parameter is optional.")]
+        public new MessageType? MessageType
+        {
+            get { return base.MessageType; }
+            set
+            {
+                base.MessageType = value;
+                if (Register is ParseMessagePayload parseMessage)
+                {
+                    parseMessage.MessageType = value;
+                }
+            }
+        }
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         [Browsable(false)]
@@ -98,6 +117,16 @@ namespace Bonsai.Harp
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ShouldSerializeIsArray() => false;
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
+        /// <inheritdoc/>
+        public override Expression Build(IEnumerable<Expression> arguments)
+        {
+            if (Register is ParseMessagePayload parseMessage)
+            {
+                return parseMessage.Build(arguments);
+            }
+            else return base.Build(arguments);
+        }
     }
 
     /// <summary>
@@ -118,24 +147,25 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
-        /// Gets or sets the desired message address. This parameter is optional.
+        /// Gets or sets a value specifying the expected message type. This parameter is optional.
         /// </summary>
-        [Description("The desired message address. This parameter is optional.")]
-        public int? Address
-        {
-            get => filterMessage.Address;
-            set => filterMessage.Address = value;
-        }
-
-        /// <summary>
-        /// Gets or sets the desired type of the message. This parameter is optional.
-        /// </summary>
-        [Category(nameof(CategoryAttribute.Design))]
-        [Description("The desired type of the message. This parameter is optional.")]
+        [XmlIgnore]
+        [Browsable(false)]
+        [Description("Specifies the expected message type. This parameter is optional.")]
         public MessageType? MessageType
         {
             get => filterMessage.MessageType;
             set => filterMessage.MessageType = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the expected message address. This parameter is optional.
+        /// </summary>
+        [Description("The expected message address. This parameter is optional.")]
+        public int? Address
+        {
+            get => filterMessage.Address;
+            set => filterMessage.Address = value;
         }
 
         /// <summary>
@@ -160,17 +190,6 @@ namespace Bonsai.Harp
         /// </returns>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ShouldSerializeAddress() => Address.HasValue;
-
-        /// <summary>
-        /// Returns a value indicating whether the <see cref="MessageType"/> property
-        /// should be serialized.
-        /// </summary>
-        /// <returns>
-        /// <see langword="true"/> if the <see cref="MessageType"/> should be serialized;
-        /// otherwise, <see langword="false"/>.
-        /// </returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool ShouldSerializeMessageType() => MessageType.HasValue;
 
         /// <inheritdoc/>
         public override Expression Build(IEnumerable<Expression> arguments)

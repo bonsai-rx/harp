@@ -7,8 +7,8 @@ using System.Xml.Serialization;
 namespace Bonsai.Harp
 {
     /// <summary>
-    /// Represents an operator which formats a sequence of values as specific
-    /// Harp device register messages.
+    /// Represents an operator which formats a sequence of values as
+    /// standard Harp device messages.
     /// </summary>
     /// <seealso cref="FormatMessagePayload"/>
     /// <seealso cref="WhoAmI"/>
@@ -42,7 +42,7 @@ namespace Bonsai.Harp
     [XmlInclude(typeof(DeviceName))]
     [XmlInclude(typeof(SerialNumber))]
     [XmlInclude(typeof(ClockConfiguration))]
-    [Description("Formats a sequence of values as specific Device register messages.")]
+    [Description("Formats a sequence of values as standard Harp device messages.")]
     public class Format : FormatBuilder, INamedElement
     {
         /// <summary>
@@ -57,15 +57,25 @@ namespace Bonsai.Harp
             ? default
             : $"Device.{GetElementDisplayName(Register)}";
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-        [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public MessageType MessageType
+        /// <summary>
+        /// Gets or sets a value specifying the type of the formatted message.
+        /// </summary>
+        [Category(nameof(CategoryAttribute.Design))]
+        [Description("Specifies the type of the formatted message.")]
+        public new MessageType MessageType
         {
-            get { return Register is FormatMessagePayload formatMessage ? formatMessage.MessageType : default; }
-            set { if (Register is FormatMessagePayload formatMessage) formatMessage.MessageType = value; }
+            get { return base.MessageType; }
+            set
+            {
+                base.MessageType = value;
+                if (Register is FormatMessagePayload formatMessage)
+                {
+                    formatMessage.MessageType = value;
+                }
+            }
         }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public int Address
@@ -84,10 +94,6 @@ namespace Bonsai.Harp
 
         [Obsolete]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool ShouldSerializeMessageType() => false;
-
-        [Obsolete]
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ShouldSerializeAddress() => false;
 
         [Obsolete]
@@ -97,43 +103,36 @@ namespace Bonsai.Harp
     }
 
     /// <summary>
-    /// Represents an operator which formats input data as a Harp message payload.
+    /// Represents an operator which formats a sequence of values as Harp messages
+    /// with the specified address and payload type.
     /// </summary>
     [DesignTimeVisible(false)]
-    [Description("Formats input data as a Harp message.")]
+    [Description("Formats a sequence of values as Harp messages with the specified address and payload type.")]
     public class FormatMessagePayload : SelectBuilder
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FormatMessagePayload"/> class.
+        /// Gets or sets the type of the formatted message.
         /// </summary>
-        public FormatMessagePayload()
-        {
-            Address = 32;
-            MessageType = MessageType.Write;
-            PayloadType = PayloadType.U8;
-        }
-
-        /// <summary>
-        /// Gets or sets the type of the Harp message.
-        /// </summary>
-        [Category(nameof(CategoryAttribute.Design))]
-        [Description("The type of the Harp message.")]
-        public MessageType MessageType { get; set; }
+        [XmlIgnore]
+        [Browsable(false)]
+        [Description("Specifies the type of the formatted message.")]
+        public MessageType MessageType { get; set; } = MessageType.Write;
 
         /// <summary>
         /// Gets or sets the address of the register to which the Harp message refers to.
         /// </summary>
         [Description("The address of the register to which the Harp message refers to.")]
-        public int Address { get; set; }
+        public int Address { get; set; } = 32;
 
         /// <summary>
         /// Gets or sets the type of data to include in the message payload.
         /// </summary>
         [Description("The type of data to include in the message payload.")]
-        public PayloadType PayloadType { get; set; }
+        public PayloadType PayloadType { get; set; } = PayloadType.U8;
 
         /// <summary>
-        /// Returns the expression that specifies how a valid Harp message is created from the input data.
+        /// Returns the expression that specifies how a valid Harp message is created
+        /// from the input data.
         /// </summary>
         /// <param name="expression">The input parameter to the selector.</param>
         /// <returns>
