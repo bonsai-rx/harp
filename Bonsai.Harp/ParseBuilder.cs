@@ -18,11 +18,6 @@ namespace Bonsai.Harp
         {
             var register = Register;
             var source = base.Build(arguments);
-            if (register is ExpressionBuilder builder)
-            {
-                return builder.Build(new[] { source });
-            }
-
             var registerType = register.GetType();
             var payload = Expression.Parameter(typeof(HarpMessage));
             var payloadSelector = Expression.Lambda(

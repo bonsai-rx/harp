@@ -143,9 +143,9 @@ namespace Bonsai.Harp
             var address = Address;
             var messageType = MessageType;
             if (address == null && messageType == null) return source;
-            if (address == null) return source.Where(input => input.MessageType == messageType);
-            if (messageType == null) return source.Where(input => input.Address == address);
-            return source.Where(input => input.Address == address && input.MessageType == messageType);
+            if (address == null) return source.Where(messageType.Value);
+            if (messageType == null) return source.Where(address.Value);
+            return source.Where(address.Value, messageType.Value);
         }
     }
 }

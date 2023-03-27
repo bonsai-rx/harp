@@ -66,22 +66,10 @@ namespace Bonsai.Harp
             }
 
             var source = arguments.First();
-            var combinator = Expression.Constant(this, typeof(FilterMessageBuilder));
-            if (register is ExpressionBuilder builder)
-            {
-                return Expression.Call(combinator, nameof(Filter), null, source);
-            }
-
             var registerType = register.GetType();
+            var combinator = Expression.Constant(this, typeof(FilterMessageBuilder));
             var address = Expression.Field(null, registerType, nameof(HarpMessage.Address));
             return Expression.Call(combinator, nameof(Filter), null, source, address);
-        }
-
-        IObservable<HarpMessage> Filter(IObservable<HarpMessage> source)
-        {
-            var messageType = MessageType;
-            if (messageType == null) return source;
-            else return source.Where(messageType.Value);
         }
 
         IObservable<HarpMessage> Filter(IObservable<HarpMessage> source, int address)

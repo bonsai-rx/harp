@@ -1,6 +1,8 @@
 ﻿using Bonsai.Expressions;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Serialization;
 
@@ -72,6 +74,24 @@ namespace Bonsai.Harp
             ? default
             : $"Device.{GetElementDisplayName(Register)}";
 
+        /// <summary>
+        /// Gets or sets a value specifying the expected message type. This parameter is optional.
+        /// </summary>
+        [Category(nameof(CategoryAttribute.Design))]
+        [Description("Specifies the expected message type. This parameter is optional.")]
+        public new MessageType? MessageType
+        {
+            get { return base.MessageType; }
+            set
+            {
+                base.MessageType = value;
+                if (Register is ParseMessagePayload parseMessage)
+                {
+                    parseMessage.MessageType = value;
+                }
+            }
+        }
+
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -97,6 +117,16 @@ namespace Bonsai.Harp
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ShouldSerializeIsArray() => false;
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
+        /// <inheritdoc/>
+        public override Expression Build(IEnumerable<Expression> arguments)
+        {
+            if (Register is ParseMessagePayload parseMessage)
+            {
+                return parseMessage.Build(arguments);
+            }
+            else return base.Build(arguments);
+        }
     }
 
     /// <summary>
@@ -106,6 +136,8 @@ namespace Bonsai.Harp
     [Description("Extracts the payload data from Harp messages.")]
     public class ParseMessagePayload : SelectBuilder
     {
+        readonly FilterMessageAddress filterMessage = new FilterMessageAddress();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ParseMessagePayload"/> class.
         /// </summary>
@@ -115,10 +147,26 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Gets or sets a value specifying the expected message type. This parameter is optional.
+        /// </summary>
+        [XmlIgnore]
+        [Browsable(false)]
+        [Description("Specifies the expected message type. This parameter is optional.")]
+        public MessageType? MessageType
+        {
+            get => filterMessage.MessageType;
+            set => filterMessage.MessageType = value;
+        }
+
+        /// <summary>
         /// Gets or sets the expected message address. This parameter is optional.
         /// </summary>
         [Description("The expected message address. This parameter is optional.")]
-        public int? Address { get; set; }
+        public int? Address
+        {
+            get => filterMessage.Address;
+            set => filterMessage.Address = value;
+        }
 
         /// <summary>
         /// Gets or sets the type of payload data to parse.
@@ -131,6 +179,13 @@ namespace Bonsai.Harp
         /// </summary>
         [Description("Indicates whether the payload is an array.")]
         public bool IsArray { get; set; }
+
+        /// <inheritdoc/>
+        public override Expression Build(IEnumerable<Expression> arguments)
+        {
+            var filter = Expression.Constant(filterMessage);
+            return base.Build(arguments.Select(source => Expression.Call(filter, nameof(FilterMessageAddress.Process), null, source)));
+        }
 
         /// <summary>
         /// Returns the expression that specifies how to extract the payload data from a valid Harp message.
