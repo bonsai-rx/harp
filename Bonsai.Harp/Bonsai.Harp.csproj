@@ -12,10 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Bonsai.Core" Version="2.7.3" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.IO.Ports" Version="6.0.0" />
+    <PackageReference Include="Bonsai.System" Version="2.7.1" />
   </ItemGroup>
 
   <ItemGroup>
