@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 using System.Reactive.Linq;
 using System.Xml.Serialization;
-using Bonsai.Expressions;
 
 namespace Bonsai.Harp
 {
@@ -11,6 +10,7 @@ namespace Bonsai.Harp
     /// and select messages from specific registers in a Harp device.
     /// </summary>
     [XmlType(Namespace = Constants.XmlNamespace)]
+    [WorkflowElementIcon(typeof(ElementCategory), "ElementIcon.Daq")]
     public abstract class ParseBuilder : FilterMessageBuilder
     {
         /// <inheritdoc/>

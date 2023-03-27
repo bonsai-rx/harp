@@ -45,7 +45,6 @@ namespace Bonsai.Harp
     [XmlInclude(typeof(SerialNumber))]
     [XmlInclude(typeof(ClockConfiguration))]
     [Description("Filters the sequence for Harp messages that match the specified register and message type.")]
-    [WorkflowElementIcon(typeof(ElementCategory), "Reactive.Condition")]
     public class FilterMessage : FilterMessageBuilder, INamedElement
     {
         /// <summary>

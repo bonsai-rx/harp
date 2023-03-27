@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Serialization;
-using Bonsai.Expressions;
 
 namespace Bonsai.Harp
 {
@@ -15,6 +14,7 @@ namespace Bonsai.Harp
     [DefaultProperty(nameof(Register))]
     [XmlType(Namespace = Constants.XmlNamespace)]
     [WorkflowElementCategory(ElementCategory.Combinator)]
+    [WorkflowElementIcon(typeof(ElementCategory), "Reactive.Condition")]
     public abstract class FilterMessageBuilder : HarpCombinatorBuilder
     {
         static readonly Range<int> argumentRange = Range.Create(lowerBound: 1, upperBound: 1);
