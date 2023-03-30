@@ -98,6 +98,7 @@ namespace Bonsai.Harp
             {
                 var source = arguments.First();
                 var combinator = Expression.Constant(filterMessage);
+                filterMessage.MessageType = MessageType;
                 return Expression.Call(combinator, nameof(FilterMessageAddress.Process), null, source);
             }
             else return base.Build(arguments);

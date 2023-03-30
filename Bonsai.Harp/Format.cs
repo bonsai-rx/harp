@@ -1,5 +1,6 @@
 ﻿using Bonsai.Expressions;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Xml.Serialization;
@@ -100,6 +101,17 @@ namespace Bonsai.Harp
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool ShouldSerializePayloadType() => false;
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
+        /// <inheritdoc/>
+        public override Expression Build(IEnumerable<Expression> arguments)
+        {
+            if (Register is FormatMessagePayload formatMessage)
+            {
+                formatMessage.MessageType = MessageType;
+                return formatMessage.Build(arguments);
+            }
+            else return base.Build(arguments);
+        }
     }
 
     /// <summary>

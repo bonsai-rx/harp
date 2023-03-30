@@ -123,6 +123,7 @@ namespace Bonsai.Harp
         {
             if (Register is ParseMessagePayload parseMessage)
             {
+                parseMessage.MessageType = MessageType;
                 return parseMessage.Build(arguments);
             }
             else return base.Build(arguments);
