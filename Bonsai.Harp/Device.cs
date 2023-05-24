@@ -145,11 +145,14 @@ namespace Bonsai.Harp
             set
             {
                 portName = value;
-                GetDeviceName(deviceId, portName, LedState, VisualIndicators, Heartbeat).Subscribe(deviceName => name = deviceName);
+                if (deviceId == 0)
+                {
+                    GetDeviceName(portName, LedState, VisualIndicators, Heartbeat).Subscribe(deviceName => name = deviceName);
+                }
             }
         }
 
-        static IObservable<string> GetDeviceName(int deviceId, string portName, LedState ledState, LedState visualIndicators, EnableFlag heartbeat)
+        static IObservable<string> GetDeviceName(string portName, LedState ledState, LedState visualIndicators, EnableFlag heartbeat)
         {
             return Observable.Create<string>(observer =>
             {
@@ -203,7 +206,6 @@ namespace Bonsai.Harp
                                 var deviceName = nameof(Device);
                                 if (!message.Error) deviceName = DeviceName.GetPayload(message);
                                 Console.WriteLine("Serial Harp device.");
-                                if (deviceId > 0 && deviceId != whoAmI) Console.WriteLine("WARNING: Unexpected device identifier!");
                                 if (!serialNumber.HasValue) Console.WriteLine($"WhoAmI: {whoAmI}");
                                 else Console.WriteLine($"WhoAmI: {whoAmI}-{serialNumber:x4}");
                                 Console.WriteLine($"Hw: {hardwareVersionHigh}.{hardwareVersionLow}");
