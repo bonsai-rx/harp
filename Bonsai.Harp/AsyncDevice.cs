@@ -10,6 +10,7 @@ namespace Bonsai.Harp
     /// </summary>
     public class AsyncDevice : IDisposable
     {
+        readonly bool _leaveOpen;
         readonly SerialTransport transport;
         readonly Subject<HarpMessage> response;
 
@@ -24,6 +25,17 @@ namespace Bonsai.Harp
             transport = new SerialTransport(portName, response);
             transport.IgnoreErrors = true;
             transport.Open();
+        }
+
+        internal AsyncDevice(string portName, bool leaveOpen)
+            : this(portName)
+        {
+            _leaveOpen = leaveOpen;
+        }
+
+        internal SerialTransport Transport
+        {
+            get { return transport; }
         }
 
         /// <summary>
@@ -721,7 +733,10 @@ namespace Bonsai.Harp
         /// </summary>
         public void Dispose()
         {
-            transport.Close();
+            if (!_leaveOpen)
+            {
+                transport.Close();
+            }
             response.Dispose();
         }
     }
