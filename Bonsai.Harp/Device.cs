@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Xml.Serialization;
+using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
@@ -19,6 +20,7 @@ namespace Bonsai.Harp
         string name;
         string portName;
         readonly int deviceId;
+        readonly FirmwareMetadata deviceFirmware;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Device"/> class.
@@ -29,13 +31,32 @@ namespace Bonsai.Harp
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Device"/> class
-        /// accepting connections only from Harp devices with the specified
-        /// <paramref name="whoAmI"/> identifier.
+        /// accepting connections only from Harp devices with the specified identifier.
         /// </summary>
         /// <param name="whoAmI">The device identifier to match against serial connections.</param>
         public Device(int whoAmI)
+            : this(whoAmI, firmware: null)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Device"/> class
+        /// accepting connections only from Harp devices with the specified
+        /// identifier and firmware version.
+        /// </summary>
+        /// <param name="whoAmI">The device identifier to match against serial connections.</param>
+        /// <param name="firmware">Provides information about the expected device firmware version.</param>
+        public Device(int whoAmI, FirmwareMetadata firmware)
         {
             deviceId = whoAmI;
+            deviceFirmware = firmware;
+            if (deviceFirmware != null && deviceId == 0)
+            {
+                throw new ArgumentException(
+                    "A valid device identifier must be specified when firmware metadata is provided.",
+                    nameof(whoAmI));
+            }
+
             portName = "COMx";
             OperationMode = OperationMode.Active;
             OperationLed = LedState.On;
@@ -241,9 +262,9 @@ namespace Bonsai.Harp
         /// <returns>The observable sequence of Harp messages produced by the device.</returns>
         public override IObservable<HarpMessage> Generate()
         {
-            return Observable.Create<HarpMessage>(observer =>
+            return Observable.Create<HarpMessage>(async observer =>
             {
-                var transport = CreateTransport(observer);
+                var transport = await CreateTransportAsync(observer);
                 var cleanup = Disposable.Create(() =>
                 {
                     var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
@@ -270,9 +291,9 @@ namespace Bonsai.Harp
         /// <returns>The observable sequence of Harp messages produced by the device.</returns>
         public IObservable<HarpMessage> Generate(IObservable<HarpMessage> source)
         {
-            return Observable.Create<HarpMessage>(observer =>
+            return Observable.Create<HarpMessage>(async observer =>
             {
-                var transport = CreateTransport(observer);
+                var transport = await CreateTransportAsync(observer);
                 var sourceDisposable = new SingleAssignmentDisposable();
                 sourceDisposable.Disposable = source.Subscribe(
                     transport.Write,
@@ -300,30 +321,40 @@ namespace Bonsai.Harp
 
         string INamedElement.Name => !string.IsNullOrEmpty(name) ? name : default;
 
-        SerialTransport CreateTransport(IObserver<HarpMessage> observer)
+        async Task<SerialTransport> CreateTransportAsync(IObserver<HarpMessage> observer)
         {
             var portName = PortName;
-            var transport = new SerialTransport(portName, observer);
-            transport.IgnoreErrors = IgnoreErrors;
-
-            if (deviceId > 0)
+            SerialTransport transport;
+            using (var device = new AsyncDevice(portName, leaveOpen: true))
             {
+                const int TimeoutMilliseconds = 500;
+                var whoAmI = await device.ReadWhoAmIAsync().WithTimeout(TimeoutMilliseconds);
+                if (deviceId > 0 && whoAmI != deviceId)
+                {
+                    throw new HarpException(string.Format(
+                        "The device ID {1} on {0} was unexpected. Check whether the correct device is connected to the specified serial port.",
+                        portName, whoAmI));
+                }
+
+                if (deviceFirmware != null)
+                {
+                    var firmwareVersion = await device.ReadFirmwareVersionAsync().WithTimeout(TimeoutMilliseconds);
+                    if (firmwareVersion != deviceFirmware.FirmwareVersion)
+                    {
+                        throw new HarpException(string.Format(
+                            "The device firmware version was unexpected. Expected version {0} and device reported {1}.",
+                            deviceFirmware.FirmwareVersion, firmwareVersion));
+                    }
+                }
+                
+                transport = device.Transport;
+                transport.IgnoreErrors = IgnoreErrors;
                 transport.SetObserver(Observer.Create<HarpMessage>(
                     message =>
                     {
-                        if (message.Address != WhoAmI.Address)
+                        if (message.Address != OperationControl.Address)
                         {
-                            Console.Error.WriteLine("Unexpected Harp data frame before identifier: {0}.", message);
-                            return;
-                        }
-
-                        var whoAmI = WhoAmI.GetPayload(message);
-                        if (whoAmI != deviceId)
-                        {
-                            var errorMessage = string.Format(
-                                "The device ID {1} on {0} was unexpected. Check whether the correct device is connected to the specified serial port.",
-                                portName, whoAmI);
-                            observer.OnError(new HarpException(errorMessage));
+                            Console.Error.WriteLine("Unexpected Harp data frame before operation control: {0}.", message);
                             return;
                         }
 
@@ -331,12 +362,7 @@ namespace Bonsai.Harp
                     },
                     observer.OnError,
                     observer.OnCompleted));
-                transport.Open();
-
-                var cmdReadWhoAmI = HarpCommand.ReadUInt16(WhoAmI.Address);
-                transport.Write(cmdReadWhoAmI);
             }
-            else transport.Open();
 
             var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
                 OperationMode,
