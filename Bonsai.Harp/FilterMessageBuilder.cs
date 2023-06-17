@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reactive.Linq;
 using System.Xml.Serialization;
 
 namespace Bonsai.Harp
@@ -68,8 +69,18 @@ namespace Bonsai.Harp
             var source = arguments.First();
             var registerType = register.GetType();
             var combinator = Expression.Constant(this, typeof(FilterMessageBuilder));
-            var address = Expression.Field(null, registerType, nameof(HarpMessage.Address));
-            return Expression.Call(combinator, nameof(Filter), null, source, address);
+            var parameterType = source.Type.GetGenericArguments()[0];
+            var argument = (Expression)Expression.Field(null, registerType, nameof(HarpMessage.Address));
+            if (parameterType.IsGenericType &&
+                parameterType.GetGenericTypeDefinition() == typeof(IGroupedObservable<,>))
+            {
+                var keyType = parameterType.GetGenericArguments()[0];
+                if (keyType == typeof(Type))
+                {
+                    argument = Expression.Constant(registerType);
+                }
+            }
+            return Expression.Call(combinator, nameof(Filter), null, source, argument);
         }
 
         IObservable<HarpMessage> Filter(IObservable<HarpMessage> source, int address)
@@ -77,6 +88,36 @@ namespace Bonsai.Harp
             var messageType = MessageType;
             if (messageType == null) return source.Where(address);
             else return source.Where(address, messageType.Value);
+        }
+
+        IObservable<HarpMessage> Filter(IGroupedObservable<int, HarpMessage> source, int address)
+        {
+            var messageType = MessageType;
+            if (source.Key != address) return Observable.Empty<HarpMessage>();
+            else if (messageType == null) return source;
+            else return source.Where(messageType.Value);
+        }
+
+        IObservable<HarpMessage> Filter(IObservable<IGroupedObservable<int, HarpMessage>> source, int address)
+        {
+            var messageType = MessageType;
+            return source.Where(group => group.Key == address)
+                         .SelectMany(group => messageType != null ? group.Where(messageType.Value) : group);
+        }
+
+        IObservable<HarpMessage> Filter(IGroupedObservable<Type, HarpMessage> source, Type registerType)
+        {
+            var messageType = MessageType;
+            if (source.Key != registerType) return Observable.Empty<HarpMessage>();
+            else if (messageType == null) return source;
+            else return source.Where(messageType.Value);
+        }
+
+        IObservable<HarpMessage> Filter(IObservable<IGroupedObservable<Type, HarpMessage>> source, Type registerType)
+        {
+            var messageType = MessageType;
+            return source.Where(group => group.Key == registerType)
+                         .SelectMany(group => messageType != null ? group.Where(messageType.Value) : group);
         }
     }
 }
