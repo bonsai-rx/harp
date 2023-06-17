@@ -47,5 +47,21 @@ namespace Bonsai.Harp
         {
             return source.Select(value => Timestamped.Create(value.Item1, value.Item2.GetTimestamp()));
         }
+
+        /// <summary>
+        /// Creates an observable sequence of timestamped message values surfacing the
+        /// timestamp of the message object in fractional seconds.
+        /// </summary>
+        /// <param name="source">
+        /// A sequence of timestamped <see cref="HarpMessage"/> objects.
+        /// </param>
+        /// <returns>
+        /// An observable sequence of timestamped values representing the original
+        /// message and its timestamp, in fractional seconds.
+        /// </returns>
+        public IObservable<Timestamped<HarpMessage>> Process(IObservable<HarpMessage> source)
+        {
+            return source.Select(message => Timestamped.Create(message, message.GetTimestamp()));
+        }
     }
 }
