@@ -14,6 +14,8 @@ namespace Bonsai.Harp
     [WorkflowElementCategory(ElementCategory.Transform)]
     public sealed class CreateTimestamped
     {
+        internal static readonly DateTime ReferenceTime = new DateTime(1904, 1, 1);
+
         /// <summary>
         /// Creates an observable sequence of timestamped payload values from a sequence
         /// of value-timestamp pairs.
@@ -62,6 +64,28 @@ namespace Bonsai.Harp
         public IObservable<Timestamped<HarpMessage>> Process(IObservable<HarpMessage> source)
         {
             return source.Select(message => Timestamped.Create(message, message.GetTimestamp()));
+        }
+
+        /// <summary>
+        /// Creates an observable sequence of timestamped message values by converting
+        /// the timestamp in the local scheduler clock to a Harp timestamp, in fractional
+        /// seconds relative to the reference time.
+        /// </summary>
+        /// <typeparam name="T">The type of the value in the timestamped payload.</typeparam>
+        /// <param name="source">
+        /// A sequence of <see cref="System.Reactive.Timestamped{T}"/> values specifying the
+        /// timestamp in a local scheduler clock.
+        /// </param>
+        /// <returns>
+        /// An observable sequence of Harp timestamped payload values.
+        /// </returns>
+        public IObservable<Timestamped<T>> Process<T>(IObservable<System.Reactive.Timestamped<T>> source)
+        {
+            return source.Select(_ =>
+            {
+                var seconds = _.Timestamp.UtcDateTime.Subtract(ReferenceTime).TotalSeconds;
+                return Timestamped.Create(_.Value, seconds);
+            });
         }
     }
 }

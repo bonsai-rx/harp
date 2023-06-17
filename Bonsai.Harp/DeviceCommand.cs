@@ -142,8 +142,8 @@ namespace Bonsai.Harp
         {
             return source.Select(_ =>
             {
-                var unixTimestamp = (uint)(DateTime.UtcNow.Subtract(new DateTime(1904, 1, 1))).TotalSeconds;
-                return HarpCommand.WriteUInt32(DeviceRegisters.TimestampSecond, unixTimestamp);
+                var timestamp = (uint)DateTime.UtcNow.Subtract(CreateTimestamped.ReferenceTime).TotalSeconds;
+                return HarpCommand.WriteUInt32(DeviceRegisters.TimestampSecond, timestamp);
             });
         }
     }
