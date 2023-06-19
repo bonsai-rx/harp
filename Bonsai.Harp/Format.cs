@@ -63,7 +63,7 @@ namespace Bonsai.Harp
         /// </summary>
         [Category(nameof(CategoryAttribute.Design))]
         [Description("Specifies the type of the formatted message.")]
-        public new MessageType MessageType
+        public new MessageType? MessageType
         {
             get { return base.MessageType; }
             set
@@ -128,7 +128,7 @@ namespace Bonsai.Harp
         [XmlIgnore]
         [Browsable(false)]
         [Description("Specifies the type of the formatted message.")]
-        public MessageType MessageType { get; set; } = MessageType.Write;
+        public MessageType? MessageType { get; set; } = Harp.MessageType.Write;
 
         /// <summary>
         /// Gets or sets the address of the register to which the Harp message refers to.
@@ -159,7 +159,7 @@ namespace Bonsai.Harp
             var timestamped = (payloadType & Harp.PayloadType.Timestamp) == Harp.PayloadType.Timestamp;
             var combinator = Expression.Constant(this, typeof(FormatMessagePayload));
             var address = GetAddressExpression(expression, combinator);
-            var messageType = Expression.Constant(MessageType);
+            var messageType = GetMessageTypeExpression(expression, combinator);
             if (timestamped)
             {
                 Expression timestamp;
@@ -280,6 +280,13 @@ namespace Bonsai.Harp
                 : Expression.Call(combinator, nameof(GetMessagePayloadType), null);
         }
 
+        Expression GetMessageTypeExpression(Expression expression, Expression combinator)
+        {
+            return expression.Type == typeof(HarpMessage)
+                ? Expression.Call(combinator, nameof(GetMessageType), null, expression)
+                : Expression.Call(combinator, nameof(GetMessageType), null);
+        }
+
         int GetMessageAddress()
         {
             var address = Address;
@@ -306,6 +313,20 @@ namespace Bonsai.Harp
         {
             var payloadType = PayloadType;
             return payloadType.HasValue ? payloadType.GetValueOrDefault() : message.PayloadType;
+        }
+
+        MessageType GetMessageType()
+        {
+            var messageType = MessageType;
+            return messageType.HasValue
+                ? messageType.GetValueOrDefault()
+                : throw new InvalidOperationException("No message payload type is specified.");
+        }
+
+        MessageType GetMessageType(HarpMessage message)
+        {
+            var messageType = MessageType;
+            return messageType.HasValue ? messageType.GetValueOrDefault() : message.MessageType;
         }
     }
 }

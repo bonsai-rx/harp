@@ -28,7 +28,7 @@ namespace Bonsai.Harp
         /// </summary>
         [Category(nameof(CategoryAttribute.Design))]
         [Description("Specifies the type of the formatted message.")]
-        public MessageType MessageType { get; set; } = MessageType.Write;
+        public MessageType? MessageType { get; set; } = Harp.MessageType.Write;
 
         /// <summary>
         /// Gets or sets the operator used to format the source data into specific
@@ -112,14 +112,12 @@ namespace Bonsai.Harp
 
         IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source, Func<MessageType, TSource, HarpMessage> selector)
         {
-            var messageType = MessageType;
-            return source.Select(payload => selector(messageType, payload));
+            return source.Select(payload => selector(MessageType.Value, payload));
         }
 
         IObservable<HarpMessage> Process<TSource>(IObservable<Timestamped<TSource>> source, Func<double, MessageType, TSource, HarpMessage> selector)
         {
-            var messageType = MessageType;
-            return source.Select(payload => selector(payload.Seconds, messageType, payload.Value));
+            return source.Select(payload => selector(payload.Seconds, MessageType.Value, payload.Value));
         }
     }
 }
