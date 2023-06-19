@@ -81,7 +81,7 @@ namespace Bonsai.Harp
         [EditorBrowsable(EditorBrowsableState.Never)]
         public int Address
         {
-            get { return Register is FormatMessagePayload formatMessage ? formatMessage.Address : default; }
+            get => Register is FormatMessagePayload formatMessage ? formatMessage.Address.GetValueOrDefault() : default;
             set { if (Register is FormatMessagePayload formatMessage) formatMessage.Address = value; }
         }
 
@@ -134,13 +134,30 @@ namespace Bonsai.Harp
         /// Gets or sets the address of the register to which the Harp message refers to.
         /// </summary>
         [Description("The address of the register to which the Harp message refers to.")]
-        public int Address { get; set; } = 32;
+        public int? Address { get; set; } = 32;
 
         /// <summary>
         /// Gets or sets the type of data to include in the message payload.
         /// </summary>
         [Description("The type of data to include in the message payload.")]
         public PayloadType PayloadType { get; set; } = PayloadType.U8;
+
+        static Expression GetAddressExpression(Expression expression, int? address)
+        {
+            if (address.HasValue)
+            {
+                return Expression.Constant(address.GetValueOrDefault());
+            }
+
+            if (expression.Type != typeof(HarpMessage))
+            {
+                throw new ArgumentException(
+                    "The source value must be a Harp message if no address is specified.",
+                    nameof(expression));
+            }
+
+            return Expression.PropertyOrField(expression, nameof(HarpMessage.Address));
+        }
 
         /// <summary>
         /// Returns the expression that specifies how a valid Harp message is created
@@ -157,7 +174,7 @@ namespace Bonsai.Harp
             var payloadType = PayloadType;
             var baseType = payloadType & ~PayloadType.Timestamp;
             var timestamped = (payloadType & PayloadType.Timestamp) == PayloadType.Timestamp;
-            var address = Expression.Constant(Address);
+            var address = GetAddressExpression(expression, Address);
             var messageType = Expression.Constant(MessageType);
             if (timestamped)
             {

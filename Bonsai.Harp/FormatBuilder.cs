@@ -110,8 +110,6 @@ namespace Bonsai.Harp
                 selector);
         }
 
-
-
         IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source, Func<MessageType, TSource, HarpMessage> selector)
         {
             var messageType = MessageType;
