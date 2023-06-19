@@ -117,8 +117,6 @@ namespace Bonsai.Harp
     /// Represents an operator that creates a command message to set the value of
     /// the timestamp register in the Harp device to the current UTC time of the host.
     /// </summary>
-    [Obsolete]
-    [DesignTimeVisible(false)]
     [Description("Creates a command message to set the value of the timestamp register in the Harp device to the current UTC time of the host.")]
     public class SynchronizeTimestamp : Combinator<HarpMessage>
     {
@@ -143,7 +141,7 @@ namespace Bonsai.Harp
             return source.Select(_ =>
             {
                 var timestamp = (uint)DateTime.UtcNow.Subtract(CreateTimestamped.ReferenceTime).TotalSeconds;
-                return HarpCommand.WriteUInt32(DeviceRegisters.TimestampSecond, timestamp);
+                return TimestampSeconds.FromPayload(MessageType.Write, timestamp);
             });
         }
     }
