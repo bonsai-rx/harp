@@ -1514,493 +1514,552 @@ namespace Bonsai.Harp
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a message payload
     /// that specifies the identity class of the device.
     /// </summary>
     [DisplayName("WhoAmIPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that specifies the identity class of the device.")]
-    public partial class CreateWhoAmIPayload : HarpCombinator
+    [Description("Creates a message payload that specifies the identity class of the device.")]
+    public partial class CreateWhoAmIPayload
     {
         /// <summary>
         /// Gets or sets the value that specifies the identity class of the device.
         /// </summary>
         [Description("The value that specifies the identity class of the device.")]
-        public int Value { get; set; }
+        public int WhoAmI { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that specifies the identity class of the device.
+        /// Creates a message payload for the WhoAmI register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public int GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return WhoAmI;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that specifies the identity class of the device.
+        /// Creates a message that specifies the identity class of the device.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the WhoAmI register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => WhoAmI.FromPayload(MessageType, Value));
+            return Bonsai.Harp.WhoAmI.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that specifies the identity class of the device.
+    /// </summary>
+    [DisplayName("TimestampedWhoAmIPayload")]
+    [Description("Creates a timestamped message payload that specifies the identity class of the device.")]
+    public partial class CreateTimestampedWhoAmIPayload : CreateWhoAmIPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that specifies the identity class of the device.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the WhoAmI register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.WhoAmI.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that specifies the major hardware version of the device.
     /// </summary>
     [DisplayName("HardwareVersionHighPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that specifies the major hardware version of the device.")]
-    public partial class CreateHardwareVersionHighPayload : HarpCombinator
+    [Description("Creates a message payload that specifies the major hardware version of the device.")]
+    public partial class CreateHardwareVersionHighPayload
     {
         /// <summary>
         /// Gets or sets the value that specifies the major hardware version of the device.
         /// </summary>
         [Description("The value that specifies the major hardware version of the device.")]
-        public byte Value { get; set; }
+        public byte HardwareVersionHigh { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that specifies the major hardware version of the device.
+        /// Creates a message payload for the HardwareVersionHigh register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public byte GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return HardwareVersionHigh;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that specifies the major hardware version of the device.
+        /// Creates a message that specifies the major hardware version of the device.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the HardwareVersionHigh register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => HardwareVersionHigh.FromPayload(MessageType, Value));
+            return Bonsai.Harp.HardwareVersionHigh.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that specifies the major hardware version of the device.
+    /// </summary>
+    [DisplayName("TimestampedHardwareVersionHighPayload")]
+    [Description("Creates a timestamped message payload that specifies the major hardware version of the device.")]
+    public partial class CreateTimestampedHardwareVersionHighPayload : CreateHardwareVersionHighPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that specifies the major hardware version of the device.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the HardwareVersionHigh register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.HardwareVersionHigh.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that specifies the minor hardware version of the device.
     /// </summary>
     [DisplayName("HardwareVersionLowPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that specifies the minor hardware version of the device.")]
-    public partial class CreateHardwareVersionLowPayload : HarpCombinator
+    [Description("Creates a message payload that specifies the minor hardware version of the device.")]
+    public partial class CreateHardwareVersionLowPayload
     {
         /// <summary>
         /// Gets or sets the value that specifies the minor hardware version of the device.
         /// </summary>
         [Description("The value that specifies the minor hardware version of the device.")]
-        public byte Value { get; set; }
+        public byte HardwareVersionLow { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that specifies the minor hardware version of the device.
+        /// Creates a message payload for the HardwareVersionLow register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public byte GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return HardwareVersionLow;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that specifies the minor hardware version of the device.
+        /// Creates a message that specifies the minor hardware version of the device.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the HardwareVersionLow register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => HardwareVersionLow.FromPayload(MessageType, Value));
+            return Bonsai.Harp.HardwareVersionLow.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that specifies the minor hardware version of the device.
+    /// </summary>
+    [DisplayName("TimestampedHardwareVersionLowPayload")]
+    [Description("Creates a timestamped message payload that specifies the minor hardware version of the device.")]
+    public partial class CreateTimestampedHardwareVersionLowPayload : CreateHardwareVersionLowPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that specifies the minor hardware version of the device.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the HardwareVersionLow register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.HardwareVersionLow.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that specifies the version of the assembled components in the device.
     /// </summary>
     [DisplayName("AssemblyVersionPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that specifies the version of the assembled components in the device.")]
-    public partial class CreateAssemblyVersionPayload : HarpCombinator
+    [Description("Creates a message payload that specifies the version of the assembled components in the device.")]
+    public partial class CreateAssemblyVersionPayload
     {
         /// <summary>
         /// Gets or sets the value that specifies the version of the assembled components in the device.
         /// </summary>
         [Description("The value that specifies the version of the assembled components in the device.")]
-        public byte Value { get; set; }
+        public byte AssemblyVersion { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that specifies the version of the assembled components in the device.
+        /// Creates a message payload for the AssemblyVersion register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public byte GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return AssemblyVersion;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that specifies the version of the assembled components in the device.
+        /// Creates a message that specifies the version of the assembled components in the device.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the AssemblyVersion register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => AssemblyVersion.FromPayload(MessageType, Value));
+            return Bonsai.Harp.AssemblyVersion.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that specifies the version of the assembled components in the device.
+    /// </summary>
+    [DisplayName("TimestampedAssemblyVersionPayload")]
+    [Description("Creates a timestamped message payload that specifies the version of the assembled components in the device.")]
+    public partial class CreateTimestampedAssemblyVersionPayload : CreateAssemblyVersionPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that specifies the version of the assembled components in the device.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the AssemblyVersion register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.AssemblyVersion.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that specifies the major version of the Harp core implemented by the device.
     /// </summary>
     [DisplayName("CoreVersionHighPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that specifies the major version of the Harp core implemented by the device.")]
-    public partial class CreateCoreVersionHighPayload : HarpCombinator
+    [Description("Creates a message payload that specifies the major version of the Harp core implemented by the device.")]
+    public partial class CreateCoreVersionHighPayload
     {
         /// <summary>
         /// Gets or sets the value that specifies the major version of the Harp core implemented by the device.
         /// </summary>
         [Description("The value that specifies the major version of the Harp core implemented by the device.")]
-        public byte Value { get; set; }
+        public byte CoreVersionHigh { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that specifies the major version of the Harp core implemented by the device.
+        /// Creates a message payload for the CoreVersionHigh register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public byte GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return CoreVersionHigh;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that specifies the major version of the Harp core implemented by the device.
+        /// Creates a message that specifies the major version of the Harp core implemented by the device.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the CoreVersionHigh register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => CoreVersionHigh.FromPayload(MessageType, Value));
+            return Bonsai.Harp.CoreVersionHigh.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that specifies the major version of the Harp core implemented by the device.
+    /// </summary>
+    [DisplayName("TimestampedCoreVersionHighPayload")]
+    [Description("Creates a timestamped message payload that specifies the major version of the Harp core implemented by the device.")]
+    public partial class CreateTimestampedCoreVersionHighPayload : CreateCoreVersionHighPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that specifies the major version of the Harp core implemented by the device.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the CoreVersionHigh register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.CoreVersionHigh.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that specifies the minor version of the Harp core implemented by the device.
     /// </summary>
     [DisplayName("CoreVersionLowPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that specifies the minor version of the Harp core implemented by the device.")]
-    public partial class CreateCoreVersionLowPayload : HarpCombinator
+    [Description("Creates a message payload that specifies the minor version of the Harp core implemented by the device.")]
+    public partial class CreateCoreVersionLowPayload
     {
         /// <summary>
         /// Gets or sets the value that specifies the minor version of the Harp core implemented by the device.
         /// </summary>
         [Description("The value that specifies the minor version of the Harp core implemented by the device.")]
-        public byte Value { get; set; }
+        public byte CoreVersionLow { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that specifies the minor version of the Harp core implemented by the device.
+        /// Creates a message payload for the CoreVersionLow register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public byte GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return CoreVersionLow;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that specifies the minor version of the Harp core implemented by the device.
+        /// Creates a message that specifies the minor version of the Harp core implemented by the device.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the CoreVersionLow register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => CoreVersionLow.FromPayload(MessageType, Value));
+            return Bonsai.Harp.CoreVersionLow.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that specifies the minor version of the Harp core implemented by the device.
+    /// </summary>
+    [DisplayName("TimestampedCoreVersionLowPayload")]
+    [Description("Creates a timestamped message payload that specifies the minor version of the Harp core implemented by the device.")]
+    public partial class CreateTimestampedCoreVersionLowPayload : CreateCoreVersionLowPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that specifies the minor version of the Harp core implemented by the device.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the CoreVersionLow register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.CoreVersionLow.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that specifies the major version of the Harp core implemented by the device.
     /// </summary>
     [DisplayName("FirmwareVersionHighPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that specifies the major version of the Harp core implemented by the device.")]
-    public partial class CreateFirmwareVersionHighPayload : HarpCombinator
+    [Description("Creates a message payload that specifies the major version of the Harp core implemented by the device.")]
+    public partial class CreateFirmwareVersionHighPayload
     {
         /// <summary>
         /// Gets or sets the value that specifies the major version of the Harp core implemented by the device.
         /// </summary>
         [Description("The value that specifies the major version of the Harp core implemented by the device.")]
-        public byte Value { get; set; }
+        public byte FirmwareVersionHigh { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that specifies the major version of the Harp core implemented by the device.
+        /// Creates a message payload for the FirmwareVersionHigh register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public byte GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return FirmwareVersionHigh;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that specifies the major version of the Harp core implemented by the device.
+        /// Creates a message that specifies the major version of the Harp core implemented by the device.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the FirmwareVersionHigh register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => FirmwareVersionHigh.FromPayload(MessageType, Value));
+            return Bonsai.Harp.FirmwareVersionHigh.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that specifies the major version of the Harp core implemented by the device.
+    /// </summary>
+    [DisplayName("TimestampedFirmwareVersionHighPayload")]
+    [Description("Creates a timestamped message payload that specifies the major version of the Harp core implemented by the device.")]
+    public partial class CreateTimestampedFirmwareVersionHighPayload : CreateFirmwareVersionHighPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that specifies the major version of the Harp core implemented by the device.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the FirmwareVersionHigh register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.FirmwareVersionHigh.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that specifies the minor version of the Harp core implemented by the device.
     /// </summary>
     [DisplayName("FirmwareVersionLowPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that specifies the minor version of the Harp core implemented by the device.")]
-    public partial class CreateFirmwareVersionLowPayload : HarpCombinator
+    [Description("Creates a message payload that specifies the minor version of the Harp core implemented by the device.")]
+    public partial class CreateFirmwareVersionLowPayload
     {
         /// <summary>
         /// Gets or sets the value that specifies the minor version of the Harp core implemented by the device.
         /// </summary>
         [Description("The value that specifies the minor version of the Harp core implemented by the device.")]
-        public byte Value { get; set; }
+        public byte FirmwareVersionLow { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that specifies the minor version of the Harp core implemented by the device.
+        /// Creates a message payload for the FirmwareVersionLow register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public byte GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return FirmwareVersionLow;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that specifies the minor version of the Harp core implemented by the device.
+        /// Creates a message that specifies the minor version of the Harp core implemented by the device.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the FirmwareVersionLow register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => FirmwareVersionLow.FromPayload(MessageType, Value));
+            return Bonsai.Harp.FirmwareVersionLow.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that specifies the minor version of the Harp core implemented by the device.
+    /// </summary>
+    [DisplayName("TimestampedFirmwareVersionLowPayload")]
+    [Description("Creates a timestamped message payload that specifies the minor version of the Harp core implemented by the device.")]
+    public partial class CreateTimestampedFirmwareVersionLowPayload : CreateFirmwareVersionLowPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that specifies the minor version of the Harp core implemented by the device.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the FirmwareVersionLow register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.FirmwareVersionLow.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that stores the integral part of the system timestamp, in seconds.
     /// </summary>
     [DisplayName("TimestampSecondsPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that stores the integral part of the system timestamp, in seconds.")]
-    public partial class CreateTimestampSecondsPayload : HarpCombinator
+    [Description("Creates a message payload that stores the integral part of the system timestamp, in seconds.")]
+    public partial class CreateTimestampSecondsPayload
     {
         /// <summary>
         /// Gets or sets the value that stores the integral part of the system timestamp, in seconds.
         /// </summary>
         [Description("The value that stores the integral part of the system timestamp, in seconds.")]
-        public uint Value { get; set; }
+        public uint TimestampSeconds { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that stores the integral part of the system timestamp, in seconds.
+        /// Creates a message payload for the TimestampSeconds register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public uint GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return TimestampSeconds;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that stores the integral part of the system timestamp, in seconds.
+        /// Creates a message that stores the integral part of the system timestamp, in seconds.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the TimestampSeconds register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => TimestampSeconds.FromPayload(MessageType, Value));
+            return Bonsai.Harp.TimestampSeconds.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that stores the integral part of the system timestamp, in seconds.
+    /// </summary>
+    [DisplayName("TimestampedTimestampSecondsPayload")]
+    [Description("Creates a timestamped message payload that stores the integral part of the system timestamp, in seconds.")]
+    public partial class CreateTimestampedTimestampSecondsPayload : CreateTimestampSecondsPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that stores the integral part of the system timestamp, in seconds.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the TimestampSeconds register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.TimestampSeconds.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that stores the fractional part of the system timestamp, in microseconds.
     /// </summary>
     [DisplayName("TimestampMicrosecondsPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that stores the fractional part of the system timestamp, in microseconds.")]
-    public partial class CreateTimestampMicrosecondsPayload : HarpCombinator
+    [Description("Creates a message payload that stores the fractional part of the system timestamp, in microseconds.")]
+    public partial class CreateTimestampMicrosecondsPayload
     {
         /// <summary>
         /// Gets or sets the value that stores the fractional part of the system timestamp, in microseconds.
         /// </summary>
         [Description("The value that stores the fractional part of the system timestamp, in microseconds.")]
-        public ushort Value { get; set; }
+        public ushort TimestampMicroseconds { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that stores the fractional part of the system timestamp, in microseconds.
+        /// Creates a message payload for the TimestampMicroseconds register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public ushort GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return TimestampMicroseconds;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that stores the fractional part of the system timestamp, in microseconds.
+        /// Creates a message that stores the fractional part of the system timestamp, in microseconds.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the TimestampMicroseconds register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => TimestampMicroseconds.FromPayload(MessageType, Value));
+            return Bonsai.Harp.TimestampMicroseconds.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that stores the fractional part of the system timestamp, in microseconds.
+    /// </summary>
+    [DisplayName("TimestampedTimestampMicrosecondsPayload")]
+    [Description("Creates a timestamped message payload that stores the fractional part of the system timestamp, in microseconds.")]
+    public partial class CreateTimestampedTimestampMicrosecondsPayload : CreateTimestampMicrosecondsPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that stores the fractional part of the system timestamp, in microseconds.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the TimestampMicroseconds register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.TimestampMicroseconds.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that stores the configuration mode of the device.
     /// </summary>
     [DisplayName("OperationControlPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that stores the configuration mode of the device.")]
-    public partial class CreateOperationControlPayload : HarpCombinator
+    [Description("Creates a message payload that stores the configuration mode of the device.")]
+    public partial class CreateOperationControlPayload
     {
         /// <summary>
         /// Gets or sets a value that specifies the operation mode of the device.
@@ -2039,237 +2098,265 @@ namespace Bonsai.Harp
         public EnableFlag Heartbeat { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that stores the configuration mode of the device.
+        /// Creates a message payload for the OperationControl register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public OperationControlPayload GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            OperationControlPayload value;
+            value.OperationMode = OperationMode;
+            value.DumpRegisters = DumpRegisters;
+            value.MuteReplies = MuteReplies;
+            value.VisualIndicators = VisualIndicators;
+            value.OperationLed = OperationLed;
+            value.Heartbeat = Heartbeat;
+            return value;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that stores the configuration mode of the device.
+        /// Creates a message that stores the configuration mode of the device.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the OperationControl register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ =>
-            {
-                OperationControlPayload value;
-                value.OperationMode = OperationMode;
-                value.DumpRegisters = DumpRegisters;
-                value.MuteReplies = MuteReplies;
-                value.VisualIndicators = VisualIndicators;
-                value.OperationLed = OperationLed;
-                value.Heartbeat = Heartbeat;
-                return OperationControl.FromPayload(MessageType, value);
-            });
+            return Bonsai.Harp.OperationControl.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that stores the configuration mode of the device.
+    /// </summary>
+    [DisplayName("TimestampedOperationControlPayload")]
+    [Description("Creates a timestamped message payload that stores the configuration mode of the device.")]
+    public partial class CreateTimestampedOperationControlPayload : CreateOperationControlPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that stores the configuration mode of the device.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the OperationControl register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.OperationControl.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that resets the device and saves non-volatile registers.
     /// </summary>
     [DisplayName("ResetDevicePayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that resets the device and saves non-volatile registers.")]
-    public partial class CreateResetDevicePayload : HarpCombinator
+    [Description("Creates a message payload that resets the device and saves non-volatile registers.")]
+    public partial class CreateResetDevicePayload
     {
         /// <summary>
         /// Gets or sets the value that resets the device and saves non-volatile registers.
         /// </summary>
         [Description("The value that resets the device and saves non-volatile registers.")]
-        public ResetFlags Value { get; set; }
+        public ResetFlags ResetDevice { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that resets the device and saves non-volatile registers.
+        /// Creates a message payload for the ResetDevice register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public ResetFlags GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return ResetDevice;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that resets the device and saves non-volatile registers.
+        /// Creates a message that resets the device and saves non-volatile registers.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the ResetDevice register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => ResetDevice.FromPayload(MessageType, Value));
+            return Bonsai.Harp.ResetDevice.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that resets the device and saves non-volatile registers.
+    /// </summary>
+    [DisplayName("TimestampedResetDevicePayload")]
+    [Description("Creates a timestamped message payload that resets the device and saves non-volatile registers.")]
+    public partial class CreateTimestampedResetDevicePayload : CreateResetDevicePayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that resets the device and saves non-volatile registers.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the ResetDevice register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.ResetDevice.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that stores the user-specified device name.
     /// </summary>
     [DisplayName("DeviceNamePayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that stores the user-specified device name.")]
-    public partial class CreateDeviceNamePayload : HarpCombinator
+    [Description("Creates a message payload that stores the user-specified device name.")]
+    public partial class CreateDeviceNamePayload
     {
         /// <summary>
         /// Gets or sets the value that stores the user-specified device name.
         /// </summary>
         [Description("The value that stores the user-specified device name.")]
-        public string Value { get; set; }
+        public string DeviceName { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that stores the user-specified device name.
+        /// Creates a message payload for the DeviceName register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public string GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return DeviceName;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that stores the user-specified device name.
+        /// Creates a message that stores the user-specified device name.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the DeviceName register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => DeviceName.FromPayload(MessageType, Value));
+            return Bonsai.Harp.DeviceName.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that stores the user-specified device name.
+    /// </summary>
+    [DisplayName("TimestampedDeviceNamePayload")]
+    [Description("Creates a timestamped message payload that stores the user-specified device name.")]
+    public partial class CreateTimestampedDeviceNamePayload : CreateDeviceNamePayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that stores the user-specified device name.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the DeviceName register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.DeviceName.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that specifies the unique serial number of the device.
     /// </summary>
     [DisplayName("SerialNumberPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that specifies the unique serial number of the device.")]
-    public partial class CreateSerialNumberPayload : HarpCombinator
+    [Description("Creates a message payload that specifies the unique serial number of the device.")]
+    public partial class CreateSerialNumberPayload
     {
         /// <summary>
         /// Gets or sets the value that specifies the unique serial number of the device.
         /// </summary>
         [Description("The value that specifies the unique serial number of the device.")]
-        public ushort Value { get; set; }
+        public ushort SerialNumber { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that specifies the unique serial number of the device.
+        /// Creates a message payload for the SerialNumber register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public ushort GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return SerialNumber;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that specifies the unique serial number of the device.
+        /// Creates a message that specifies the unique serial number of the device.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the SerialNumber register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => SerialNumber.FromPayload(MessageType, Value));
+            return Bonsai.Harp.SerialNumber.FromPayload(messageType, GetPayload());
         }
     }
 
     /// <summary>
-    /// Represents an operator that creates a sequence of message payloads
+    /// Represents an operator that creates a timestamped message payload
+    /// that specifies the unique serial number of the device.
+    /// </summary>
+    [DisplayName("TimestampedSerialNumberPayload")]
+    [Description("Creates a timestamped message payload that specifies the unique serial number of the device.")]
+    public partial class CreateTimestampedSerialNumberPayload : CreateSerialNumberPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that specifies the unique serial number of the device.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the SerialNumber register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.SerialNumber.FromPayload(timestamp, messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a message payload
     /// that specifies the configuration for the device synchronization clock.
     /// </summary>
     [DisplayName("ClockConfigurationPayload")]
-    [WorkflowElementCategory(ElementCategory.Transform)]
-    [Description("Creates a sequence of message payloads that specifies the configuration for the device synchronization clock.")]
-    public partial class CreateClockConfigurationPayload : HarpCombinator
+    [Description("Creates a message payload that specifies the configuration for the device synchronization clock.")]
+    public partial class CreateClockConfigurationPayload
     {
         /// <summary>
         /// Gets or sets the value that specifies the configuration for the device synchronization clock.
         /// </summary>
         [Description("The value that specifies the configuration for the device synchronization clock.")]
-        public ClockConfigurationFlags Value { get; set; }
+        public ClockConfigurationFlags ClockConfiguration { get; set; }
 
         /// <summary>
-        /// Creates an observable sequence that contains a single message
-        /// that specifies the configuration for the device synchronization clock.
+        /// Creates a message payload for the ClockConfiguration register.
         /// </summary>
-        /// <returns>
-        /// A sequence containing a single <see cref="HarpMessage"/> object
-        /// representing the created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process()
+        /// <returns>The created message payload value.</returns>
+        public ClockConfigurationFlags GetPayload()
         {
-            return Process(Observable.Return(System.Reactive.Unit.Default));
+            return ClockConfiguration;
         }
 
         /// <summary>
-        /// Creates an observable sequence of message payloads
-        /// that specifies the configuration for the device synchronization clock.
+        /// Creates a message that specifies the configuration for the device synchronization clock.
         /// </summary>
-        /// <typeparam name="TSource">
-        /// The type of the elements in the <paramref name="source"/> sequence.
-        /// </typeparam>
-        /// <param name="source">
-        /// The sequence containing the notifications used for emitting message payloads.
-        /// </param>
-        /// <returns>
-        /// A sequence of <see cref="HarpMessage"/> objects representing each
-        /// created message payload.
-        /// </returns>
-        public IObservable<HarpMessage> Process<TSource>(IObservable<TSource> source)
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message for the ClockConfiguration register.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            return source.Select(_ => ClockConfiguration.FromPayload(MessageType, Value));
+            return Bonsai.Harp.ClockConfiguration.FromPayload(messageType, GetPayload());
+        }
+    }
+
+    /// <summary>
+    /// Represents an operator that creates a timestamped message payload
+    /// that specifies the configuration for the device synchronization clock.
+    /// </summary>
+    [DisplayName("TimestampedClockConfigurationPayload")]
+    [Description("Creates a timestamped message payload that specifies the configuration for the device synchronization clock.")]
+    public partial class CreateTimestampedClockConfigurationPayload : CreateClockConfigurationPayload
+    {
+        /// <summary>
+        /// Creates a timestamped message that specifies the configuration for the device synchronization clock.
+        /// </summary>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message for the ClockConfiguration register.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
+        {
+            return Bonsai.Harp.ClockConfiguration.FromPayload(timestamp, messageType, GetPayload());
         }
     }
 
