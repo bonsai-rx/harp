@@ -948,7 +948,7 @@ namespace Bonsai.Harp
             messageBytes[0] = (byte)messageType;
             messageBytes[2] = (byte)address;
             messageBytes[3] = (byte)port;
-            messageBytes[4] = (byte)payloadType;
+            messageBytes[4] = (byte)(payloadType | PayloadType.Timestamp);
             Buffer.BlockCopy(payload, 0, messageBytes, TimestampedOffset, payloadSize);
             return FromBytes(timestamp, messageBytes);
         }
@@ -1104,7 +1104,7 @@ namespace Bonsai.Harp
             messageBytes[0] = (byte)messageType;
             messageBytes[2] = (byte)address;
             messageBytes[3] = (byte)port;
-            messageBytes[4] = (byte)payloadType;
+            messageBytes[4] = (byte)(payloadType | PayloadType.Timestamp);
             Buffer.BlockCopy(payload.Array, payload.Offset, messageBytes, TimestampedOffset, payload.Count);
             return FromBytes(timestamp, messageBytes);
         }
