@@ -174,7 +174,7 @@ namespace Bonsai.Harp
                     expression = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Value));
                 }
 
-                var payloadTypeExpression = GetPayloadTypeExpression(expression, combinator);
+                var payloadTypeExpression = GetPayloadTypeExpression(expression, payloadType);
                 if (TryGetArraySegment(expression, out Expression payload))
                 {
                     arguments = new[] { address, timestamp, messageType, payloadTypeExpression, payload };
@@ -184,7 +184,7 @@ namespace Bonsai.Harp
             }
             else
             {
-                var payloadTypeExpression = GetPayloadTypeExpression(expression, combinator);
+                var payloadTypeExpression = GetPayloadTypeExpression(expression, payloadType);
                 if (TryGetArraySegment(expression, out Expression payload))
                 {
                     arguments = new[] { address, messageType, payloadTypeExpression, payload };
@@ -266,18 +266,28 @@ namespace Bonsai.Harp
             arguments[arguments.Length - 1] = payload;
         }
 
+        static Expression GetPayloadTypeExpression(Expression expression, PayloadType? payloadType)
+        {
+            if (payloadType.HasValue && payloadType.GetValueOrDefault() != Harp.PayloadType.Timestamp)
+            {
+                return Expression.Constant(payloadType.GetValueOrDefault());
+            }
+
+            if (expression.Type != typeof(HarpMessage))
+            {
+                throw new ArgumentException(
+                    "The source value must be a Harp message if no payload type is specified.",
+                    nameof(expression));
+            }
+
+            return Expression.PropertyOrField(expression, nameof(HarpMessage.PayloadType));
+        }
+
         Expression GetAddressExpression(Expression expression, Expression combinator)
         {
             return expression.Type == typeof(HarpMessage)
                 ? Expression.Call(combinator, nameof(GetMessageAddress), null, expression)
                 : Expression.Call(combinator, nameof(GetMessageAddress), null);
-        }
-
-        Expression GetPayloadTypeExpression(Expression expression, Expression combinator)
-        {
-            return expression.Type == typeof(HarpMessage)
-                ? Expression.Call(combinator, nameof(GetMessagePayloadType), null, expression)
-                : Expression.Call(combinator, nameof(GetMessagePayloadType), null);
         }
 
         Expression GetMessageTypeExpression(Expression expression, Expression combinator)
@@ -299,20 +309,6 @@ namespace Bonsai.Harp
         {
             var address = Address;
             return address.HasValue ? address.GetValueOrDefault() : message.Address;
-        }
-
-        PayloadType GetMessagePayloadType()
-        {
-            var payloadType = PayloadType;
-            return payloadType.HasValue
-                ? payloadType.GetValueOrDefault()
-                : throw new InvalidOperationException("No message payload type is specified.");
-        }
-
-        PayloadType GetMessagePayloadType(HarpMessage message)
-        {
-            var payloadType = PayloadType;
-            return payloadType.HasValue ? payloadType.GetValueOrDefault() : message.PayloadType;
         }
 
         MessageType GetMessageType()
