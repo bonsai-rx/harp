@@ -87,6 +87,11 @@ namespace Bonsai.Harp
 
             if (timestamped)
             {
+                if (source == null)
+                {
+                    throw new InvalidOperationException("Creating timestamped messages requires a source input.");
+                }
+
                 var timestamp = Expression.Parameter(typeof(double));
                 var selector = Expression.Lambda(
                     Expression.Call(payload, getMessage, timestamp, messageType),
