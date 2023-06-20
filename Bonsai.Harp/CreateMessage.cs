@@ -43,6 +43,21 @@ namespace Bonsai.Harp
     [XmlInclude(typeof(CreateDeviceNamePayload))]
     [XmlInclude(typeof(CreateSerialNumberPayload))]
     [XmlInclude(typeof(CreateClockConfigurationPayload))]
+    [XmlInclude(typeof(CreateTimestampedWhoAmIPayload))]
+    [XmlInclude(typeof(CreateTimestampedHardwareVersionHighPayload))]
+    [XmlInclude(typeof(CreateTimestampedHardwareVersionLowPayload))]
+    [XmlInclude(typeof(CreateTimestampedAssemblyVersionPayload))]
+    [XmlInclude(typeof(CreateTimestampedCoreVersionHighPayload))]
+    [XmlInclude(typeof(CreateTimestampedCoreVersionLowPayload))]
+    [XmlInclude(typeof(CreateTimestampedFirmwareVersionHighPayload))]
+    [XmlInclude(typeof(CreateTimestampedFirmwareVersionLowPayload))]
+    [XmlInclude(typeof(CreateTimestampedTimestampSecondsPayload))]
+    [XmlInclude(typeof(CreateTimestampedTimestampMicrosecondsPayload))]
+    [XmlInclude(typeof(CreateTimestampedOperationControlPayload))]
+    [XmlInclude(typeof(CreateTimestampedResetDevicePayload))]
+    [XmlInclude(typeof(CreateTimestampedDeviceNamePayload))]
+    [XmlInclude(typeof(CreateTimestampedSerialNumberPayload))]
+    [XmlInclude(typeof(CreateTimestampedClockConfigurationPayload))]
     [Description("Creates a sequence of standard message payloads for Harp devices.")]
     public class CreateMessage : CreateMessageBuilder, INamedElement
     {
@@ -84,14 +99,6 @@ namespace Bonsai.Harp
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public MessageType MessageType
-        {
-            get { return Payload is CreateMessagePayload createMessage ? createMessage.MessageType : default; }
-            set { if (Payload is CreateMessagePayload createMessage) createMessage.MessageType = value; }
-        }
-
-        [Browsable(false)]
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public int Address
         {
             get { return Payload is CreateMessagePayload createMessage ? createMessage.Address : default; }
@@ -105,10 +112,6 @@ namespace Bonsai.Harp
             get { return Payload is CreateMessagePayload createMessage ? createMessage.PayloadType : default; }
             set { if (Payload is CreateMessagePayload createMessage) createMessage.PayloadType = value; }
         }
-
-        [Obsolete]
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public bool ShouldSerializeMessageType() => false;
 
         [Obsolete]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -126,18 +129,8 @@ namespace Bonsai.Harp
     /// </summary>
     [DesignTimeVisible(false)]
     [Description("Creates a sequence of Harp messages with the specified payload.")]
-    public class CreateMessagePayload : Source<HarpMessage>
+    public class CreateMessagePayload
     {
-        double value;
-        event Action<double> ValueChanged;
-
-        /// <summary>
-        /// Gets or sets the type of the Harp message.
-        /// </summary>
-        [Category(nameof(CategoryAttribute.Design))]
-        [Description("The type of the Harp message.")]
-        public MessageType MessageType { get; set; } = MessageType.Write;
-
         /// <summary>
         /// Gets or sets the address of the register to which the Harp message refers to.
         /// </summary>
@@ -154,19 +147,16 @@ namespace Bonsai.Harp
         /// Gets or sets the data to write in the message payload.
         /// </summary>
         [Description("The data to write in the message payload.")]
-        public double Value
-        {
-            get { return value; }
-            set
-            {
-                this.value = value;
-                ValueChanged?.Invoke(value);
-            }
-        }
+        public double Value { get; set; }
 
-        HarpMessage GetMessage(double payload)
+        /// <summary>
+        /// Creates a new Harp message with the specified payload value.
+        /// </summary>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new message containing the value of the payload property.</returns>
+        public HarpMessage GetMessage(MessageType messageType)
         {
-            var messageType = MessageType;
+            var payload = Value;
             var payloadType = PayloadType & ~PayloadType.Timestamp;
             if (messageType == MessageType.Read) return HarpMessage.FromPayload(Address, messageType, payloadType);
             switch (payloadType)
@@ -186,34 +176,30 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
-        /// Returns an observable sequence that produces a Harp message whenever the payload
-        /// property changes, starting with the initial payload value.
+        /// Creates a new timestamped Harp message with the specified payload value.
         /// </summary>
-        /// <returns>
-        /// An observable sequence of Harp messages containing the value of the payload property.
-        /// </returns>
-        public override IObservable<HarpMessage> Generate()
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">Specifies the type of the created message.</param>
+        /// <returns>A new timestamped message containing the value of the payload property.</returns>
+        public HarpMessage GetMessage(double timestamp, MessageType messageType)
         {
-            return Observable
-                .Defer(() => Observable.Return(GetMessage(value)))
-                .Concat(Observable.FromEvent<double>(
-                    handler => ValueChanged += handler,
-                    handler => ValueChanged -= handler)
-                .Select(payload => GetMessage(payload)));
-        }
-
-        /// <summary>
-        /// Returns an observable sequence that produces a Harp message with the specified
-        /// payload value whenever the source sequence emits a new element.
-        /// </summary>
-        /// <typeparam name="TSource">The type of the elements in the source sequence.</typeparam>
-        /// <param name="source">The source sequence used to generate new values.</param>
-        /// <returns>
-        /// An observable sequence of Harp messages containing the value of the payload property.
-        /// </returns>
-        public IObservable<HarpMessage> Generate<TSource>(IObservable<TSource> source)
-        {
-            return source.Select(x => GetMessage(value));
+            var payload = Value;
+            var payloadType = PayloadType & ~PayloadType.Timestamp;
+            if (messageType == MessageType.Read) return HarpMessage.FromPayload(Address, timestamp, messageType, payloadType);
+            switch (payloadType)
+            {
+                case PayloadType.U8: return HarpMessage.FromByte(Address, timestamp, messageType, (byte)payload);
+                case PayloadType.S8: return HarpMessage.FromSByte(Address, timestamp, messageType, (sbyte)payload);
+                case PayloadType.U16: return HarpMessage.FromUInt16(Address, timestamp, messageType, (ushort)payload);
+                case PayloadType.S16: return HarpMessage.FromInt16(Address, timestamp, messageType, (short)payload);
+                case PayloadType.U32: return HarpMessage.FromUInt32(Address, timestamp, messageType, (uint)payload);
+                case PayloadType.S32: return HarpMessage.FromInt32(Address, timestamp, messageType, (int)payload);
+                case PayloadType.U64: return HarpMessage.FromUInt64(Address, timestamp, messageType, (ulong)payload);
+                case PayloadType.S64: return HarpMessage.FromInt64(Address, timestamp, messageType, (long)payload);
+                case PayloadType.Float: return HarpMessage.FromSingle(Address, timestamp, messageType, (float)payload);
+                default:
+                    throw new InvalidOperationException("Invalid Harp payload type.");
+            }
         }
     }
 }
