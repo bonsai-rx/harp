@@ -16,20 +16,12 @@ namespace Bonsai.Harp
     [WorkflowElementCategory(ElementCategory.Transform)]
     public class OffsetTimestamp
     {
-        double? offsetSeconds;
-
         /// <summary>
         /// Gets or sets a time interval by which to offset the sequence timestamps.
         /// </summary>
         [XmlIgnore]
         [Description("The time interval by which to offset the sequence timestamps.")]
-        public TimeSpan? TimeShift
-        {
-            get => offsetSeconds.HasValue
-                ? TimeSpan.FromSeconds(offsetSeconds.GetValueOrDefault())
-                : default(TimeSpan?);
-            set => offsetSeconds = value?.TotalSeconds;
-        }
+        public TimeSpan TimeShift { get; set; }
 
         /// <summary>
         /// Gets or sets an XML representation of the offset time interval for serialization.
@@ -39,17 +31,8 @@ namespace Bonsai.Harp
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string TimeShiftXml
         {
-            get
-            {
-                var timeShift = TimeShift;
-                if (timeShift.HasValue) return XmlConvert.ToString(timeShift.Value);
-                else return null;
-            }
-            set
-            {
-                if (!string.IsNullOrEmpty(value)) TimeShift = XmlConvert.ToTimeSpan(value);
-                else TimeShift = null;
-            }
+            get => XmlConvert.ToString(TimeShift);
+            set => TimeShift = XmlConvert.ToTimeSpan(value);
         }
 
         /// <summary>
@@ -65,9 +48,7 @@ namespace Bonsai.Harp
         /// </returns>
         public IObservable<Timestamped<T>> Process<T>(IObservable<Timestamped<T>> source)
         {
-            return source.Select(x => Timestamped.Create(
-                x.Value,
-                x.Seconds + offsetSeconds.GetValueOrDefault()));
+            return source.Select(x => Timestamped.Create(x.Value, x.Seconds + TimeShift.TotalSeconds));
         }
 
         /// <summary>
@@ -88,7 +69,7 @@ namespace Bonsai.Harp
         {
             return source.Select(x => Timestamped.Create(
                 x.Item1.Value,
-                x.Item1.Seconds + x.Item2 + offsetSeconds.GetValueOrDefault()));
+                x.Item1.Seconds + x.Item2 + TimeShift.TotalSeconds));
         }
 
         /// <summary>
@@ -109,7 +90,7 @@ namespace Bonsai.Harp
         {
             return source.Select(x => Timestamped.Create(
                 x.Item1.Value,
-                x.Item1.Seconds + x.Item2.TotalSeconds + offsetSeconds.GetValueOrDefault()));
+                x.Item1.Seconds + x.Item2.TotalSeconds + TimeShift.TotalSeconds));
         }
     }
 }
