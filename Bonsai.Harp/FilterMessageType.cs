@@ -5,11 +5,11 @@ using System.Reactive.Linq;
 namespace Bonsai.Harp
 {
     /// <summary>
-    /// Represents an operator that filters the sequence for Harp messages that
-    /// match the specified message type.
+    /// Represents an operator that filters the sequence for valid Harp messages
+    /// matching the specified message type.
     /// </summary>
     [WorkflowElementIcon(typeof(ElementCategory), "Reactive.Condition")]
-    [Description("Filters the sequence for Harp messages that match the specified message type.")]
+    [Description("Filters the sequence for valid Harp messages matching the specified message type.")]
     public class FilterMessageType : Combinator<HarpMessage, HarpMessage>
     {
         /// <summary>
@@ -36,16 +36,17 @@ namespace Bonsai.Harp
         /// An observable sequence including or excluding the Harp messages matching
         /// the specified message type, depending on the specified filter type.
         /// If message type is <see langword="null"/>, messages of any type are accepted.
+        /// Error messages are always rejected.
         /// </returns>
         public override IObservable<HarpMessage> Process(IObservable<HarpMessage> source)
         {
             var messageType = MessageType;
             var includeMatch = FilterType == FilterType.Include;
-            return source.Where(message =>
-                !messageType.HasValue ||
-                (message.MessageType == messageType.GetValueOrDefault()
-                    ? includeMatch
-                    : !includeMatch));
+            return source.Where(message => !message.Error &&
+                (!messageType.HasValue ||
+                 (message.MessageType == messageType.GetValueOrDefault()
+                     ? includeMatch
+                     : !includeMatch)));
         }
     }
 }
