@@ -41,11 +41,24 @@ namespace Bonsai.Harp
                 Expression.Call(Register.GetType(), nameof(HarpMessage.GetPayload), null, payload),
                 payload);
             return Expression.Call(
-                typeof(Observable),
-                nameof(Observable.Select),
-                new[] { payload.Type, payloadSelector.ReturnType },
+                typeof(ParseBuilder),
+                nameof(Process),
+                new[] { payloadSelector.ReturnType },
                 source,
                 payloadSelector);
+        }
+
+        static IObservable<TResult> Process<TResult>(IObservable<HarpMessage> source, Func<HarpMessage, TResult> selector)
+        {
+            return source.Select(message =>
+            {
+                if (message.Error)
+                {
+                    throw new ArgumentException("Attempted to parse an error message.", nameof(message));
+                }
+
+                return selector(message);
+            });
         }
 
         IObservable<HarpMessage> Filter(IObservable<HarpMessage> source, int address)

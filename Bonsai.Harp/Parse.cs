@@ -217,28 +217,28 @@ namespace Bonsai.Harp
             };
         }
 
-        static void CheckErrors(HarpMessage input, PayloadType typeExpected)
+        static void CheckErrors(HarpMessage message, PayloadType expectedType)
         {
-            if (input.Error)
+            if (message.Error)
             {
-                throw new InvalidOperationException("The Harp message is an error report.");
+                throw new ArgumentException("Attempted to parse an error message.", nameof(message));
             }
 
-            var payloadLength = input.GetPayload().Count;
+            var payloadLength = message.GetPayload().Count;
             if (payloadLength == 0)
             {
-                throw new InvalidOperationException("The Harp message doesn't have a payload.");
+                throw new ArgumentException("Input message has an empty payload.", nameof(message));
             }
 
-            if ((input.PayloadType & ~PayloadType.Timestamp) != typeExpected)
+            if ((message.PayloadType & ~PayloadType.Timestamp) != expectedType)
             {
-                throw new InvalidOperationException("Payload type mismatch.");
+                throw new ArgumentException("Payload type mismatch.", nameof(message));
             }
         }
 
-        static TArray[] ProcessArray<TArray>(HarpMessage input) where TArray : unmanaged
+        static TArray[] ProcessArray<TArray>(HarpMessage message) where TArray : unmanaged
         {
-            return input.GetPayloadArray<TArray>();
+            return message.GetPayloadArray<TArray>();
         }
 
         static Timestamped<TArray[]> ProcessTimestampedArray<TArray>(HarpMessage input) where TArray : unmanaged
@@ -246,16 +246,16 @@ namespace Bonsai.Harp
             return input.GetTimestampedPayloadArray<TArray>();
         }
 
-        static byte ProcessU8(HarpMessage input)
+        static byte ProcessU8(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.U8);
-            return input.GetPayloadByte();
+            CheckErrors(message, PayloadType.U8);
+            return message.GetPayloadByte();
         }
 
-        static Timestamped<byte> ProcessTimestampedU8(HarpMessage input)
+        static Timestamped<byte> ProcessTimestampedU8(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.U8);
-            return input.GetTimestampedPayloadByte();
+            CheckErrors(message, PayloadType.U8);
+            return message.GetTimestampedPayloadByte();
         }
 
         static sbyte ProcessS8(HarpMessage input)
@@ -264,22 +264,22 @@ namespace Bonsai.Harp
             return input.GetPayloadSByte();
         }
 
-        static Timestamped<sbyte> ProcessTimestampedS8(HarpMessage input)
+        static Timestamped<sbyte> ProcessTimestampedS8(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.S8);
-            return input.GetTimestampedPayloadSByte();
+            CheckErrors(message, PayloadType.S8);
+            return message.GetTimestampedPayloadSByte();
         }
 
-        static ushort ProcessU16(HarpMessage input)
+        static ushort ProcessU16(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.U16);
-            return input.GetPayloadUInt16();
+            CheckErrors(message, PayloadType.U16);
+            return message.GetPayloadUInt16();
         }
 
-        static Timestamped<ushort> ProcessTimestampedU16(HarpMessage input)
+        static Timestamped<ushort> ProcessTimestampedU16(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.U16);
-            return input.GetTimestampedPayloadUInt16();
+            CheckErrors(message, PayloadType.U16);
+            return message.GetTimestampedPayloadUInt16();
         }
 
         static short ProcessS16(HarpMessage input)
@@ -288,22 +288,22 @@ namespace Bonsai.Harp
             return input.GetPayloadInt16();
         }
 
-        static Timestamped<short> ProcessTimestampedS16(HarpMessage input)
+        static Timestamped<short> ProcessTimestampedS16(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.S16);
-            return input.GetTimestampedPayloadInt16();
+            CheckErrors(message, PayloadType.S16);
+            return message.GetTimestampedPayloadInt16();
         }
 
-        static uint ProcessU32(HarpMessage input)
+        static uint ProcessU32(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.U32);
-            return input.GetPayloadUInt32();
+            CheckErrors(message, PayloadType.U32);
+            return message.GetPayloadUInt32();
         }
 
-        static Timestamped<uint> ProcessTimestampedU32(HarpMessage input)
+        static Timestamped<uint> ProcessTimestampedU32(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.U32);
-            return input.GetTimestampedPayloadUInt32();
+            CheckErrors(message, PayloadType.U32);
+            return message.GetTimestampedPayloadUInt32();
         }
 
         static int ProcessS32(HarpMessage input)
@@ -312,10 +312,10 @@ namespace Bonsai.Harp
             return input.GetPayloadInt32();
         }
 
-        static Timestamped<int> ProcessTimestampedS32(HarpMessage input)
+        static Timestamped<int> ProcessTimestampedS32(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.S32);
-            return input.GetTimestampedPayloadInt32();
+            CheckErrors(message, PayloadType.S32);
+            return message.GetTimestampedPayloadInt32();
         }
 
         static ulong ProcessU64(HarpMessage input)
@@ -324,44 +324,44 @@ namespace Bonsai.Harp
             return input.GetPayloadUInt64();
         }
 
-        static Timestamped<ulong> ProcessTimestampedU64(HarpMessage input)
+        static Timestamped<ulong> ProcessTimestampedU64(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.U64);
-            return input.GetTimestampedPayloadUInt64();
+            CheckErrors(message, PayloadType.U64);
+            return message.GetTimestampedPayloadUInt64();
         }
 
-        static long ProcessS64(HarpMessage input)
+        static long ProcessS64(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.S64);
-            return input.GetPayloadInt64();
+            CheckErrors(message, PayloadType.S64);
+            return message.GetPayloadInt64();
         }
 
-        static Timestamped<long> ProcessTimestampedS64(HarpMessage input)
+        static Timestamped<long> ProcessTimestampedS64(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.S64);
-            return input.GetTimestampedPayloadInt64();
+            CheckErrors(message, PayloadType.S64);
+            return message.GetTimestampedPayloadInt64();
         }
 
-        static float ProcessFloat(HarpMessage input)
+        static float ProcessFloat(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.Float);
-            return input.GetPayloadSingle();
+            CheckErrors(message, PayloadType.Float);
+            return message.GetPayloadSingle();
         }
 
-        static Timestamped<float> ProcessTimestampedFloat(HarpMessage input)
+        static Timestamped<float> ProcessTimestampedFloat(HarpMessage message)
         {
-            CheckErrors(input, PayloadType.Float);
-            return input.GetTimestampedPayloadSingle();
+            CheckErrors(message, PayloadType.Float);
+            return message.GetTimestampedPayloadSingle();
         }
 
-        static double ProcessTimestamp(HarpMessage input)
+        static double ProcessTimestamp(HarpMessage message)
         {
-            if (input.Error)
+            if (message.Error)
             {
-                throw new InvalidOperationException("The Harp message is an error report.");
+                throw new ArgumentException("Attempted to parse an error message.", nameof(message));
             }
 
-            return input.GetTimestamp();
+            return message.GetTimestamp();
         }
     }
 }
