@@ -33,13 +33,12 @@ namespace Bonsai.Harp
 
         internal override Expression BuildCombinator(Expression source, Expression argument)
         {
-            var combinator = Expression.Constant(this, typeof(ParseBuilder));
-            source = Expression.Call(combinator, nameof(Filter), null, source, argument);
-
             var payload = Expression.Parameter(typeof(HarpMessage));
             var payloadSelector = Expression.Lambda(
                 Expression.Call(Register.GetType(), nameof(HarpMessage.GetPayload), null, payload),
                 payload);
+
+            source = Expression.Call(typeof(ParseBuilder), nameof(Filter), null, source, argument);
             return Expression.Call(
                 typeof(ParseBuilder),
                 nameof(Process),
@@ -61,27 +60,27 @@ namespace Bonsai.Harp
             });
         }
 
-        IObservable<HarpMessage> Filter(IObservable<HarpMessage> source, int address)
+        static IObservable<HarpMessage> Filter(IObservable<HarpMessage> source, int address)
         {
             return source.Where(message => message.Address == address);
         }
 
-        IObservable<HarpMessage> Filter(IGroupedObservable<int, HarpMessage> source, int address)
+        static IObservable<HarpMessage> Filter(IGroupedObservable<int, HarpMessage> source, int address)
         {
             return source.Key == address ? source : Observable.Empty<HarpMessage>();
         }
 
-        IObservable<HarpMessage> Filter(IObservable<IGroupedObservable<int, HarpMessage>> source, int address)
+        static IObservable<HarpMessage> Filter(IObservable<IGroupedObservable<int, HarpMessage>> source, int address)
         {
             return source.Where(group => group.Key == address).Merge();
         }
 
-        IObservable<HarpMessage> Filter(IGroupedObservable<Type, HarpMessage> source, Type registerType)
+        static IObservable<HarpMessage> Filter(IGroupedObservable<Type, HarpMessage> source, Type registerType)
         {
             return source.Key == registerType ? source : Observable.Empty<HarpMessage>();
         }
 
-        IObservable<HarpMessage> Filter(IObservable<IGroupedObservable<Type, HarpMessage>> source, Type registerType)
+        static IObservable<HarpMessage> Filter(IObservable<IGroupedObservable<Type, HarpMessage>> source, Type registerType)
         {
             return source.Where(group => group.Key == registerType).Merge();
         }
