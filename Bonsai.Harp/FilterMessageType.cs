@@ -44,9 +44,7 @@ namespace Bonsai.Harp
             var includeMatch = FilterType == FilterType.Include;
             return source.Where(message => !message.Error &&
                 (!messageType.HasValue ||
-                 (message.MessageType == messageType.GetValueOrDefault()
-                     ? includeMatch
-                     : !includeMatch)));
+                 (message.MessageType == messageType.GetValueOrDefault()) == includeMatch));
         }
     }
 }
