@@ -74,24 +74,6 @@ namespace Bonsai.Harp
             ? default
             : $"Device.{GetElementDisplayName(Register)}";
 
-        /// <summary>
-        /// Gets or sets a value specifying the expected message type. This parameter is optional.
-        /// </summary>
-        [Category(nameof(CategoryAttribute.Design))]
-        [Description("Specifies the expected message type. This parameter is optional.")]
-        public new MessageType? MessageType
-        {
-            get { return base.MessageType; }
-            set
-            {
-                base.MessageType = value;
-                if (Register is ParseMessagePayload parseMessage)
-                {
-                    parseMessage.MessageType = value;
-                }
-            }
-        }
-
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -105,7 +87,7 @@ namespace Bonsai.Harp
         [EditorBrowsable(EditorBrowsableState.Never)]
         public bool IsArray
         {
-            get { return Register is ParseMessagePayload parseMessage ? parseMessage.IsArray : default; }
+            get { return Register is ParseMessagePayload parseMessage && parseMessage.IsArray; }
             set { if (Register is ParseMessagePayload parseMessage) parseMessage.IsArray = value; }
         }
 
@@ -123,7 +105,6 @@ namespace Bonsai.Harp
         {
             if (Register is ParseMessagePayload parseMessage)
             {
-                parseMessage.MessageType = MessageType;
                 return parseMessage.Build(arguments);
             }
             else return base.Build(arguments);
@@ -137,27 +118,7 @@ namespace Bonsai.Harp
     [Description("Extracts the payload data from Harp messages.")]
     public class ParseMessagePayload : SelectBuilder
     {
-        readonly FilterMessageAddress filterMessage = new FilterMessageAddress();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ParseMessagePayload"/> class.
-        /// </summary>
-        public ParseMessagePayload()
-        {
-            PayloadType = PayloadType.U8;
-        }
-
-        /// <summary>
-        /// Gets or sets a value specifying the expected message type. This parameter is optional.
-        /// </summary>
-        [XmlIgnore]
-        [Browsable(false)]
-        [Description("Specifies the expected message type. This parameter is optional.")]
-        public MessageType? MessageType
-        {
-            get => filterMessage.MessageType;
-            set => filterMessage.MessageType = value;
-        }
+        readonly FilterRegisterAddress filterMessage = new();
 
         /// <summary>
         /// Gets or sets the expected message address. This parameter is optional.
@@ -173,7 +134,7 @@ namespace Bonsai.Harp
         /// Gets or sets the type of payload data to parse.
         /// </summary>
         [Description("The type of payload data to parse.")]
-        public PayloadType PayloadType { get; set; }
+        public PayloadType PayloadType { get; set; } = PayloadType.U8;
 
         /// <summary>
         /// Gets or sets a value indicating whether the payload is an array.
@@ -196,7 +157,7 @@ namespace Bonsai.Harp
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var filter = Expression.Constant(filterMessage);
-            return base.Build(arguments.Select(source => Expression.Call(filter, nameof(FilterMessageAddress.Process), null, source)));
+            return base.Build(arguments.Select(source => Expression.Call(filter, nameof(FilterRegisterAddress.Process), null, source)));
         }
 
         /// <summary>
@@ -212,69 +173,48 @@ namespace Bonsai.Harp
             var payloadType = PayloadType;
             if (IsArray && payloadType != PayloadType.Timestamp)
             {
-                Type arrayType;
                 var baseType = payloadType & ~PayloadType.Timestamp;
                 var timestamped = (payloadType & PayloadType.Timestamp) == PayloadType.Timestamp;
                 var methodName = timestamped ? nameof(ProcessTimestampedArray) : nameof(ProcessArray);
-                switch (baseType)
+                var arrayType = baseType switch
                 {
-                    case PayloadType.U8: arrayType = typeof(byte); break;
-                    case PayloadType.S8: arrayType = typeof(sbyte); break;
-                    case PayloadType.U16: arrayType = typeof(ushort); break;
-                    case PayloadType.S16: arrayType = typeof(short); break;
-                    case PayloadType.U32: arrayType = typeof(uint); break;
-                    case PayloadType.S32: arrayType = typeof(int); break;
-                    case PayloadType.U64: arrayType = typeof(ulong); break;
-                    case PayloadType.S64: arrayType = typeof(long); break;
-                    case PayloadType.Float: arrayType = typeof(float); break;
-                    default: throw new InvalidOperationException("Invalid Harp payload array type.");
-                }
+                    PayloadType.U8 => typeof(byte),
+                    PayloadType.S8 => typeof(sbyte),
+                    PayloadType.U16 => typeof(ushort),
+                    PayloadType.S16 => typeof(short),
+                    PayloadType.U32 => typeof(uint),
+                    PayloadType.S32 => typeof(int),
+                    PayloadType.U64 => typeof(ulong),
+                    PayloadType.S64 => typeof(long),
+                    PayloadType.Float => typeof(float),
+                    _ => throw new InvalidOperationException("Invalid Harp payload array type."),
+                };
                 return Expression.Call(typeof(ParseMessagePayload), methodName, new[] { arrayType }, expression);
             }
 
-            switch (payloadType)
+            return payloadType switch
             {
-                case PayloadType.U8:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessU8), null, expression);
-                case PayloadType.S8:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessS8), null, expression);
-                case PayloadType.U16:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessU16), null, expression);
-                case PayloadType.S16:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessS16), null, expression);
-                case PayloadType.U32:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessU32), null, expression);
-                case PayloadType.S32:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessS32), null, expression);
-                case PayloadType.U64:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessU64), null, expression);
-                case PayloadType.S64:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessS64), null, expression);
-                case PayloadType.Float:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessFloat), null, expression);
-                case PayloadType.Timestamp:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestamp), null, expression);
-                case PayloadType.TimestampedU8:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedU8), null, expression);
-                case PayloadType.TimestampedS8:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedS8), null, expression);
-                case PayloadType.TimestampedU16:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedU16), null, expression);
-                case PayloadType.TimestampedS16:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedS16), null, expression);
-                case PayloadType.TimestampedU32:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedU32), null, expression);
-                case PayloadType.TimestampedS32:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedS32), null, expression);
-                case PayloadType.TimestampedU64:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedU64), null, expression);
-                case PayloadType.TimestampedS64:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedS64), null, expression);
-                case PayloadType.TimestampedFloat:
-                    return Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedFloat), null, expression);
-                default:
-                    throw new InvalidOperationException("Invalid Harp payload type.");
-            }
+                PayloadType.U8 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessU8), null, expression),
+                PayloadType.S8 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessS8), null, expression),
+                PayloadType.U16 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessU16), null, expression),
+                PayloadType.S16 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessS16), null, expression),
+                PayloadType.U32 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessU32), null, expression),
+                PayloadType.S32 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessS32), null, expression),
+                PayloadType.U64 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessU64), null, expression),
+                PayloadType.S64 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessS64), null, expression),
+                PayloadType.Float => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessFloat), null, expression),
+                PayloadType.Timestamp => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestamp), null, expression),
+                PayloadType.TimestampedU8 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedU8), null, expression),
+                PayloadType.TimestampedS8 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedS8), null, expression),
+                PayloadType.TimestampedU16 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedU16), null, expression),
+                PayloadType.TimestampedS16 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedS16), null, expression),
+                PayloadType.TimestampedU32 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedU32), null, expression),
+                PayloadType.TimestampedS32 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedS32), null, expression),
+                PayloadType.TimestampedU64 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedU64), null, expression),
+                PayloadType.TimestampedS64 => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedS64), null, expression),
+                PayloadType.TimestampedFloat => Expression.Call(typeof(ParseMessagePayload), nameof(ProcessTimestampedFloat), null, expression),
+                _ => throw new InvalidOperationException("Invalid Harp payload type."),
+            };
         }
 
         static void CheckErrors(HarpMessage input, PayloadType typeExpected)
