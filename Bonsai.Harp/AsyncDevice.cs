@@ -42,154 +42,190 @@ namespace Bonsai.Harp
         /// <summary>
         /// Asynchronously reads the identity class of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the identity class of the device.
         /// </returns>
-        public async Task<int> ReadWhoAmIAsync()
+        public async Task<int> ReadWhoAmIAsync(CancellationToken cancellationToken = default)
         {
-            return await ReadUInt16Async(WhoAmI.Address);
+            return await ReadUInt16Async(WhoAmI.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the hardware version of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the hardware version of the device.
         /// </returns>
-        public async Task<HarpVersion> ReadHardwareVersionAsync()
+        public async Task<HarpVersion> ReadHardwareVersionAsync(CancellationToken cancellationToken = default)
         {
-            var major = await ReadByteAsync(HardwareVersionHigh.Address);
-            var minor = await ReadByteAsync(HardwareVersionLow.Address);
+            var major = await ReadByteAsync(HardwareVersionHigh.Address, cancellationToken);
+            var minor = await ReadByteAsync(HardwareVersionLow.Address, cancellationToken);
             return new HarpVersion(major, minor);
         }
 
         /// <summary>
         /// Asynchronously reads the assembly version of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the assembly version of the device.
         /// </returns>
-        public async Task<int> ReadAssemblyVersionAsync()
+        public async Task<int> ReadAssemblyVersionAsync(CancellationToken cancellationToken = default)
         {
-            return await ReadByteAsync(AssemblyVersion.Address);
+            return await ReadByteAsync(AssemblyVersion.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the version of the Harp core implemented
         /// by the device firmware.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the version of the Harp core implemented by the device firmware.
         /// </returns>
-        public async Task<HarpVersion> ReadCoreVersionAsync()
+        public async Task<HarpVersion> ReadCoreVersionAsync(CancellationToken cancellationToken = default)
         {
-            var major = await ReadByteAsync(CoreVersionHigh.Address);
-            var minor = await ReadByteAsync(CoreVersionLow.Address);
+            var major = await ReadByteAsync(CoreVersionHigh.Address, cancellationToken);
+            var minor = await ReadByteAsync(CoreVersionLow.Address, cancellationToken);
             return new HarpVersion(major, minor);
         }
 
         /// <summary>
         /// Asynchronously reads the firmware version of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the firmware version of the device.
         /// </returns>
-        public async Task<HarpVersion> ReadFirmwareVersionAsync()
+        public async Task<HarpVersion> ReadFirmwareVersionAsync(CancellationToken cancellationToken = default)
         {
-            var major = await ReadByteAsync(FirmwareVersionHigh.Address);
-            var minor = await ReadByteAsync(FirmwareVersionLow.Address);
+            var major = await ReadByteAsync(FirmwareVersionHigh.Address, cancellationToken);
+            var minor = await ReadByteAsync(FirmwareVersionLow.Address, cancellationToken);
             return new HarpVersion(major, minor);
         }
 
         /// <summary>
         /// Asynchronously reads the integral part of the system timestamp, in seconds.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the integral part of the system timestamp, in seconds.
         /// </returns>
-        public async Task<uint> ReadTimestampSecondsAsync()
+        public async Task<uint> ReadTimestampSecondsAsync(CancellationToken cancellationToken = default)
         {
-            return await ReadUInt32Async(TimestampSeconds.Address);
+            return await ReadUInt32Async(TimestampSeconds.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the fractional part of the system timestamp, in microseconds.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the fractional part of the system timestamp, in microseconds.
         /// </returns>
-        public async Task<ushort> ReadTimestampMicrosecondsAsync()
+        public async Task<ushort> ReadTimestampMicrosecondsAsync(CancellationToken cancellationToken = default)
         {
-            return await ReadUInt16Async(TimestampMicroseconds.Address);
+            return await ReadUInt16Async(TimestampMicroseconds.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the contents of the OperationControl register.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<OperationControlPayload> ReadOperationControlAsync()
+        public async Task<OperationControlPayload> ReadOperationControlAsync(CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(OperationControl.Address));
+            var reply = await CommandAsync(HarpCommand.ReadByte(OperationControl.Address), cancellationToken);
             return OperationControl.GetPayload(reply);
         }
 
         /// <summary>
         /// Asynchronously reads the contents of the ResetDevice register.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<ResetFlags> ReadResetDeviceAsync()
+        public async Task<ResetFlags> ReadResetDeviceAsync(CancellationToken cancellationToken = default)
         {
-            return (ResetFlags)await ReadByteAsync(ResetDevice.Address);
+            return (ResetFlags)await ReadByteAsync(ResetDevice.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the display name of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the name of the device.
         /// </returns>
-        public async Task<string> ReadDeviceNameAsync()
+        public async Task<string> ReadDeviceNameAsync(CancellationToken cancellationToken = default)
         {
-            var deviceName = await CommandAsync(HarpCommand.ReadByte(DeviceName.Address));
+            var deviceName = await CommandAsync(HarpCommand.ReadByte(DeviceName.Address), cancellationToken);
             return DeviceName.GetPayload(deviceName);
         }
 
         /// <summary>
         /// Asynchronously reads the unique serial number of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the unique serial number of the device.
         /// </returns>
-        public async Task<int> ReadSerialNumberAsync()
+        public async Task<int> ReadSerialNumberAsync(CancellationToken cancellationToken = default)
         {
-            return await ReadUInt16Async(SerialNumber.Address);
+            return await ReadUInt16Async(SerialNumber.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the configuration for the device synchronization clock.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the configuration for the device synchronization clock.
         /// </returns>
-        public async Task<ClockConfigurationFlags> ReadClockConfigurationAsync()
+        public async Task<ClockConfigurationFlags> ReadClockConfigurationAsync(CancellationToken cancellationToken = default)
         {
-            return (ClockConfigurationFlags)await ReadByteAsync(ClockConfiguration.Address);
+            return (ClockConfigurationFlags)await ReadByteAsync(ClockConfiguration.Address, cancellationToken);
         }
 
         /// <summary>
@@ -520,10 +556,13 @@ namespace Bonsai.Harp
         /// Asynchronously updates the integral part of the system timestamp, in seconds.
         /// </summary>
         /// <param name="seconds">The value to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>The task object representing the asynchronous write operation.</returns>
-        public async Task WriteTimestampSecondsAsync(uint seconds)
+        public async Task WriteTimestampSecondsAsync(uint seconds, CancellationToken cancellationToken = default)
         {
-            await WriteUInt32Async(TimestampSeconds.Address, seconds);
+            await WriteUInt32Async(TimestampSeconds.Address, seconds, cancellationToken);
         }
 
         /// <summary>
@@ -533,12 +572,15 @@ namespace Bonsai.Harp
         /// <param name="reset">
         /// A value specifying whether to restore or save non-volatile registers.
         /// </param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous reset operation.
         /// </returns>
-        public async Task WriteResetDeviceAsync(ResetFlags reset)
+        public async Task WriteResetDeviceAsync(ResetFlags reset, CancellationToken cancellationToken = default)
         {
-            await WriteByteAsync(ResetDevice.Address, (byte)reset);
+            await WriteByteAsync(ResetDevice.Address, (byte)reset, cancellationToken);
         }
 
         /// <summary>
@@ -548,27 +590,33 @@ namespace Bonsai.Harp
         /// A <see cref="string"/> containing the name of the device. The maximum length
         /// of the specified device name is 25 characters.
         /// </param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteDeviceNameAsync(string name)
+        public async Task WriteDeviceNameAsync(string name, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("The specified device name cannot be null or empty.", nameof(name));
             }
 
-            await CommandAsync(DeviceName.FromPayload(MessageType.Write, name));
+            await CommandAsync(DeviceName.FromPayload(MessageType.Write, name), cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously updates the configuration for the device synchronization clock.
         /// </summary>
         /// <param name="value">A value specifying configuration flags for the device synchronization clock.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>The task object representing the asynchronous write operation.</returns>
-        public async Task WriteClockConfigurationAsync(ClockConfigurationFlags value)
+        public async Task WriteClockConfigurationAsync(ClockConfigurationFlags value, CancellationToken cancellationToken = default)
         {
-            await WriteByteAsync(ClockConfiguration.Address, (byte)value);
+            await WriteByteAsync(ClockConfiguration.Address, (byte)value, cancellationToken);
         }
 
         /// <summary>
