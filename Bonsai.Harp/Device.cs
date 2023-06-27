@@ -6,6 +6,7 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Bonsai.Harp
 {
@@ -262,9 +263,9 @@ namespace Bonsai.Harp
         /// <returns>The observable sequence of Harp messages produced by the device.</returns>
         public override IObservable<HarpMessage> Generate()
         {
-            return Observable.Create<HarpMessage>(async observer =>
+            return Observable.Create<HarpMessage>(async (observer, cancellationToken) =>
             {
-                var transport = await CreateTransportAsync(observer);
+                var transport = await CreateTransportAsync(observer, cancellationToken);
                 var cleanup = Disposable.Create(() =>
                 {
                     var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
@@ -291,9 +292,9 @@ namespace Bonsai.Harp
         /// <returns>The observable sequence of Harp messages produced by the device.</returns>
         public IObservable<HarpMessage> Generate(IObservable<HarpMessage> source)
         {
-            return Observable.Create<HarpMessage>(async observer =>
+            return Observable.Create<HarpMessage>(async (observer, cancellationToken) =>
             {
-                var transport = await CreateTransportAsync(observer);
+                var transport = await CreateTransportAsync(observer, cancellationToken);
                 var sourceDisposable = new SingleAssignmentDisposable();
                 sourceDisposable.Disposable = source.Subscribe(
                     transport.Write,
@@ -321,32 +322,39 @@ namespace Bonsai.Harp
 
         string INamedElement.Name => !string.IsNullOrEmpty(name) ? name : default;
 
-        async Task<SerialTransport> CreateTransportAsync(IObserver<HarpMessage> observer)
+        async Task<SerialTransport> CreateTransportAsync(IObserver<HarpMessage> observer, CancellationToken cancellationToken)
         {
             var portName = PortName;
             SerialTransport transport;
             using (var device = new AsyncDevice(portName, leaveOpen: true))
             {
-                const int TimeoutMilliseconds = 500;
-                var whoAmI = await device.ReadWhoAmIAsync().WithTimeout(TimeoutMilliseconds);
-                if (deviceId > 0 && whoAmI != deviceId)
+                try
                 {
-                    throw new HarpException(string.Format(
-                        "The device ID {1} on {0} was unexpected. Check whether the correct device is connected to the specified serial port.",
-                        portName, whoAmI));
-                }
-
-                if (deviceFirmware != null)
-                {
-                    var firmwareVersion = await device.ReadFirmwareVersionAsync().WithTimeout(TimeoutMilliseconds);
-                    if (firmwareVersion != deviceFirmware.FirmwareVersion)
+                    var whoAmI = await device.ReadWhoAmIAsync(cancellationToken);
+                    if (deviceId > 0 && whoAmI != deviceId)
                     {
                         throw new HarpException(string.Format(
-                            "The device firmware version was unexpected. Expected version {0} and device reported {1}.",
-                            deviceFirmware.FirmwareVersion, firmwareVersion));
+                            "The device ID {1} on {0} was unexpected. Check whether the correct device is connected to the specified serial port.",
+                            portName, whoAmI));
+                    }
+
+                    if (deviceFirmware != null)
+                    {
+                        var firmwareVersion = await device.ReadFirmwareVersionAsync(cancellationToken);
+                        if (firmwareVersion != deviceFirmware.FirmwareVersion)
+                        {
+                            throw new HarpException(string.Format(
+                                "The device firmware version was unexpected. Expected version {0} and device reported {1}.",
+                                deviceFirmware.FirmwareVersion, firmwareVersion));
+                        }
                     }
                 }
-                
+                catch (OperationCanceledException)
+                {
+                    device.Transport.Close();
+                    throw;
+                }
+
                 transport = device.Transport;
                 transport.IgnoreErrors = IgnoreErrors;
                 transport.SetObserver(Observer.Create<HarpMessage>(
