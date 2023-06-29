@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bonsai.Harp
@@ -41,154 +42,190 @@ namespace Bonsai.Harp
         /// <summary>
         /// Asynchronously reads the identity class of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the identity class of the device.
         /// </returns>
-        public async Task<int> ReadWhoAmIAsync()
+        public async Task<int> ReadWhoAmIAsync(CancellationToken cancellationToken = default)
         {
-            return await ReadUInt16Async(WhoAmI.Address);
+            return await ReadUInt16Async(WhoAmI.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the hardware version of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the hardware version of the device.
         /// </returns>
-        public async Task<HarpVersion> ReadHardwareVersionAsync()
+        public async Task<HarpVersion> ReadHardwareVersionAsync(CancellationToken cancellationToken = default)
         {
-            var major = await ReadByteAsync(HardwareVersionHigh.Address);
-            var minor = await ReadByteAsync(HardwareVersionLow.Address);
+            var major = await ReadByteAsync(HardwareVersionHigh.Address, cancellationToken);
+            var minor = await ReadByteAsync(HardwareVersionLow.Address, cancellationToken);
             return new HarpVersion(major, minor);
         }
 
         /// <summary>
         /// Asynchronously reads the assembly version of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the assembly version of the device.
         /// </returns>
-        public async Task<int> ReadAssemblyVersionAsync()
+        public async Task<int> ReadAssemblyVersionAsync(CancellationToken cancellationToken = default)
         {
-            return await ReadByteAsync(AssemblyVersion.Address);
+            return await ReadByteAsync(AssemblyVersion.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the version of the Harp core implemented
         /// by the device firmware.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the version of the Harp core implemented by the device firmware.
         /// </returns>
-        public async Task<HarpVersion> ReadCoreVersionAsync()
+        public async Task<HarpVersion> ReadCoreVersionAsync(CancellationToken cancellationToken = default)
         {
-            var major = await ReadByteAsync(CoreVersionHigh.Address);
-            var minor = await ReadByteAsync(CoreVersionLow.Address);
+            var major = await ReadByteAsync(CoreVersionHigh.Address, cancellationToken);
+            var minor = await ReadByteAsync(CoreVersionLow.Address, cancellationToken);
             return new HarpVersion(major, minor);
         }
 
         /// <summary>
         /// Asynchronously reads the firmware version of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the firmware version of the device.
         /// </returns>
-        public async Task<HarpVersion> ReadFirmwareVersionAsync()
+        public async Task<HarpVersion> ReadFirmwareVersionAsync(CancellationToken cancellationToken = default)
         {
-            var major = await ReadByteAsync(FirmwareVersionHigh.Address);
-            var minor = await ReadByteAsync(FirmwareVersionLow.Address);
+            var major = await ReadByteAsync(FirmwareVersionHigh.Address, cancellationToken);
+            var minor = await ReadByteAsync(FirmwareVersionLow.Address, cancellationToken);
             return new HarpVersion(major, minor);
         }
 
         /// <summary>
         /// Asynchronously reads the integral part of the system timestamp, in seconds.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the integral part of the system timestamp, in seconds.
         /// </returns>
-        public async Task<uint> ReadTimestampSecondsAsync()
+        public async Task<uint> ReadTimestampSecondsAsync(CancellationToken cancellationToken = default)
         {
-            return await ReadUInt32Async(TimestampSeconds.Address);
+            return await ReadUInt32Async(TimestampSeconds.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the fractional part of the system timestamp, in microseconds.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the fractional part of the system timestamp, in microseconds.
         /// </returns>
-        public async Task<ushort> ReadTimestampMicrosecondsAsync()
+        public async Task<ushort> ReadTimestampMicrosecondsAsync(CancellationToken cancellationToken = default)
         {
-            return await ReadUInt16Async(TimestampMicroseconds.Address);
+            return await ReadUInt16Async(TimestampMicroseconds.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the contents of the OperationControl register.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<OperationControlPayload> ReadOperationControlAsync()
+        public async Task<OperationControlPayload> ReadOperationControlAsync(CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(OperationControl.Address));
+            var reply = await CommandAsync(HarpCommand.ReadByte(OperationControl.Address), cancellationToken);
             return OperationControl.GetPayload(reply);
         }
 
         /// <summary>
         /// Asynchronously reads the contents of the ResetDevice register.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the register payload.
         /// </returns>
-        public async Task<ResetFlags> ReadResetDeviceAsync()
+        public async Task<ResetFlags> ReadResetDeviceAsync(CancellationToken cancellationToken = default)
         {
-            return (ResetFlags)await ReadByteAsync(ResetDevice.Address);
+            return (ResetFlags)await ReadByteAsync(ResetDevice.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the display name of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the name of the device.
         /// </returns>
-        public async Task<string> ReadDeviceNameAsync()
+        public async Task<string> ReadDeviceNameAsync(CancellationToken cancellationToken = default)
         {
-            var deviceName = await CommandAsync(HarpCommand.ReadByte(DeviceName.Address));
+            var deviceName = await CommandAsync(HarpCommand.ReadByte(DeviceName.Address), cancellationToken);
             return DeviceName.GetPayload(deviceName);
         }
 
         /// <summary>
         /// Asynchronously reads the unique serial number of the device.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the unique serial number of the device.
         /// </returns>
-        public async Task<int> ReadSerialNumberAsync()
+        public async Task<int> ReadSerialNumberAsync(CancellationToken cancellationToken = default)
         {
-            return await ReadUInt16Async(SerialNumber.Address);
+            return await ReadUInt16Async(SerialNumber.Address, cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously reads the configuration for the device synchronization clock.
         /// </summary>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the configuration for the device synchronization clock.
         /// </returns>
-        public async Task<ClockConfigurationFlags> ReadClockConfigurationAsync()
+        public async Task<ClockConfigurationFlags> ReadClockConfigurationAsync(CancellationToken cancellationToken = default)
         {
-            return (ClockConfigurationFlags)await ReadByteAsync(ClockConfiguration.Address);
+            return (ClockConfigurationFlags)await ReadByteAsync(ClockConfiguration.Address, cancellationToken);
         }
 
         /// <summary>
@@ -196,13 +233,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the value of the register.
         /// </returns>
-        public async Task<byte> ReadByteAsync(int address)
+        public async Task<byte> ReadByteAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(address));
+            var reply = await CommandAsync(HarpCommand.ReadByte(address), cancellationToken);
             return reply.GetPayloadByte();
         }
 
@@ -211,13 +251,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the state of the array register.
         /// </returns>
-        public async Task<byte[]> ReadByteArrayAsync(int address)
+        public async Task<byte[]> ReadByteArrayAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadByte(address));
+            var reply = await CommandAsync(HarpCommand.ReadByte(address), cancellationToken);
             return reply.GetPayloadArray<byte>();
         }
 
@@ -226,13 +269,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the value of the register.
         /// </returns>
-        public async Task<sbyte> ReadSByteAsync(int address)
+        public async Task<sbyte> ReadSByteAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadSByte(address));
+            var reply = await CommandAsync(HarpCommand.ReadSByte(address), cancellationToken);
             return reply.GetPayloadSByte();
         }
 
@@ -241,13 +287,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the state of the array register.
         /// </returns>
-        public async Task<sbyte[]> ReadSByteArrayAsync(int address)
+        public async Task<sbyte[]> ReadSByteArrayAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadSByte(address));
+            var reply = await CommandAsync(HarpCommand.ReadSByte(address), cancellationToken);
             return reply.GetPayloadArray<sbyte>();
         }
 
@@ -256,13 +305,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the value of the register.
         /// </returns>
-        public async Task<ushort> ReadUInt16Async(int address)
+        public async Task<ushort> ReadUInt16Async(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadUInt16(address));
+            var reply = await CommandAsync(HarpCommand.ReadUInt16(address), cancellationToken);
             return reply.GetPayloadUInt16();
         }
 
@@ -271,13 +323,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the state of the array register.
         /// </returns>
-        public async Task<ushort[]> ReadUInt16ArrayAsync(int address)
+        public async Task<ushort[]> ReadUInt16ArrayAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadUInt16(address));
+            var reply = await CommandAsync(HarpCommand.ReadUInt16(address), cancellationToken);
             return reply.GetPayloadArray<ushort>();
         }
 
@@ -286,13 +341,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the value of the register.
         /// </returns>
-        public async Task<short> ReadInt16Async(int address)
+        public async Task<short> ReadInt16Async(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadInt16(address));
+            var reply = await CommandAsync(HarpCommand.ReadInt16(address), cancellationToken);
             return reply.GetPayloadInt16();
         }
 
@@ -301,13 +359,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the state of the array register.
         /// </returns>
-        public async Task<short[]> ReadInt16ArrayAsync(int address)
+        public async Task<short[]> ReadInt16ArrayAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadInt16(address));
+            var reply = await CommandAsync(HarpCommand.ReadInt16(address), cancellationToken);
             return reply.GetPayloadArray<short>();
         }
 
@@ -316,13 +377,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the value of the register.
         /// </returns>
-        public async Task<uint> ReadUInt32Async(int address)
+        public async Task<uint> ReadUInt32Async(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadUInt32(address));
+            var reply = await CommandAsync(HarpCommand.ReadUInt32(address), cancellationToken);
             return reply.GetPayloadUInt32();
         }
 
@@ -331,13 +395,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the state of the array register.
         /// </returns>
-        public async Task<uint[]> ReadUInt32ArrayAsync(int address)
+        public async Task<uint[]> ReadUInt32ArrayAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadUInt32(address));
+            var reply = await CommandAsync(HarpCommand.ReadUInt32(address), cancellationToken);
             return reply.GetPayloadArray<uint>();
         }
 
@@ -346,13 +413,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the value of the register.
         /// </returns>
-        public async Task<int> ReadInt32Async(int address)
+        public async Task<int> ReadInt32Async(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadInt32(address));
+            var reply = await CommandAsync(HarpCommand.ReadInt32(address), cancellationToken);
             return reply.GetPayloadInt32();
         }
 
@@ -361,13 +431,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the state of the array register.
         /// </returns>
-        public async Task<int[]> ReadInt32ArrayAsync(int address)
+        public async Task<int[]> ReadInt32ArrayAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadInt32(address));
+            var reply = await CommandAsync(HarpCommand.ReadInt32(address), cancellationToken);
             return reply.GetPayloadArray<int>();
         }
 
@@ -376,13 +449,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the value of the register.
         /// </returns>
-        public async Task<ulong> ReadUInt64Async(int address)
+        public async Task<ulong> ReadUInt64Async(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadUInt64(address));
+            var reply = await CommandAsync(HarpCommand.ReadUInt64(address), cancellationToken);
             return reply.GetPayloadUInt64();
         }
 
@@ -391,13 +467,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the state of the array register.
         /// </returns>
-        public async Task<ulong[]> ReadUInt64ArrayAsync(int address)
+        public async Task<ulong[]> ReadUInt64ArrayAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadUInt64(address));
+            var reply = await CommandAsync(HarpCommand.ReadUInt64(address), cancellationToken);
             return reply.GetPayloadArray<ulong>();
         }
 
@@ -406,13 +485,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the value of the register.
         /// </returns>
-        public async Task<long> ReadInt64Async(int address)
+        public async Task<long> ReadInt64Async(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadInt64(address));
+            var reply = await CommandAsync(HarpCommand.ReadInt64(address), cancellationToken);
             return reply.GetPayloadInt64();
         }
 
@@ -421,13 +503,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the state of the array register.
         /// </returns>
-        public async Task<long[]> ReadInt64ArrayAsync(int address)
+        public async Task<long[]> ReadInt64ArrayAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadInt64(address));
+            var reply = await CommandAsync(HarpCommand.ReadInt64(address), cancellationToken);
             return reply.GetPayloadArray<long>();
         }
 
@@ -436,13 +521,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the value of the register.
         /// </returns>
-        public async Task<float> ReadSingleAsync(int address)
+        public async Task<float> ReadSingleAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadSingle(address));
+            var reply = await CommandAsync(HarpCommand.ReadSingle(address), cancellationToken);
             return reply.GetPayloadSingle();
         }
 
@@ -451,13 +539,16 @@ namespace Bonsai.Harp
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to read.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// A task that represents the asynchronous read operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the state of the array register.
         /// </returns>
-        public async Task<float[]> ReadSingleArrayAsync(int address)
+        public async Task<float[]> ReadSingleArrayAsync(int address, CancellationToken cancellationToken = default)
         {
-            var reply = await CommandAsync(HarpCommand.ReadSingle(address));
+            var reply = await CommandAsync(HarpCommand.ReadSingle(address), cancellationToken);
             return reply.GetPayloadArray<float>();
         }
 
@@ -465,10 +556,13 @@ namespace Bonsai.Harp
         /// Asynchronously updates the integral part of the system timestamp, in seconds.
         /// </summary>
         /// <param name="seconds">The value to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>The task object representing the asynchronous write operation.</returns>
-        public async Task WriteTimestampSecondsAsync(uint seconds)
+        public async Task WriteTimestampSecondsAsync(uint seconds, CancellationToken cancellationToken = default)
         {
-            await WriteUInt32Async(TimestampSeconds.Address, seconds);
+            await WriteUInt32Async(TimestampSeconds.Address, seconds, cancellationToken);
         }
 
         /// <summary>
@@ -478,12 +572,15 @@ namespace Bonsai.Harp
         /// <param name="reset">
         /// A value specifying whether to restore or save non-volatile registers.
         /// </param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous reset operation.
         /// </returns>
-        public async Task WriteResetDeviceAsync(ResetFlags reset)
+        public async Task WriteResetDeviceAsync(ResetFlags reset, CancellationToken cancellationToken = default)
         {
-            await WriteByteAsync(ResetDevice.Address, (byte)reset);
+            await WriteByteAsync(ResetDevice.Address, (byte)reset, cancellationToken);
         }
 
         /// <summary>
@@ -493,27 +590,33 @@ namespace Bonsai.Harp
         /// A <see cref="string"/> containing the name of the device. The maximum length
         /// of the specified device name is 25 characters.
         /// </param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteDeviceNameAsync(string name)
+        public async Task WriteDeviceNameAsync(string name, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("The specified device name cannot be null or empty.", nameof(name));
             }
 
-            await CommandAsync(DeviceName.FromPayload(MessageType.Write, name));
+            await CommandAsync(DeviceName.FromPayload(MessageType.Write, name), cancellationToken);
         }
 
         /// <summary>
         /// Asynchronously updates the configuration for the device synchronization clock.
         /// </summary>
         /// <param name="value">A value specifying configuration flags for the device synchronization clock.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>The task object representing the asynchronous write operation.</returns>
-        public async Task WriteClockConfigurationAsync(ClockConfigurationFlags value)
+        public async Task WriteClockConfigurationAsync(ClockConfigurationFlags value, CancellationToken cancellationToken = default)
         {
-            await WriteByteAsync(ClockConfiguration.Address, (byte)value);
+            await WriteByteAsync(ClockConfiguration.Address, (byte)value, cancellationToken);
         }
 
         /// <summary>
@@ -521,11 +624,15 @@ namespace Bonsai.Harp
         /// with the specified address.
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <param name="value">The value to be stored in the register.</param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteByteAsync(int address, byte value) => await CommandAsync(HarpCommand.WriteByte(address, value));
+        public async Task WriteByteAsync(int address, byte value, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteByte(address, value), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes an array of values to an 8-bit unsigned integer register with
@@ -533,10 +640,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="values">The values to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteByteAsync(int address, params byte[] values) => await CommandAsync(HarpCommand.WriteByte(address, values));
+        public async Task WriteByteAsync(int address, byte[] values, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteByte(address, values), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes a value to an 8-bit signed integer register
@@ -544,10 +655,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="value">The value to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteSByteAsync(int address, sbyte value) => await CommandAsync(HarpCommand.WriteSByte(address, value));
+        public async Task WriteSByteAsync(int address, sbyte value, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteSByte(address, value), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes an array of values to an 8-bit signed integer register with
@@ -555,10 +670,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="values">The values to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteSByteAsync(int address, params sbyte[] values) => await CommandAsync(HarpCommand.WriteSByte(address, values));
+        public async Task WriteSByteAsync(int address, sbyte[] values, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteSByte(address, values), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes a value to a 16-bit unsigned integer register
@@ -566,10 +685,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="value">The value to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteUInt16Async(int address, ushort value) => await CommandAsync(HarpCommand.WriteUInt16(address, value));
+        public async Task WriteUInt16Async(int address, ushort value, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteUInt16(address, value), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes an array of values to a 16-bit unsigned integer register with
@@ -577,10 +700,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="values">The values to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteUInt16Async(int address, params ushort[] values) => await CommandAsync(HarpCommand.WriteUInt16(address, values));
+        public async Task WriteUInt16Async(int address, ushort[] values, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteUInt16(address, values), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes a value to a 16-bit signed integer register
@@ -588,10 +715,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="value">The value to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteInt16Async(int address, short value) => await CommandAsync(HarpCommand.WriteInt16(address, value));
+        public async Task WriteInt16Async(int address, short value, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteInt16(address, value), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes an array of values to a 16-bit signed integer register with
@@ -599,10 +730,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="values">The values to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteInt16Async(int address, params short[] values) => await CommandAsync(HarpCommand.WriteInt16(address, values));
+        public async Task WriteInt16Async(int address, short[] values, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteInt16(address, values), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes a value to a 32-bit unsigned integer register
@@ -610,10 +745,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="value">The value to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteUInt32Async(int address, uint value) => await CommandAsync(HarpCommand.WriteUInt32(address, value));
+        public async Task WriteUInt32Async(int address, uint value, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteUInt32(address, value), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes an array of values to a 32-bit unsigned integer register with
@@ -621,10 +760,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="values">The values to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteUInt32Async(int address, params uint[] values) => await CommandAsync(HarpCommand.WriteUInt32(address, values));
+        public async Task WriteUInt32Async(int address, uint[] values, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteUInt32(address, values), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes a value to a 32-bit signed integer register
@@ -632,10 +775,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="value">The value to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteInt32Async(int address, int value) => await CommandAsync(HarpCommand.WriteInt32(address, value));
+        public async Task WriteInt32Async(int address, int value, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteInt32(address, value), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes an array of values to a 32-bit signed integer register with
@@ -643,10 +790,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="values">The values to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteInt32Async(int address, params int[] values) => await CommandAsync(HarpCommand.WriteInt32(address, values));
+        public async Task WriteInt32Async(int address, int[] values, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteInt32(address, values), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes a value to a 64-bit unsigned integer register
@@ -654,10 +805,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="value">The value to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteUInt64Async(int address, ulong value) => await CommandAsync(HarpCommand.WriteUInt64(address, value));
+        public async Task WriteUInt64Async(int address, ulong value, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteUInt64(address, value), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes an array of values to a 64-bit unsigned integer register with
@@ -665,10 +820,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="values">The values to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteUInt64Async(int address, params ulong[] values) => await CommandAsync(HarpCommand.WriteUInt64(address, values));
+        public async Task WriteUInt64Async(int address, ulong[] values, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteUInt64(address, values), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes a value to a 64-bit signed integer register
@@ -676,10 +835,14 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="value">The value to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteInt64Async(int address, long value) => await CommandAsync(HarpCommand.WriteInt64(address, value));
+        public async Task WriteInt64Async(int address, long value, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteInt64(address, value), cancellationToken);
 
         /// <summary>
         /// Asynchronously writes an array of values to a 64-bit signed integer register with
@@ -687,31 +850,57 @@ namespace Bonsai.Harp
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="values">The values to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteInt64Async(int address, params long[] values) => await CommandAsync(HarpCommand.WriteInt64(address, values));
+        public async Task WriteInt64Async(int address, long[] values, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteInt64(address, values), cancellationToken);
 
         /// <summary>
-        /// Asynchronously writes a value, or an array of values, to a single-precision floating point register with
+        /// Asynchronously writes a value to a single-precision floating point register with
+        /// the specified address.
+        /// </summary>
+        /// <param name="address">The address of the register to write.</param>
+        /// <param name="value">The value to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
+        /// <returns>
+        /// The task object representing the asynchronous write operation.
+        /// </returns>
+        public async Task WriteSingleAsync(int address, float value, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteSingle(address, value), cancellationToken);
+
+        /// <summary>
+        /// Asynchronously writes an array of values to a single-precision floating point register with
         /// the specified address.
         /// </summary>
         /// <param name="address">The address of the register to write.</param>
         /// <param name="values">The values to be stored in the register.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous write operation.
         /// </returns>
-        public async Task WriteSingleAsync(int address, params float[] values) => await CommandAsync(HarpCommand.WriteSingle(address, values));
+        public async Task WriteSingleAsync(int address, float[] values, CancellationToken cancellationToken = default)
+            => await CommandAsync(HarpCommand.WriteSingle(address, values), cancellationToken);
 
         /// <summary>
         /// Sends a command to the Harp device and awaits the response as an asynchronous operation.
         /// </summary>
         /// <param name="command">The <see cref="HarpMessage"/> specifying the command to send.</param>
+        /// <param name="cancellationToken">
+        /// A <see cref="CancellationToken"/> which can be used to cancel the operation.
+        /// </param>
         /// <returns>
         /// The task object representing the asynchronous operation. The <see cref="Task{TResult}.Result"/>
         /// property contains the message representing the response of the device to the asynchronous command.
         /// </returns>
-        public async Task<HarpMessage> CommandAsync(HarpMessage command)
+        public async Task<HarpMessage> CommandAsync(HarpMessage command, CancellationToken cancellationToken = default)
         {
             var reply = response.FirstAsync(message =>
             {
@@ -722,7 +911,7 @@ namespace Bonsai.Harp
                 }
 
                 return match;
-            }).GetAwaiter();
+            }).RunAsync(cancellationToken);
 
             transport.Write(command);
             return await reply;
