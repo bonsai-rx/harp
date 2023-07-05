@@ -246,7 +246,6 @@ namespace Bonsai.Harp
                     observer.OnCompleted);
                 transport = new SerialTransport(portName, messageObserver);
                 transport.IgnoreErrors = true;
-                transport.Open();
 
                 transport.Write(writeOpCtrl);
                 return transport;
@@ -266,7 +265,7 @@ namespace Bonsai.Harp
             return Observable.Create<HarpMessage>(async (observer, cancellationToken) =>
             {
                 var transport = await CreateTransportAsync(observer, cancellationToken);
-                var cleanup = Disposable.Create(() =>
+                return Disposable.Create(() =>
                 {
                     var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
                         OperationMode.Standby,
@@ -276,11 +275,8 @@ namespace Bonsai.Harp
                         OperationLed,
                         Heartbeat));
                     transport.Write(writeOpCtrl);
+                    transport.Close();
                 });
-
-                return new CompositeDisposable(
-                    cleanup,
-                    transport);
             });
         }
 
@@ -301,7 +297,7 @@ namespace Bonsai.Harp
                     observer.OnError,
                     observer.OnCompleted);
 
-                var cleanup = Disposable.Create(() =>
+                return Disposable.Create(() =>
                 {
                     var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
                         OperationMode.Standby,
@@ -311,12 +307,9 @@ namespace Bonsai.Harp
                         OperationLed,
                         Heartbeat));
                     transport.Write(writeOpCtrl);
+                    sourceDisposable.Dispose();
+                    transport.Close();
                 });
-
-                return new CompositeDisposable(
-                    cleanup,
-                    sourceDisposable,
-                    transport);
             });
         }
 
