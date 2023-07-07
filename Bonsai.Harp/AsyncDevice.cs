@@ -24,8 +24,6 @@ namespace Bonsai.Harp
         {
             response = new Subject<HarpMessage>();
             transport = new SerialTransport(portName, response);
-            transport.IgnoreErrors = true;
-            transport.Open();
         }
 
         internal AsyncDevice(string portName, bool leaveOpen)

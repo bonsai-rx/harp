@@ -70,14 +70,14 @@ namespace Bonsai.Harp
             if (writeOffset >= readOffset)
             {
                 bytesWritten = Math.Min(readBuffer.Length - writeOffset, count);
-                serialStream.Read(readBuffer, writeOffset, bytesWritten);
+                bytesWritten = serialStream.Read(readBuffer, writeOffset, bytesWritten);
                 writeOffset = (writeOffset + bytesWritten) % readBuffer.Length;
                 count -= bytesWritten;
                 if (count == 0) return bytesWritten;
             }
 
             var remaining = Math.Min(readOffset - writeOffset, count);
-            serialStream.Read(readBuffer, writeOffset, remaining);
+            remaining = serialStream.Read(readBuffer, writeOffset, remaining);
             writeOffset = (writeOffset + remaining) % readBuffer.Length;
             return bytesWritten + remaining;
         }

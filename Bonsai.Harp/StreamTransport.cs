@@ -51,12 +51,18 @@ namespace Bonsai.Harp
             return true;
         }
 
+        internal void PushData(Stream stream, int readBufferSize, int count)
+        {
+            bufferedStream = bufferedStream ?? new BufferedStream(stream, readBufferSize);
+            bufferedStream.PushBytes(count);
+        }
+
         internal void ReceiveData(Stream stream, int readBufferSize, int bytesToRead)
         {
             try
             {
-                bufferedStream = bufferedStream ?? new BufferedStream(stream, readBufferSize);
-                bufferedStream.PushBytes(bytesToRead);
+                PushData(stream, readBufferSize, bytesToRead);
+                bytesToRead = bufferedStream.BytesToRead;
 
                 while (bytesToRead > 0)
                 {
@@ -140,8 +146,13 @@ namespace Bonsai.Harp
             }
             catch (Exception ex)
             {
-                observer.OnError(ex);
+                OnError(ex);
             }
+        }
+
+        internal void OnError(Exception error)
+        {
+            observer.OnError(error);
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO.Ports;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
@@ -7,27 +9,52 @@ namespace Bonsai.Harp
     {
         const int DefaultBaudRate = 1000000;
         const int DefaultReadBufferSize = 1048576; // 2^20 = 1 MB
+        readonly CancellationTokenSource taskCancellation;
         readonly SerialPort serialPort;
-        bool disposed;
 
         public SerialTransport(string portName, IObserver<HarpMessage> observer)
             : base(observer)
         {
+            IgnoreErrors = true;
+            taskCancellation = new CancellationTokenSource();
             serialPort = new SerialPort(portName, DefaultBaudRate, Parity.None, 8, StopBits.One);
             serialPort.ReadBufferSize = DefaultReadBufferSize;
             serialPort.Handshake = Handshake.RequestToSend;
-            serialPort.DataReceived += serialPort_DataReceived;
-            serialPort.ErrorReceived += serialPort_ErrorReceived;
+            RunAsync(taskCancellation.Token);
         }
 
-        void serialPort_ErrorReceived(object sender, SerialErrorReceivedEventArgs e)
-        {
-            //TODO: Create exception with the error state and send to observer
-        }
-
-        public void Open()
+        Task RunAsync(CancellationToken cancellationToken)
         {
             serialPort.Open();
+            return Task.Factory.StartNew(() =>
+            {
+                using var cancellation = cancellationToken.Register(serialPort.Dispose);
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    try
+                    {
+                        var bytesToRead = serialPort.BytesToRead;
+                        if (bytesToRead == 0)
+                        {
+                            PushData(serialPort.BaseStream, serialPort.ReadBufferSize, count: 1);
+                            bytesToRead = serialPort.BytesToRead;
+                        }
+
+                        ReceiveData(serialPort.BaseStream, serialPort.ReadBufferSize, bytesToRead);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (!cancellationToken.IsCancellationRequested)
+                        {
+                            OnError(ex);
+                        }
+                        break;
+                    }
+                }
+            },
+            cancellationToken,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default);
         }
 
         public void Write(HarpMessage input)
@@ -35,18 +62,12 @@ namespace Bonsai.Harp
             serialPort.Write(input.MessageBytes, 0, input.MessageBytes.Length);
         }
 
-        void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            try { ReceiveData(serialPort.BaseStream, serialPort.ReadBufferSize, serialPort.BytesToRead); }
-            catch (InvalidOperationException) { }
-        }
-
         public void Close()
         {
-            if (!disposed)
+            if (!taskCancellation.IsCancellationRequested)
             {
-                serialPort.Dispose();
-                disposed = true;
+                taskCancellation.Cancel();
+                taskCancellation.Dispose();
             }
         }
 
