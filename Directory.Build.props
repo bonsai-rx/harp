@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors>Bonsai Foundation</Authors>
     <Copyright>Copyright © Bonsai Foundation CIC and Contributors 2017-2023</Copyright>
-    <PackageProjectUrl>https://github.com/bonsai-rx/harp</PackageProjectUrl>
+    <PackageProjectUrl>https://harp-tech.org</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/bonsai-rx/harp/blob/main/LICENSE</PackageLicenseUrl>
     <PackageIconUrl>https://bonsai-rx.org/assets/images/bonsai.png</PackageIconUrl>
     <PackageOutputPath>..\bin\$(Configuration)</PackageOutputPath>
