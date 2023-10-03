@@ -47,6 +47,14 @@ namespace Bonsai.Harp.Visualizers
             return Expression.Call(combinator, nameof(Process), null, source);
         }
 
+        IObservable<HarpMessage> Process(IObservable<HarpMessage> source)
+        {
+            return source.Publish(ps => ps.Merge(
+                Process(ps.GroupBy(message => message.Address))
+                .IgnoreElements()
+                .Select(_ => default(HarpMessage))));
+        }
+
         IObservable<IGroupedObservable<int, HarpMessage>> Process(IObservable<IGroupedObservable<int, HarpMessage>> source)
         {
             return source.Do(Controller.Registers.OnNext);
