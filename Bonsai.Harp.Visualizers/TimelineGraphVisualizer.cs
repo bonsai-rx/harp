@@ -58,7 +58,7 @@ namespace Bonsai.Harp.Visualizers
             view.Dock = DockStyle.Fill;
             view.Graph.AutoScaleX = false;
             view.TimeSpan = controller.TimeSpan.GetValueOrDefault(TimeSpan);
-            view.CanEditTimeSpan = controller.TimeSpan.HasValue;
+            view.CanEditTimeSpan = !controller.TimeSpan.HasValue;
             GraphHelper.FormatTimeAxis(view.Graph.GraphPane.XAxis);
             GraphHelper.SetAxisLabel(view.Graph.GraphPane.XAxis, "Time");
             GraphHelper.SetAxisLabel(view.Graph.GraphPane.YAxis, "Register");
