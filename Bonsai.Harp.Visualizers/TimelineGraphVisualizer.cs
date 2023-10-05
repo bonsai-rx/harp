@@ -68,11 +68,18 @@ namespace Bonsai.Harp.Visualizers
             CompositeDisposable subscriptions = new();
             view.HandleCreated += delegate
             {
-                subscriptions.Add(controller.Registers.ObserveOn(view).Subscribe(register =>
+                subscriptions.Add(controller.Registers.Subscribe(register =>
                 {
                     var label = GetRegisterInfo(register, out int address);
                     var color = GraphControl.GetColor(address);
                     var points = new BoundedPointPairList();
+                    view.BeginInvoke((Action)(() =>
+                    {
+                        var series = view.Graph.CreateSeries(label, points, color);
+                        view.Graph.GraphPane.CurveList.Add(series);
+                        view.Graph.Invalidate();
+                    }));
+
                     subscriptions.Add(register
                     .Select(message => message.GetTimestamp())
                     .Buffer(() => timerTick)
@@ -101,9 +108,6 @@ namespace Bonsai.Harp.Visualizers
                         view.Graph.XMax = currentTime;
                         view.Graph.Invalidate();
                     }));
-                    var series = view.Graph.CreateSeries(label, points, color);
-                    view.Graph.GraphPane.CurveList.Add(series);
-                    view.Graph.Invalidate();
                 }));
             };
 
