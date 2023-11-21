@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reflection;
@@ -65,31 +66,33 @@ namespace Bonsai.Harp.Visualizers
 
             var currentTime = 0.0;
             var absoluteMinTime = double.MaxValue;
+            var registerMap = new Dictionary<int, BoundedPointPairList>();
             CompositeDisposable subscriptions = new();
             view.HandleCreated += delegate
             {
                 subscriptions.Add(controller.Registers.Subscribe(register =>
                 {
                     var label = GetRegisterInfo(register, out int address);
-                    var color = GraphControl.GetColor(address);
-                    var points = new BoundedPointPairList();
-                    view.BeginInvoke((Action)(() =>
-                    {
-                        var series = view.Graph.CreateSeries(label, points, color);
-                        view.Graph.GraphPane.CurveList.Add(series);
-                        view.Graph.Invalidate();
-                    }));
-
                     subscriptions.Add(register
-                    .Select(message => message.GetTimestamp())
                     .Buffer(() => timerTick)
                     .Subscribe(buffer =>
                     {
                         if (buffer.Count == 0) return;
-                        foreach (var timestamp in buffer)
+                        foreach (var message in buffer)
                         {
+                            var address = message.Address;
+                            var timestamp = message.GetTimestamp();
                             absoluteMinTime = Math.Min(absoluteMinTime, timestamp);
                             currentTime = Math.Max(currentTime, timestamp);
+                            if (!registerMap.TryGetValue(address, out var points))
+                            {
+                                points = new BoundedPointPairList();
+                                registerMap.Add(address, points);
+                                var color = GraphControl.GetColor(address);
+                                var series = view.Graph.CreateSeries(label, points, color);
+                                view.Graph.GraphPane.CurveList.Add(series);
+                            }
+
                             points.Add(timestamp, address);
                         }
 
