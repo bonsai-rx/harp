@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Bonsai.Design;
 using Bonsai.Design.Visualizers;
 using Bonsai.Expressions;
+using ZedGraph;
 
 namespace Bonsai.Harp.Visualizers
 {
@@ -63,10 +64,14 @@ namespace Bonsai.Harp.Visualizers
             GraphHelper.FormatTimeAxis(view.Graph.GraphPane.XAxis);
             GraphHelper.SetAxisLabel(view.Graph.GraphPane.XAxis, "Time");
             GraphHelper.SetAxisLabel(view.Graph.GraphPane.YAxis, "Trial");
+            if (view.TimeSpan > 0)
+            {
+                view.Graph.XMin = 0;
+                view.Graph.XMax = view.TimeSpan;
+            }
 
             var currentTime = 0.0;
-            var absoluteMinTime = double.MaxValue;
-            var registerMap = new Dictionary<string, BoundedPointPairList>();
+            var registerMap = new Dictionary<string, PointPairList>();
             CompositeDisposable subscriptions = new();
             view.HandleCreated += delegate
             {
@@ -82,11 +87,10 @@ namespace Bonsai.Harp.Visualizers
                         {
                             var register = message.Value;
                             var timestamp = message.Seconds - trigger.Seconds;
-                            absoluteMinTime = Math.Min(absoluteMinTime, timestamp);
                             currentTime = Math.Max(currentTime, timestamp);
                             if (!registerMap.TryGetValue(register.Label, out var points))
                             {
-                                points = new BoundedPointPairList();
+                                points = new PointPairList();
                                 registerMap.Add(register.Label, points);
                                 var color = GraphControl.GetColor(register.Address);
                                 var series = view.Graph.CreateSeries(register.Label, points, color);
@@ -96,19 +100,11 @@ namespace Bonsai.Harp.Visualizers
                             points.Add(timestamp, trigger.Value);
                         }
 
-                        if (view.TimeSpan > 0)
+                        if (view.TimeSpan <= 0)
                         {
-                            var relativeMinTime = currentTime - view.TimeSpan;
-                            foreach (var series in view.Graph.GraphPane.CurveList)
-                            {
-                                ((BoundedPointPairList)series.Points).SetBounds(
-                                    relativeMinTime,
-                                    double.MaxValue);
-                            }
-                            view.Graph.XMin = Math.Max(absoluteMinTime, relativeMinTime);
+                            view.Graph.XMin = 0;
+                            view.Graph.XMax = currentTime;
                         }
-                        else view.Graph.XMin = absoluteMinTime;
-                        view.Graph.XMax = currentTime;
                         view.Graph.Invalidate();
                     }));
                 }));
