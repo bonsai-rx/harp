@@ -20,6 +20,7 @@ namespace Bonsai.Harp
             serialPort = new SerialPort(portName, DefaultBaudRate, Parity.None, 8, StopBits.One);
             serialPort.ReadBufferSize = DefaultReadBufferSize;
             serialPort.Handshake = Handshake.RequestToSend;
+            serialPort.DtrEnable = true;
             RunAsync(taskCancellation.Token);
         }
 
