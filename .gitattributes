@@ -7,6 +7,7 @@
 
 # Config
 *.gitignore text
+*.gitmodules text
 *.gitattributes text
 *.editorconfig text
 *.git-blame-ignore-revs text
