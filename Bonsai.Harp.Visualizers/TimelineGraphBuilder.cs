@@ -37,7 +37,6 @@ namespace Bonsai.Harp.Visualizers
         public override Expression Build(IEnumerable<Expression> arguments)
         {
             var source = arguments.First();
-            var parameterType = source.Type.GetGenericArguments()[0];
             Controller = new VisualizerController
             {
                 TimeSpan = TimeSpan,
