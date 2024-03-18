@@ -7,6 +7,7 @@ using System.Reactive.Concurrency;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
 using System.Threading;
+using System.IO;
 
 namespace Bonsai.Harp
 {
@@ -255,6 +256,26 @@ namespace Bonsai.Harp
               .FirstAsync();
         }
 
+        private void CloseTransport(SerialTransport transport)
+        {
+            try
+            {
+                var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
+                    OperationMode.Standby,
+                    dumpRegisters: false,
+                    MuteReplies,
+                    VisualIndicators,
+                    OperationLed,
+                    Heartbeat));
+                transport.Write(writeOpCtrl);
+            }
+            catch (Exception ex) when (ex is IOException || ex is InvalidOperationException || ex is ObjectDisposedException)
+            {
+                // ignore port IO errors
+            }
+            finally { transport.Close(); }
+        }
+
         /// <summary>
         /// Connects to the specified serial port and returns an observable sequence of Harp messages
         /// coming from the device.
@@ -265,18 +286,7 @@ namespace Bonsai.Harp
             return Observable.Create<HarpMessage>(async (observer, cancellationToken) =>
             {
                 var transport = await CreateTransportAsync(observer, cancellationToken);
-                return Disposable.Create(() =>
-                {
-                    var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
-                        OperationMode.Standby,
-                        dumpRegisters: false,
-                        MuteReplies,
-                        VisualIndicators,
-                        OperationLed,
-                        Heartbeat));
-                    transport.Write(writeOpCtrl);
-                    transport.Close();
-                });
+                return Disposable.Create(() => CloseTransport(transport));
             });
         }
 
@@ -299,16 +309,8 @@ namespace Bonsai.Harp
 
                 return Disposable.Create(() =>
                 {
-                    var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
-                        OperationMode.Standby,
-                        dumpRegisters: false,
-                        MuteReplies,
-                        VisualIndicators,
-                        OperationLed,
-                        Heartbeat));
-                    transport.Write(writeOpCtrl);
                     sourceDisposable.Dispose();
-                    transport.Close();
+                    CloseTransport(transport);
                 });
             });
         }
