@@ -131,6 +131,12 @@ namespace Bonsai.Harp
         public MessageType? MessageType { get; set; } = Harp.MessageType.Write;
 
         /// <summary>
+        /// Gets or sets a value specifying optional flags to set on the formatted message.
+        /// </summary>
+        [Description("Specifies optional flags to set on the formatted message.")]
+        public MessageFlags? MessageFlags { get; set; }
+
+        /// <summary>
         /// Gets or sets the address of the register to which the Harp message refers to.
         /// </summary>
         [Description("The address of the register to which the Harp message refers to.")]
@@ -160,6 +166,7 @@ namespace Bonsai.Harp
             var combinator = Expression.Constant(this, typeof(FormatMessagePayload));
             var address = GetAddressExpression(expression, combinator);
             var messageType = GetMessageTypeExpression(expression, combinator);
+            var messageFlags = GetMessageFlagsExpression(expression, combinator);
             if (timestamped)
             {
                 Expression timestamp;
@@ -177,7 +184,7 @@ namespace Bonsai.Harp
                 var payloadTypeExpression = GetPayloadTypeExpression(expression, payloadType);
                 if (TryGetArraySegment(expression, out Expression payload))
                 {
-                    arguments = new[] { address, timestamp, messageType, payloadTypeExpression, payload };
+                    arguments = new[] { address, timestamp, messageType, messageFlags, payloadTypeExpression, payload };
                     return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromPayload), null, arguments);
                 }
                 arguments = new[] { address, timestamp, messageType, expression };
@@ -187,13 +194,13 @@ namespace Bonsai.Harp
                 var payloadTypeExpression = GetPayloadTypeExpression(expression, payloadType);
                 if (TryGetArraySegment(expression, out Expression payload))
                 {
-                    arguments = new[] { address, messageType, payloadTypeExpression, payload };
+                    arguments = new[] { address, messageType, messageFlags, payloadTypeExpression, payload };
                     var fromPayload = Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromPayload), null, arguments);
                     if (payloadType == null && expression.Type == typeof(HarpMessage))
                     {
                         var timestamp = Expression.Variable(typeof(double));
                         var isTimestamped = Expression.Call(expression, nameof(HarpMessage.TryGetTimestamp), null, timestamp);
-                        arguments = new[] { address, timestamp, messageType, payloadTypeExpression, payload };
+                        arguments = new[] { address, timestamp, messageType, messageFlags, payloadTypeExpression, payload };
                         return Expression.Block(
                             new[] { timestamp },
                             Expression.Condition(
@@ -297,6 +304,13 @@ namespace Bonsai.Harp
                 : Expression.Call(combinator, nameof(GetMessageType), null);
         }
 
+        Expression GetMessageFlagsExpression(Expression expression, Expression combinator)
+        {
+            return expression.Type == typeof(HarpMessage)
+                ? Expression.Call(combinator, nameof(GetMessageFlags), null, expression)
+                : Expression.Call(combinator, nameof(GetMessageFlags), null);
+        }
+
         int GetMessageAddress()
         {
             var address = Address;
@@ -323,6 +337,17 @@ namespace Bonsai.Harp
         {
             var messageType = MessageType;
             return messageType.HasValue ? messageType.GetValueOrDefault() : message.MessageType;
+        }
+
+        MessageFlags GetMessageFlags()
+        {
+            return MessageFlags.GetValueOrDefault();
+        }
+
+        MessageFlags GetMessageFlags(HarpMessage message)
+        {
+            var messageFlags = MessageFlags;
+            return messageFlags.HasValue ? messageFlags.GetValueOrDefault() : message.MessageFlags;
         }
     }
 }

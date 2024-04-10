@@ -11,7 +11,7 @@ namespace Bonsai.Harp
         const int TimestampedOffset = BaseOffset + 6;
         const int ChecksumSize = 1;
         const int DevicePort = 0xFF;
-        const byte ErrorMask = 0x08;
+        const int TypeMask = (int)MessageType.Event;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HarpMessage"/> class from
@@ -50,8 +50,13 @@ namespace Bonsai.Harp
         /// </summary>
         public MessageType MessageType
         {
-            get { return (MessageType)(MessageBytes[0] & ~ErrorMask); }
+            get { return (MessageType)(MessageBytes[0] & TypeMask); }
         }
+
+        /// <summary>
+        /// Gets a value specifying optional flags associated with the Harp message.
+        /// </summary>
+        public MessageFlags MessageFlags => (MessageFlags)(MessageBytes[0] & ~TypeMask);
 
         /// <summary>
         /// Gets the address of the register to which the Harp message refers to.
@@ -83,7 +88,7 @@ namespace Bonsai.Harp
         /// </summary>
         public bool Error
         {
-            get { return (MessageBytes[0] & ErrorMask) != 0; }
+            get { return (MessageBytes[0] & (int)MessageFlags.Error) != 0; }
         }
 
         /// <summary>
@@ -927,8 +932,13 @@ namespace Bonsai.Harp
 
         static HarpMessage FromPayload(int address, int port, MessageType messageType, PayloadType payloadType, Array payload, int payloadSize)
         {
+            return FromPayload(address, port, messageType, messageFlags: 0, payloadType, payload, payloadSize);
+        }
+
+        static HarpMessage FromPayload(int address, int port, MessageType messageType, MessageFlags messageFlags, PayloadType payloadType, Array payload, int payloadSize)
+        {
             var messageBytes = new byte[BaseOffset + payloadSize + ChecksumSize];
-            messageBytes[0] = (byte)messageType;
+            messageBytes[0] = (byte)((byte)messageType | (byte)messageFlags);
             messageBytes[2] = (byte)address;
             messageBytes[3] = (byte)port;
             messageBytes[4] = (byte)payloadType;
@@ -944,8 +954,21 @@ namespace Bonsai.Harp
 
         static HarpMessage FromPayload(int address, int port, double timestamp, MessageType messageType, PayloadType payloadType, Array payload, int payloadSize)
         {
+            return FromPayload(address, port, timestamp, messageType, messageFlags: 0, payloadType, payload, payloadSize);
+        }
+
+        static HarpMessage FromPayload(
+            int address,
+            int port,
+            double timestamp,
+            MessageType messageType,
+            MessageFlags messageFlags,
+            PayloadType payloadType,
+            Array payload,
+            int payloadSize)
+        {
             var messageBytes = new byte[TimestampedOffset + payloadSize + ChecksumSize];
-            messageBytes[0] = (byte)messageType;
+            messageBytes[0] = (byte)((byte)messageType | (byte)messageFlags);
             messageBytes[2] = (byte)address;
             messageBytes[3] = (byte)port;
             messageBytes[4] = (byte)(payloadType | PayloadType.Timestamp);
@@ -966,6 +989,24 @@ namespace Bonsai.Harp
         public static HarpMessage FromPayload(int address, MessageType messageType, PayloadType payloadType, params byte[] payload)
         {
             return FromPayload(address, DevicePort, messageType, payloadType, payload);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="HarpMessage"/> with the specified address, message type, message flags,
+        /// and payload.
+        /// </summary>
+        /// <param name="address">The address of the register to which the Harp message refers to.</param>
+        /// <param name="messageType">The type of the Harp message.</param>
+        /// <param name="messageFlags">The optional flags associated with the Harp message.</param>
+        /// <param name="payloadType">The type of data available in the message payload.</param>
+        /// <param name="payload">The raw binary representation of the payload data.</param>
+        /// <returns>
+        /// A valid <see cref="HarpMessage"/> instance with the specified address, message type,
+        /// message flags, and payload.
+        /// </returns>
+        public static HarpMessage FromPayload(int address, MessageType messageType, MessageFlags messageFlags, PayloadType payloadType, params byte[] payload)
+        {
+            return FromPayload(address, DevicePort, messageType, messageFlags, payloadType, payload, payload.Length);
         }
 
         /// <summary>
@@ -1003,6 +1044,26 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns a <see cref="HarpMessage"/> with the specified address, message type, message flags,
+        /// and payload data stored in the specified array segment.
+        /// </summary>
+        /// <param name="address">The address of the register to which the Harp message refers to.</param>
+        /// <param name="messageType">The type of the Harp message.</param>
+        /// <param name="messageFlags">The optional flags associated with the Harp message.</param>
+        /// <param name="payloadType">The type of data available in the message payload.</param>
+        /// <param name="payload">
+        /// An array segment containing the raw binary representation of the payload data.
+        /// </param>
+        /// <returns>
+        /// A valid <see cref="HarpMessage"/> instance with the specified address, message type,
+        /// message flags, and payload.
+        /// </returns>
+        public static HarpMessage FromPayload(int address, MessageType messageType, MessageFlags messageFlags, PayloadType payloadType, ArraySegment<byte> payload)
+        {
+            return FromPayload(address, DevicePort, messageType, messageFlags, payloadType, payload);
+        }
+
+        /// <summary>
         /// Returns a <see cref="HarpMessage"/> with the specified address, message type, port, and payload
         /// data stored in the specified array segment.
         /// </summary>
@@ -1018,8 +1079,29 @@ namespace Bonsai.Harp
         /// </returns>
         public static HarpMessage FromPayload(int address, int port, MessageType messageType, PayloadType payloadType, ArraySegment<byte> payload)
         {
+            return FromPayload(address, port, messageType, messageFlags: 0, payloadType, payload);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="HarpMessage"/> with the specified address, message type, message flags,
+        /// port, and payload data stored in the specified array segment.
+        /// </summary>
+        /// <param name="address">The address of the register to which the Harp message refers to.</param>
+        /// <param name="port">The origin or destination of the Harp message, for routing purposes.</param>
+        /// <param name="messageType">The type of the Harp message.</param>
+        /// <param name="messageFlags">The optional flags associated with the Harp message.</param>
+        /// <param name="payloadType">The type of data available in the message payload.</param>
+        /// <param name="payload">
+        /// An array segment containing the raw binary representation of the payload data.
+        /// </param>
+        /// <returns>
+        /// A valid <see cref="HarpMessage"/> instance with the specified address, message type,
+        /// message flags, port, and payload.
+        /// </returns>
+        public static HarpMessage FromPayload(int address, int port, MessageType messageType, MessageFlags messageFlags, PayloadType payloadType, ArraySegment<byte> payload)
+        {
             var messageBytes = new byte[BaseOffset + payload.Count + ChecksumSize];
-            messageBytes[0] = (byte)messageType;
+            messageBytes[0] = (byte)((byte)messageType | (byte)messageFlags);
             messageBytes[2] = (byte)address;
             messageBytes[3] = (byte)port;
             messageBytes[4] = (byte)payloadType;
@@ -1083,6 +1165,27 @@ namespace Bonsai.Harp
         }
 
         /// <summary>
+        /// Returns a <see cref="HarpMessage"/> with the specified address, message type, message flags,
+        /// timestamp, and payload data stored in the specified array segment.
+        /// </summary>
+        /// <param name="address">The address of the register to which the Harp message refers to.</param>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">The type of the Harp message.</param>
+        /// <param name="messageFlags">The optional flags associated with the Harp message.</param>
+        /// <param name="payloadType">The type of data available in the message payload.</param>
+        /// <param name="payload">
+        /// An array segment containing the raw binary representation of the payload data.
+        /// </param>
+        /// <returns>
+        /// A valid <see cref="HarpMessage"/> instance with the specified address, message type,
+        /// timestamp, and payload.
+        /// </returns>
+        public static HarpMessage FromPayload(int address, double timestamp, MessageType messageType, MessageFlags messageFlags, PayloadType payloadType, ArraySegment<byte> payload)
+        {
+            return FromPayload(address, DevicePort, timestamp, messageType, messageFlags, payloadType, payload);
+        }
+
+        /// <summary>
         /// Returns a <see cref="HarpMessage"/> with the specified address, message type, port,
         /// timestamp, and payload data stored in the specified array segment.
         /// </summary>
@@ -1100,8 +1203,30 @@ namespace Bonsai.Harp
         /// </returns>
         public static HarpMessage FromPayload(int address, int port, double timestamp, MessageType messageType, PayloadType payloadType, ArraySegment<byte> payload)
         {
+            return FromPayload(address, port, timestamp, messageType, messageFlags: 0, payloadType, payload);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="HarpMessage"/> with the specified address, message type, message flags,
+        /// port, timestamp, and payload data stored in the specified array segment.
+        /// </summary>
+        /// <param name="address">The address of the register to which the Harp message refers to.</param>
+        /// <param name="port">The origin or destination of the Harp message, for routing purposes.</param>
+        /// <param name="timestamp">The timestamp of the message payload, in seconds.</param>
+        /// <param name="messageType">The type of the Harp message.</param>
+        /// <param name="messageFlags">The optional flags associated with the Harp message.</param>
+        /// <param name="payloadType">The type of data available in the message payload.</param>
+        /// <param name="payload">
+        /// An array segment containing the raw binary representation of the payload data.
+        /// </param>
+        /// <returns>
+        /// A valid <see cref="HarpMessage"/> instance with the specified address, message type,
+        /// message flags, port, timestamp, and payload.
+        /// </returns>
+        public static HarpMessage FromPayload(int address, int port, double timestamp, MessageType messageType, MessageFlags messageFlags, PayloadType payloadType, ArraySegment<byte> payload)
+        {
             var messageBytes = new byte[TimestampedOffset + payload.Count + ChecksumSize];
-            messageBytes[0] = (byte)messageType;
+            messageBytes[0] = (byte)((byte)messageType | (byte)messageFlags);
             messageBytes[2] = (byte)address;
             messageBytes[3] = (byte)port;
             messageBytes[4] = (byte)(payloadType | PayloadType.Timestamp);
@@ -2357,7 +2482,7 @@ namespace Bonsai.Harp
             var timestamped = TryGetTimestamp(out double timestamp);
             var payloadLength = GetPayloadLength(timestamped ? TimestampedOffset : BaseOffset) / payloadType;
             return string.Format("{0}{1} {2} {3}{4} Length:{5}",
-                Error ? "Error:" : string.Empty,
+                MessageFlags != 0 ? $"{MessageFlags}: " : string.Empty,
                 MessageType,
                 Address,
                 PayloadType,
