@@ -7,16 +7,17 @@ using System.Windows.Forms;
 using Bonsai.Design;
 using Bonsai.Design.Visualizers;
 using Bonsai.Expressions;
+using ZedGraph;
 
 namespace Bonsai.Harp.Visualizers
 {
     /// <summary>
     /// Provides a type visualizer to display a sequence of Harp messages as a synchronized rolling graph.
     /// </summary>
-    public class TimelineGraphVisualizer : DialogTypeVisualizer
+    public class TriggerTimelineGraphVisualizer : DialogTypeVisualizer
     {
         const int TargetInterval = 1000 / 50;
-        TimelineGraphBuilder.VisualizerController controller;
+        TriggerTimelineGraphBuilder.VisualizerController controller;
         TimelineGraphView view;
         Timer timer;
 
@@ -45,7 +46,7 @@ namespace Bonsai.Harp.Visualizers
         public override void Load(IServiceProvider provider)
         {
             var context = (ITypeVisualizerContext)provider.GetService(typeof(ITypeVisualizerContext));
-            var timelineBuilder = (TimelineGraphBuilder)ExpressionBuilder.GetVisualizerElement(context.Source).Builder;
+            var timelineBuilder = (TriggerTimelineGraphBuilder)ExpressionBuilder.GetVisualizerElement(context.Source).Builder;
             controller = timelineBuilder.Controller;
 
             timer = new Timer();
@@ -62,53 +63,48 @@ namespace Bonsai.Harp.Visualizers
             view.CanEditTimeSpan = !controller.TimeSpan.HasValue;
             GraphHelper.FormatTimeAxis(view.Graph.GraphPane.XAxis);
             GraphHelper.SetAxisLabel(view.Graph.GraphPane.XAxis, "Time");
-            GraphHelper.SetAxisLabel(view.Graph.GraphPane.YAxis, "Register");
+            GraphHelper.SetAxisLabel(view.Graph.GraphPane.YAxis, "Trial");
+            if (view.TimeSpan > 0)
+            {
+                view.Graph.XMin = 0;
+                view.Graph.XMax = view.TimeSpan;
+            }
 
             var currentTime = 0.0;
-            var absoluteMinTime = double.MaxValue;
-            var registerMap = new Dictionary<int, BoundedPointPairList>();
+            var registerMap = new Dictionary<string, PointPairList>();
             CompositeDisposable subscriptions = new();
             view.HandleCreated += delegate
             {
-                subscriptions.Add(controller.Registers.Subscribe(register =>
+                subscriptions.Add(controller.Triggers.Subscribe(group =>
                 {
-                    var label = GetRegisterInfo(register, out int address);
-                    subscriptions.Add(register
+                    var trigger = group.Key;
+                    subscriptions.Add(group
                     .Buffer(() => timerTick)
                     .Subscribe(buffer =>
                     {
                         if (buffer.Count == 0) return;
                         foreach (var message in buffer)
                         {
-                            var address = message.Address;
-                            var timestamp = message.GetTimestamp();
-                            absoluteMinTime = Math.Min(absoluteMinTime, timestamp);
+                            var register = message.Value;
+                            var timestamp = message.Seconds - trigger.Seconds;
                             currentTime = Math.Max(currentTime, timestamp);
-                            if (!registerMap.TryGetValue(address, out var points))
+                            if (!registerMap.TryGetValue(register.Label, out var points))
                             {
-                                points = new BoundedPointPairList();
-                                registerMap.Add(address, points);
-                                var color = GraphControl.GetColor(address);
-                                var series = view.Graph.CreateSeries(label, points, color);
+                                points = new PointPairList();
+                                registerMap.Add(register.Label, points);
+                                var color = GraphControl.GetColor(register.Address);
+                                var series = view.Graph.CreateSeries(register.Label, points, color);
                                 view.Graph.GraphPane.CurveList.Add(series);
                             }
 
-                            points.Add(timestamp, address);
+                            points.Add(timestamp, trigger.Value);
                         }
 
-                        if (view.TimeSpan > 0)
+                        if (view.TimeSpan <= 0)
                         {
-                            var relativeMinTime = currentTime - view.TimeSpan;
-                            foreach (var series in view.Graph.GraphPane.CurveList)
-                            {
-                                ((BoundedPointPairList)series.Points).SetBounds(
-                                    relativeMinTime,
-                                    double.MaxValue);
-                            }
-                            view.Graph.XMin = Math.Max(absoluteMinTime, relativeMinTime);
+                            view.Graph.XMin = 0;
+                            view.Graph.XMax = currentTime;
                         }
-                        else view.Graph.XMin = absoluteMinTime;
-                        view.Graph.XMax = currentTime;
                         view.Graph.Invalidate();
                     }));
                 }));
@@ -141,7 +137,6 @@ namespace Bonsai.Harp.Visualizers
             view?.Dispose();
             timer?.Dispose();
             view = null;
-            timer = null;
             controller = null;
         }
     }
