@@ -4,12 +4,13 @@
     <Title>Bonsai - Harp Design Library</Title>
     <Description>Bonsai Design Library containing visualizer and editor classes for configuring Harp devices.</Description>
     <PackageTags>Bonsai Rx Harp Hardware Protocol Design</PackageTags>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bonsai.Design" Version="2.8.0" />
+    <PackageReference Include="Bonsai.Design" Version="2.8.5" />
   </ItemGroup>
 
   <ItemGroup>

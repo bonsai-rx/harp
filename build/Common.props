@@ -1,8 +1,16 @@
 <Project>
   <PropertyGroup>
+    <!-- Common C# Properties -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <UseArtifactsOutput>true</UseArtifactsOutput>
     <LangVersion>latest</LangVersion>
     <Features>strict</Features>
+
+    <!-- Opt in to modern resource embedding (required for building from .NET SDK) -->
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+
+    <!-- Enable windows targeting (required when building from non-Windows platforms) -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
 
   <Import Project="Bonsai.props" />

@@ -4,7 +4,6 @@
     <Title>Bonsai - Harp Visualizers Library</Title>
     <Description>Bonsai Design Library containing operators for visualizing Harp message streams.</Description>
     <PackageTags>Bonsai Rx Harp Visualizers</PackageTags>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
