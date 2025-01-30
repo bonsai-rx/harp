@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <Authors>Bonsai</Authors>
+    <Copyright>Copyright © Bonsai Foundation CIC and Contributors</Copyright>
+    <PackageProjectUrl>https://harp-tech.org</PackageProjectUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageType>Dependency;BonsaiLibrary</PackageType>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <IncludeSymbols>true</IncludeSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)..\LICENSE" PackagePath="/" />
+    <Content Include="$(MSBuildThisFileDirectory)..\icon.png" PackagePath="/" />
+    <Content Include="$(MSBuildThisFileDirectory)..\README.md" PackagePath="/" />
+  </ItemGroup>
+</Project>

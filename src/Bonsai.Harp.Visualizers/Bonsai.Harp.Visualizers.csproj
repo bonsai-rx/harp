@@ -7,7 +7,6 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <UseWindowsForms>true</UseWindowsForms>
     <TargetFramework>net472</TargetFramework>
-    <Version>0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
