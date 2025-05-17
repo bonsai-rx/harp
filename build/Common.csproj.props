@@ -1,8 +1,10 @@
 <Project>
   <PropertyGroup>
-    <!-- Common C# Properties -->
+    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <UseArtifactsOutput>true</UseArtifactsOutput>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IncludeSymbols>true</IncludeSymbols>
     <LangVersion>latest</LangVersion>
     <Features>strict</Features>
 
@@ -11,6 +13,18 @@
 
     <!-- Enable windows targeting (required when building from non-Windows platforms) -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <!-- Common properties for design projects -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Design')) OR $(MSBuildProjectName.EndsWith('.Visualizers'))">
+    <UseWindowsForms>true</UseWindowsForms>
+    <TargetFrameworks>net472</TargetFrameworks>
+  </PropertyGroup>
+
+  <!-- Common properties for test projects -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
   <Import Project="Bonsai.props" />

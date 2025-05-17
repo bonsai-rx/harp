@@ -15,12 +15,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{001DDB7B-D2B7-4665-AF76-E264D1F5474E}"
 	ProjectSection(SolutionItems) = preProject
 		build\Bonsai.props = build\Bonsai.props
-		build\Common.props = build\Common.props
+		build\Common.csproj.props = build\Common.csproj.props
+		build\Common.csproj.targets = build\Common.csproj.targets
 		build\Package.props = build\Package.props
 		build\Version.props = build\Version.props
 	EndProjectSection

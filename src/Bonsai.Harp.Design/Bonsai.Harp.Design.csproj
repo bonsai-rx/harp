@@ -1,12 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Title>Bonsai - Harp Design Library</Title>
     <Description>Bonsai Design Library containing visualizer and editor classes for configuring Harp devices.</Description>
     <PackageTags>Bonsai Rx Harp Hardware Protocol Design</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
-    <UseWindowsForms>true</UseWindowsForms>
-    <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
