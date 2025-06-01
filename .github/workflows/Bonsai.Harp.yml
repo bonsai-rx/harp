@@ -311,8 +311,10 @@ jobs:
       name: documentation-website
       url: ${{steps.publish.outputs.page_url}}
     # Only run if the workflow isn't dying and build-documentation was successful and either A) we're releasing or B) we have continuous deployment enabled
+    # Publishing to GitHub Pages is currently disabled for the canonical repo because Bonsai.Harp's documentation is published via https://github.com/harp-tech/harp-tech.github.io
     if: |
       !cancelled() && !failure() && needs.build-documentation.result == 'success'
+      && github.event.repository.fork
       && (github.event_name == 'release'
         || (vars.CONTINUOUS_DOCUMENTATION && github.event_name != 'pull_request')
       )
