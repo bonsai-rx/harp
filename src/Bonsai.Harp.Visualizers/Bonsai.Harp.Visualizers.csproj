@@ -1,13 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Title>Bonsai - Harp Visualizers Library</Title>
     <Description>Bonsai Design Library containing operators for visualizing Harp message streams.</Description>
-    <PackageTags>Bonsai Rx Harp Visualizers</PackageTags>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <UseWindowsForms>true</UseWindowsForms>
+    <PackageTags>$(PackageTags) Visualizers</PackageTags>
+
     <TargetFramework>net472</TargetFramework>
-    <Version>0.1.0</Version>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
-.vs
-.suo
-.nuget
+.bonsai/Bonsai.exe*
+.bonsai/Packages/
+.bonsai/Settings/
+.vs/
+/artifacts/
 *.user
-bin
-obj
