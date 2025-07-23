@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace Bonsai.Harp.Design
 {
-    public partial class DeviceOperationDialog : Form
+    internal partial class DeviceOperationDialog : Form
     {
         readonly Func<Task> operationAsync;
 
