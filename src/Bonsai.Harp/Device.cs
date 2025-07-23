@@ -256,17 +256,13 @@ namespace Bonsai.Harp
               .FirstAsync();
         }
 
-        private void CloseTransport(SerialTransport transport)
+        private void CloseTransport(SerialTransport transport, OperationControlPayload controlPayload)
         {
             try
             {
-                var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
-                    OperationMode.Standby,
-                    dumpRegisters: false,
-                    MuteReplies,
-                    VisualIndicators,
-                    OperationLed,
-                    Heartbeat));
+                controlPayload.OperationMode = OperationMode.Standby;
+                controlPayload.DumpRegisters = false;
+                var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, controlPayload);
                 transport.Write(writeOpCtrl);
             }
             catch (Exception ex) when (ex is IOException || ex is InvalidOperationException || ex is ObjectDisposedException)
@@ -283,10 +279,13 @@ namespace Bonsai.Harp
         /// <returns>The observable sequence of Harp messages produced by the device.</returns>
         public override IObservable<HarpMessage> Generate()
         {
+            var portName = PortName;
+            var ignoreErrors = IgnoreErrors;
+            var controlPayload = CreateOperationControlPayload();
             return Observable.Create<HarpMessage>(async (observer, cancellationToken) =>
             {
-                var transport = await CreateTransportAsync(observer, cancellationToken);
-                return Disposable.Create(() => CloseTransport(transport));
+                var transport = await CreateTransportAsync(portName, ignoreErrors, controlPayload, observer, cancellationToken);
+                return Disposable.Create(() => CloseTransport(transport, controlPayload));
             });
         }
 
@@ -298,9 +297,12 @@ namespace Bonsai.Harp
         /// <returns>The observable sequence of Harp messages produced by the device.</returns>
         public IObservable<HarpMessage> Generate(IObservable<HarpMessage> source)
         {
+            var portName = PortName;
+            var ignoreErrors = IgnoreErrors;
+            var controlPayload = CreateOperationControlPayload();
             return Observable.Create<HarpMessage>(async (observer, cancellationToken) =>
             {
-                var transport = await CreateTransportAsync(observer, cancellationToken);
+                var transport = await CreateTransportAsync(portName, ignoreErrors, controlPayload, observer, cancellationToken);
                 var sourceDisposable = new SingleAssignmentDisposable();
                 sourceDisposable.Disposable = source.Subscribe(
                     transport.Write,
@@ -310,16 +312,29 @@ namespace Bonsai.Harp
                 return Disposable.Create(() =>
                 {
                     sourceDisposable.Dispose();
-                    CloseTransport(transport);
+                    CloseTransport(transport, controlPayload);
                 });
             });
         }
 
         string INamedElement.Name => !string.IsNullOrEmpty(name) ? name : default;
 
-        async Task<SerialTransport> CreateTransportAsync(IObserver<HarpMessage> observer, CancellationToken cancellationToken)
+        OperationControlPayload CreateOperationControlPayload() => new(
+                OperationMode,
+                DumpRegisters,
+                MuteReplies,
+                VisualIndicators,
+                OperationLed,
+                Heartbeat
+        );
+
+        async Task<SerialTransport> CreateTransportAsync(
+            string portName,
+            bool ignoreErrors,
+            OperationControlPayload controlPayload,
+            IObserver<HarpMessage> observer,
+            CancellationToken cancellationToken)
         {
-            var portName = PortName;
             SerialTransport transport;
             using (var device = new AsyncDevice(portName, leaveOpen: true))
             {
@@ -351,7 +366,7 @@ namespace Bonsai.Harp
                 }
 
                 transport = device.Transport;
-                transport.IgnoreErrors = IgnoreErrors;
+                transport.IgnoreErrors = ignoreErrors;
                 transport.SetObserver(Observer.Create<HarpMessage>(
                     message =>
                     {
@@ -367,13 +382,7 @@ namespace Bonsai.Harp
                     observer.OnCompleted));
             }
 
-            var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
-                OperationMode,
-                DumpRegisters,
-                MuteReplies,
-                VisualIndicators,
-                OperationLed,
-                Heartbeat));
+            var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, controlPayload);
             transport.Write(writeOpCtrl);
             return transport;
         }
