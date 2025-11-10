@@ -80,8 +80,6 @@ namespace Bonsai.Harp
                         await device.WriteResetDeviceAsync(ResetFlags.RestoreDefault);
                     }
                     else throw new HarpException("The device is in an unexpected boot mode.");
-                    await Observable.Timer(flushDelay);
-                    progress?.Report(30);
                 }
             }
             catch (Exception ex) when (ex is TimeoutException || ex is IOException)
@@ -91,6 +89,9 @@ namespace Bonsai.Harp
                     throw;
                 }
             }
+
+            await Observable.Timer(flushDelay);
+            progress?.Report(30);
 
             const int MaxAttempts = 10;
             const int DefaultBaudRate = 1000000;
