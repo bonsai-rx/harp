@@ -7,30 +7,30 @@ namespace Bonsai.Harp.Tests
     public class TestHarpMessage
     {
         const int DefaultAddress = 42;
-        static readonly Random Generator = new Random(23);
+        static readonly Random Generator = new(23);
 
-        double GetTimestamp()
+        static double GetTimestamp()
         {
             return Math.Round(Generator.NextDouble() * 100 + Generator.NextDouble(), 6);
         }
 
-        void AssertArrayEqual<T>(T[] expected, T[] actual) where T : struct, IEquatable<T>
+        static void AssertArrayEqual<T>(T[] expected, T[] actual) where T : struct, IEquatable<T>
         {
             Assert.IsNotNull(expected);
             Assert.IsNotNull(actual);
-            Assert.AreEqual(expected.Length, actual.Length);
+            Assert.HasCount(expected.Length, actual);
             for (int i = 0; i < expected.Length; i++)
             {
                 expected[i].Equals(actual[i]);
             }
         }
 
-        void AssertIsValid(HarpMessage message)
+        static void AssertIsValid(HarpMessage message)
         {
             Assert.IsTrue(message.IsValid);
         }
 
-        void AssertTimestamp(double expected, double actual)
+        static void AssertTimestamp(double expected, double actual)
         {
             Assert.AreEqual(expected, actual, 32e-6);
         }
@@ -498,7 +498,7 @@ namespace Bonsai.Harp.Tests
             AssertIsValid(message);
             var actualTimestamp = message.GetTimestamp();
             AssertTimestamp(timestamp, actualTimestamp);
-            Assert.AreEqual(payloadSegment.Count, message.GetPayloadArray<byte>().Length);
+            Assert.HasCount(payloadSegment.Count, message.GetPayloadArray<byte>());
             Assert.AreEqual(value, message.GetPayloadUInt16());
         }
     }

@@ -24,7 +24,7 @@ namespace Bonsai.Harp.Tests
             Assert.IsFalse(a > b); Assert.IsTrue(b > a);
             AssertOperatorConsistent(a, b); AssertOperatorConsistent(b, a);
             Assert.IsFalse(EqualityComparer<HarpVersion>.Default.Equals(a, b));
-            Assert.IsTrue(Comparer<HarpVersion>.Default.Compare(a, b) < 0);
+            Assert.IsLessThan(0, Comparer<HarpVersion>.Default.Compare(a, b));
         }
 
         static void AssertGreaterThan(HarpVersion a, HarpVersion b)
@@ -34,7 +34,7 @@ namespace Bonsai.Harp.Tests
             Assert.IsTrue(a > b); Assert.IsFalse(b > a);
             AssertOperatorConsistent(a, b); AssertOperatorConsistent(b, a);
             Assert.IsFalse(EqualityComparer<HarpVersion>.Default.Equals(a, b));
-            Assert.IsTrue(Comparer<HarpVersion>.Default.Compare(a, b) > 0);
+            Assert.IsGreaterThan(0, Comparer<HarpVersion>.Default.Compare(a, b));
         }
 
         static void AssertOperatorConsistent(HarpVersion a, HarpVersion b)
@@ -130,24 +130,21 @@ namespace Bonsai.Harp.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void InvalidParseRunawayCharacters_ThrowsException()
         {
-            HarpVersion.Parse("1.xx");
+            Assert.ThrowsExactly<ArgumentException>(() => HarpVersion.Parse("1.xx"));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void InvalidParseInvalidSeparator_ThrowsException()
         {
-            HarpVersion.Parse("1;2");
+            Assert.ThrowsExactly<ArgumentException>(() => HarpVersion.Parse("1;2"));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void InvalidParseWithFloatingMajor_ThrowsException()
         {
-            HarpVersion.Parse("x.1");
+            Assert.ThrowsExactly<ArgumentException>(() => HarpVersion.Parse("x.1"));
         }
     }
 }

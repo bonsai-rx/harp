@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bonsai.Design.Visualizers" Version="2.8.0" />
+    <PackageReference Include="Bonsai.Design.Visualizers" Version="2.9.0" />
   </ItemGroup>
 
   <ItemGroup>
