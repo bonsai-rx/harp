@@ -4,12 +4,12 @@
     <Title>Bonsai - Harp Library</Title>
     <Description>Bonsai Library containing interfaces for data acquisition and control of devices implementing the Harp protocol.</Description>
 
-    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Bonsai.Core" Version="2.8.0" />
-    <PackageReference Include="Bonsai.System" Version="2.8.0" />
+    <PackageReference Include="Bonsai.Core" Version="2.9.0" />
+    <PackageReference Include="Bonsai.System" Version="2.9.0" />
   </ItemGroup>
 
   <ItemGroup>
