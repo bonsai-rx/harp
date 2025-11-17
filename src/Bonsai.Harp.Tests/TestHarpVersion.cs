@@ -64,9 +64,18 @@ namespace Bonsai.Harp.Tests
         [TestMethod]
         public void CompareSpecificVersions_Equal()
         {
-            HarpVersion a = new HarpVersion(1, 0);
-            HarpVersion b = new HarpVersion(1, 0);
+            HarpVersion a = new HarpVersion(1, 0, 0);
+            HarpVersion b = new HarpVersion(1, 0, 0);
             AssertEquals(a, b);
+        }
+
+        [TestMethod]
+        public void ComparePatchSpecificVersions_NotEqual()
+        {
+            HarpVersion a = new HarpVersion(1, 0, 0);
+            HarpVersion b = new HarpVersion(1, 0, 1);
+            AssertLessThan(a, b);
+            AssertGreaterThan(b, a);
         }
 
         [TestMethod]
@@ -88,14 +97,36 @@ namespace Bonsai.Harp.Tests
         }
 
         [TestMethod]
-        public void CompareMinorFloatingVersion_NotEqual()
+        public void ComparePatchFloatingVersion_NotEqual()
         {
-            HarpVersion a = new HarpVersion(2, null);
-            HarpVersion b = new HarpVersion(2, 1);
+            HarpVersion a = new HarpVersion(2, 1, null);
+            HarpVersion b = new HarpVersion(2, 1, 0);
             AssertLessThan(a, b);
             AssertGreaterThan(b, a);
             Assert.IsTrue(a.Satisfies(b));
             Assert.IsTrue(b.Satisfies(a));
+        }
+
+        [TestMethod]
+        public void CompareMinorFloatingVersion_NotEqual()
+        {
+            HarpVersion a = new HarpVersion(2, null);
+            HarpVersion b = new HarpVersion(2, 1, 0);
+            AssertLessThan(a, b);
+            AssertGreaterThan(b, a);
+            Assert.IsTrue(a.Satisfies(b));
+            Assert.IsTrue(b.Satisfies(a));
+        }
+
+        [TestMethod]
+        public void ComparePatchFloatingVersion_NotSatisfies()
+        {
+            HarpVersion a = new HarpVersion(2, 2, null);
+            HarpVersion b = new HarpVersion(2, 1);
+            AssertLessThan(b, a);
+            AssertGreaterThan(a, b);
+            Assert.IsFalse(a.Satisfies(b));
+            Assert.IsFalse(b.Satisfies(a));
         }
 
         [TestMethod]
@@ -121,12 +152,22 @@ namespace Bonsai.Harp.Tests
         }
 
         [TestMethod]
-        public void ParseAndToString_AreReversible()
+        public void ParseAndToStringSpecificVersion_AreReversible()
         {
-            var x = new HarpVersion(2, null);
+            var x = new HarpVersion(2, 1, 0);
             var text = x.ToString();
             var y = HarpVersion.Parse(text);
             AssertEquals(x, y);
+        }
+
+        [TestMethod]
+        public void ParseAndToStringPatchFloating_AreReversible()
+        {
+            var input = "1.0.x";
+            var x = HarpVersion.Parse(input);
+            Assert.AreEqual("1.0", x.ToString());
+            var y = HarpVersion.Parse(x.ToString());
+            Assert.AreEqual(x, y);
         }
 
         [TestMethod]
@@ -145,6 +186,12 @@ namespace Bonsai.Harp.Tests
         public void InvalidParseWithFloatingMajor_ThrowsException()
         {
             Assert.ThrowsExactly<ArgumentException>(() => HarpVersion.Parse("x.1"));
+        }
+
+        [TestMethod]
+        public void InvalidParseWithFloatingMinor_ThrowsException()
+        {
+            Assert.ThrowsExactly<ArgumentException>(() => HarpVersion.Parse("1.x.0"));
         }
     }
 }
