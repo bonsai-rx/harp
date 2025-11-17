@@ -9,7 +9,7 @@ namespace Bonsai.Harp
     /// <summary>
     /// Represents an asynchronous API to configure and interface with Harp devices.
     /// </summary>
-    public class AsyncDevice : IDisposable
+    public class AsyncDevice : IDisposable, IAsyncDisposable
     {
         readonly bool _leaveOpen;
         readonly SerialTransport transport;
@@ -923,6 +923,15 @@ namespace Bonsai.Harp
             if (!_leaveOpen)
             {
                 transport.Close();
+            }
+            response.Dispose();
+        }
+
+        async ValueTask IAsyncDisposable.DisposeAsync()
+        {
+            if (!_leaveOpen)
+            {
+                await transport.CloseAsync();
             }
             response.Dispose();
         }

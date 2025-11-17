@@ -56,7 +56,7 @@ namespace Bonsai.Harp
             var flushDelay = TimeSpan.FromMilliseconds(FlushDelayMilliseconds);
             try
             {
-                using (var device = new AsyncDevice(portName))
+                await using (var device = new AsyncDevice(portName))
                 {
                     progress?.Report(10);
                     if (!forceUpdate)

@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 
 namespace Bonsai.Harp
 {
-    class SerialTransport : StreamTransport, IDisposable
+    class SerialTransport : StreamTransport, IDisposable, IAsyncDisposable
     {
         const int DefaultBaudRate = 1000000;
         const int DefaultReadBufferSize = 1048576; // 2^20 = 1 MB
         readonly CancellationTokenSource taskCancellation;
         readonly SerialPort serialPort;
+        readonly Task serialTask;
 
         public SerialTransport(string portName, IObserver<HarpMessage> observer)
             : base(observer)
@@ -21,7 +22,7 @@ namespace Bonsai.Harp
             serialPort.ReadBufferSize = DefaultReadBufferSize;
             serialPort.Handshake = Handshake.RequestToSend;
             serialPort.DtrEnable = true;
-            RunAsync(taskCancellation.Token);
+            serialTask = RunAsync(taskCancellation.Token);
         }
 
         Task RunAsync(CancellationToken cancellationToken)
@@ -72,9 +73,20 @@ namespace Bonsai.Harp
             }
         }
 
+        public async ValueTask CloseAsync()
+        {
+            Close();
+            await serialTask;
+        }
+
         void IDisposable.Dispose()
         {
             Close();
+        }
+
+        ValueTask IAsyncDisposable.DisposeAsync()
+        {
+            return CloseAsync();
         }
     }
 }
