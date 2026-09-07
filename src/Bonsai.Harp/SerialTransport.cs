@@ -29,7 +29,7 @@ namespace Bonsai.Harp
             serialPort.Open();
             return Task.Factory.StartNew(() =>
             {
-                using var cancellation = cancellationToken.Register(serialPort.Dispose);
+                cancellationToken.Register(serialPort.Dispose);
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     try
@@ -53,7 +53,7 @@ namespace Bonsai.Harp
                     }
                 }
             },
-            cancellationToken,
+            CancellationToken.None,
             TaskCreationOptions.LongRunning,
             TaskScheduler.Default);
         }
