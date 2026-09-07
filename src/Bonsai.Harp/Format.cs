@@ -158,33 +158,41 @@ namespace Bonsai.Harp
             var baseType = payloadType & ~Harp.PayloadType.Timestamp;
             var timestamped = (payloadType & Harp.PayloadType.Timestamp) == Harp.PayloadType.Timestamp;
             var combinator = Expression.Constant(this, typeof(FormatMessagePayload));
+            Expression sourceTimestamp = null;
+            if (IsTimestamped(expression.Type))
+            {
+                sourceTimestamp = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Seconds));
+                if (sourceTimestamp.Type != typeof(double)) sourceTimestamp = Expression.Convert(sourceTimestamp, typeof(double));
+                expression = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Value));
+                timestamped |= payloadType == null;
+            }
+
             var address = GetAddressExpression(expression, combinator);
             var messageType = GetMessageTypeExpression(expression, combinator);
+            var payloadTypeExpression = GetPayloadTypeExpression(expression, payloadType);
             if (timestamped)
             {
-                Expression timestamp;
-                if (expression.Type == typeof(HarpMessage))
+                if (sourceTimestamp == null)
                 {
-                    timestamp = Expression.Call(expression, nameof(HarpMessage.GetTimestamp), null);
-                }
-                else
-                {
-                    timestamp = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Seconds));
-                    if (timestamp.Type != typeof(double)) timestamp = Expression.Convert(timestamp, typeof(double));
-                    expression = Expression.PropertyOrField(expression, nameof(Timestamped<object>.Value));
+                    if (expression.Type != typeof(HarpMessage))
+                    {
+                        throw new ArgumentException(
+                            "The source value must be a Harp message or a timestamped value if a timestamp is specified.",
+                            nameof(expression));
+                    }
+
+                    sourceTimestamp = Expression.Call(expression, nameof(HarpMessage.GetTimestamp), null);
                 }
 
-                var payloadTypeExpression = GetPayloadTypeExpression(expression, payloadType);
                 if (TryGetArraySegment(expression, out Expression payload))
                 {
-                    arguments = new[] { address, timestamp, messageType, payloadTypeExpression, payload };
+                    arguments = new[] { address, sourceTimestamp, messageType, payloadTypeExpression, payload };
                     return Expression.Call(typeof(HarpMessage), nameof(HarpMessage.FromPayload), null, arguments);
                 }
-                arguments = new[] { address, timestamp, messageType, expression };
+                arguments = new[] { address, sourceTimestamp, messageType, expression };
             }
             else
             {
-                var payloadTypeExpression = GetPayloadTypeExpression(expression, payloadType);
                 if (TryGetArraySegment(expression, out Expression payload))
                 {
                     arguments = new[] { address, messageType, payloadTypeExpression, payload };
@@ -238,6 +246,11 @@ namespace Bonsai.Harp
                 default:
                     throw new InvalidOperationException("Invalid Harp payload type.");
             }
+        }
+
+        static bool IsTimestamped(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Timestamped<>);
         }
 
         static bool TryGetArraySegment(Expression expression, out Expression payload)
