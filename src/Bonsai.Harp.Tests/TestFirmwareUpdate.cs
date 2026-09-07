@@ -92,10 +92,11 @@ namespace Bonsai.Harp.Tests
             var recoveryFailures = new List<string>();
             var responseMilliseconds = new List<double>();
             var readyMilliseconds = new List<double>();
-            var neverReady = 0;
+            var lateResponses = 0;
             var recovered = 0;
             var retried = 0;
             var attempted = 0;
+            string setupFailure = null;
 
             // Stage 30 means a failure while reopening the port or waiting for the bootloader, and
             // beyond 40 while writing the image, which leaves the device in bootloader mode.
@@ -132,9 +133,23 @@ namespace Bonsai.Harp.Tests
                     }
                     else
                     {
-                        neverReady++;
+                        var noResponse = await HardwareTestHelper.CheckDeviceResponseAsync(portName);
+                        if (noResponse != null)
+                        {
+                            setupFailure = string.Format(
+                                "iteration {0}: succeeded in {1:F0}ms but the device did not respond again ({2}: {3})",
+                                i,
+                                elapsed,
+                                noResponse.GetType().Name,
+                                noResponse.Message);
+                            TestContext.WriteLine(setupFailure);
+                            TestContext.WriteLine("  abandoning the run rather than updating a device in an unknown state");
+                            break;
+                        }
+
+                        lateResponses++;
                         TestContext.WriteLine(
-                            "iteration {0}: succeeded in {1:F0}ms but never responded within {2}ms",
+                            "iteration {0}: succeeded in {1:F0}ms, did not respond within {2}ms but responded when left quiet",
                             i,
                             elapsed,
                             ReadyTimeoutMilliseconds);
@@ -217,7 +232,7 @@ namespace Bonsai.Harp.Tests
             }
 
             HardwareTestHelper.ReportTimingStats(TestContext, "time to respond again after a successful update", readyMilliseconds);
-            TestContext.WriteLine("successful updates after which the device never responded: {0}", neverReady);
+            TestContext.WriteLine("successful updates after which the device responded only when left quiet: {0}", lateResponses);
             HardwareTestHelper.ReportTimingStats(TestContext, "time until the device responded again after a failure", responseMilliseconds);
             TestContext.WriteLine("failures that left the device unresponsive: {0}", recovered + recoveryFailures.Count);
             TestContext.WriteLine("recovered by forcing an update: {0}", recovered);
@@ -229,6 +244,12 @@ namespace Bonsai.Harp.Tests
                 recoveryFailures,
                 "A firmware update left the device unresponsive and forcing an update did not recover it.");
             Assert.IsEmpty(failures, "At least one firmware update failed. The stage and exception type identify where.");
+
+            if (setupFailure != null)
+            {
+                Assert.Inconclusive(
+                    "The run was abandoned because a device stopped responding after a successful update. " + setupFailure);
+            }
         }
     }
 }
