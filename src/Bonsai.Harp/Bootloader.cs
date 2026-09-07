@@ -86,14 +86,18 @@ namespace Bonsai.Harp
             {
                 if (!forceUpdate)
                 {
-                    throw;
+                    throw new HarpException(
+                        "The device did not answer, and may still be restarting from a previous " +
+                        "operation. If a firmware update was interrupted, the device stays in " +
+                        "bootloader mode and will answer only a forced update.",
+                        ex);
                 }
             }
 
             await Observable.Timer(flushDelay);
             progress?.Report(30);
 
-            const int MaxAttempts = 10;
+            const int MaxAttempts = 3;
             const int DefaultBaudRate = 1000000;
             for (int i = 1; i <= MaxAttempts; i++)
             {
@@ -128,13 +132,15 @@ namespace Bonsai.Harp
                         break;
                     };
                 }
-                catch (IOException)
+                catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException || ex is TimeoutException)
                 {
-                    if (!forceUpdate || i == MaxAttempts)
+                    if (i < MaxAttempts)
                     {
-                        throw;
+                        await Observable.Timer(flushDelay);
+                        continue;
                     }
-                    else await Observable.Timer(flushDelay);
+
+                    throw;
                 }
             }
         }
