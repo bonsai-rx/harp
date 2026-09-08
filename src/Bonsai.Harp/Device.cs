@@ -20,7 +20,7 @@ namespace Bonsai.Harp
     public partial class Device : Source<HarpMessage>, INamedElement
     {
         string name;
-        string portName;
+        string cachedPortName;
         readonly int deviceId;
         readonly FirmwareMetadata deviceFirmware;
 
@@ -59,7 +59,7 @@ namespace Bonsai.Harp
                     nameof(whoAmI));
             }
 
-            portName = "COMx";
+            PortName = "COMx";
             OperationMode = OperationMode.Active;
             OperationLed = LedState.On;
             VisualIndicators = LedState.On;
@@ -162,18 +162,7 @@ namespace Bonsai.Harp
         /// </summary>
         [TypeConverter(typeof(PortNameConverter))]
         [Description("The name of the serial port used to communicate with the Harp device.")]
-        public string PortName
-        {
-            get { return portName; }
-            set
-            {
-                portName = value;
-                if (deviceId == 0)
-                {
-                    GetDeviceName(portName, LedState, VisualIndicators, Heartbeat).Subscribe(deviceName => name = deviceName);
-                }
-            }
-        }
+        public string PortName { get; set; }
 
         static IObservable<string> GetDeviceName(string portName, LedState ledState, LedState visualIndicators, EnableFlag heartbeat)
         {
@@ -317,7 +306,25 @@ namespace Bonsai.Harp
             });
         }
 
-        string INamedElement.Name => !string.IsNullOrEmpty(name) ? name : default;
+        string INamedElement.Name
+        {
+            get
+            {
+                var portName = PortName;
+                if (GetType() == typeof(Device) && cachedPortName != portName)
+                {
+                    name = null;
+                    cachedPortName = portName;
+                    if (!string.IsNullOrEmpty(portName))
+                    {
+                        GetDeviceName(portName, LedState, VisualIndicators, Heartbeat)
+                            .Subscribe(deviceName => name = deviceName);
+                    }
+                }
+
+                return !string.IsNullOrEmpty(name) ? name : default;
+            }
+        }
 
         OperationControlPayload CreateOperationControlPayload() => new(
                 OperationMode,
