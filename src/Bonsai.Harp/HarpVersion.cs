@@ -11,7 +11,7 @@ namespace Bonsai.Harp
     public sealed class HarpVersion : IComparable, IComparable<HarpVersion>, IEquatable<HarpVersion>
     {
         internal const string FloatingWildcard = "x";
-        static readonly Regex VersionRegex = new Regex("^(?<major>x|\\d+)\\.(?<minor>x|\\d+)$");
+        static readonly Regex VersionRegex = new("^(?<major>x|\\d+)\\.(?<minor>x|\\d+)(\\.(?<patch>x|\\d+))?$");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HarpVersion"/> class with the specified
@@ -21,26 +21,62 @@ namespace Bonsai.Harp
         /// <param name="minor">
         /// The optional minor version. If not specified, matches against all minor versions with the same major version.
         /// </param>
+        /// <exception cref="ArgumentException">
+        /// Major version is floating and minor version specified, or major and minor version are floating
+        /// and patch version is specified.
+        /// </exception>
         public HarpVersion(int? major, int? minor)
+            : this(major, minor, default)
         {
-            if (major == null && minor != null)
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HarpVersion"/> class with the specified
+        /// major and minor version.
+        /// </summary>
+        /// <param name="major">The optional major version. If not specified, matches against all versions.</param>
+        /// <param name="minor">
+        /// The optional minor version. If not specified, matches against all minor versions with the same major version.
+        /// </param>
+        /// <param name="patch">
+        /// The optional patch version. If not specified, matches against all patch versions with matching major and
+        /// minor versions.
+        /// </param>
+        /// <exception cref="ArgumentException">
+        /// Major version is floating and minor version specified, or minor version is floating
+        /// and patch version is specified.
+        /// </exception>
+        public HarpVersion(int? major, int? minor, int? patch)
+        {
+            if (minor is not null && major is null)
             {
                 throw new ArgumentException("Minor version cannot be specified if major version is floating.", nameof(minor));
             }
 
+            if (patch is not null && minor is null)
+            {
+                throw new ArgumentException("Patch version cannot be specified if minor version is floating.", nameof(minor));
+            }
+
             Major = major;
             Minor = minor;
+            Patch = patch;
         }
 
         /// <summary>
         /// Gets the optional major version.
         /// </summary>
-        public int? Major { get; private set; }
+        public int? Major { get; }
 
         /// <summary>
         /// Gets the optional minor version.
         /// </summary>
-        public int? Minor { get; private set; }
+        public int? Minor { get; }
+
+        /// <summary>
+        /// Gets the optional patch version.
+        /// </summary>
+        public int? Patch { get; }
 
         /// <summary>
         /// Returns whether the specified version matches the current version, taking into account
@@ -55,10 +91,13 @@ namespace Bonsai.Harp
         {
             if (other is null) return false;
 
-            var satisfyMajor = !Major.HasValue || Major == other.Major.GetValueOrDefault(Major.Value);
+            var satisfyMajor = !Major.HasValue || Major == other.Major.GetValueOrDefault(Major.GetValueOrDefault());
             if (!satisfyMajor) return false;
 
-            return !Minor.HasValue || Minor == other.Minor.GetValueOrDefault(Minor.Value);
+            var satisfyMinor = !Minor.HasValue || Minor == other.Minor.GetValueOrDefault(Minor.GetValueOrDefault());
+            if (!satisfyMinor) return false;
+
+            return !Patch.HasValue || Patch == other.Patch.GetValueOrDefault(Patch.GetValueOrDefault());
         }
 
         int IComparable.CompareTo(object obj)
@@ -84,7 +123,10 @@ namespace Bonsai.Harp
             var major = Comparer<int?>.Default.Compare(Major, other.Major);
             if (major != 0) return major;
 
-            return Comparer<int?>.Default.Compare(Minor, other.Minor);
+            var minor = Comparer<int?>.Default.Compare(Minor, other.Minor);
+            if (minor != 0) return minor;
+
+            return Comparer<int?>.Default.Compare(Patch, other.Patch);
         }
 
         /// <summary>
@@ -97,8 +139,7 @@ namespace Bonsai.Harp
         /// </returns>
         public override bool Equals(object obj)
         {
-            if (obj is HarpVersion version) return Equals(version);
-            else return false;
+            return obj is HarpVersion version && Equals(version);
         }
 
         /// <summary>
@@ -112,7 +153,7 @@ namespace Bonsai.Harp
         public bool Equals(HarpVersion other)
         {
             if (other is null) return false;
-            return Major == other.Major && Minor == other.Minor;
+            return Major == other.Major && Minor == other.Minor && Patch == other.Patch;
         }
 
         /// <summary>
@@ -124,7 +165,7 @@ namespace Bonsai.Harp
         /// </returns>
         public override int GetHashCode()
         {
-            return 29863 * Major.GetHashCode() + 1723 * Minor.GetHashCode();
+            return 29863 * Major.GetHashCode() + 1723 * Minor.GetHashCode() + 6917 * Patch.GetHashCode();
         }
 
         /// <summary>
@@ -155,7 +196,7 @@ namespace Bonsai.Harp
         /// </returns>
         public static bool operator !=(HarpVersion lhs, HarpVersion rhs)
         {
-            if (lhs is null) return !(rhs is null);
+            if (lhs is null) return rhs is not null;
             else return !lhs.Equals(rhs);
         }
 
@@ -171,7 +212,7 @@ namespace Bonsai.Harp
         /// </returns>
         public static bool operator <(HarpVersion lhs, HarpVersion rhs)
         {
-            if (lhs is null) return !(rhs is null);
+            if (lhs is null) return rhs is not null;
             else return lhs.CompareTo(rhs) < 0;
         }
 
@@ -255,13 +296,15 @@ namespace Bonsai.Harp
         {
             if (version == null) throw new ArgumentNullException(nameof(version));
             var match = VersionRegex.Match(version);
-            if (match.Success && match.Groups.Count == 3)
+            if (match.Success && match.Groups.Count == 5)
             {
-                var major = match.Groups[1].Value;
-                var minor = match.Groups[2].Value;
+                var major = match.Groups[2].Value;
+                var minor = match.Groups[3].Value;
+                var patch = match.Groups[4].Value;
                 value = new HarpVersion(
-                    major == FloatingWildcard ? (int?)null : int.Parse(major),
-                    minor == FloatingWildcard ? (int?)null : int.Parse(minor));
+                    major == FloatingWildcard ? null : int.Parse(major),
+                    minor == FloatingWildcard ? null : int.Parse(minor),
+                    string.IsNullOrEmpty(patch) || patch == FloatingWildcard ? null : int.Parse(patch));
                 return true;
             }
             else
@@ -279,9 +322,11 @@ namespace Bonsai.Harp
         /// </returns>
         public override string ToString()
         {
-            var major = Major.HasValue ? Major.Value.ToString(CultureInfo.InvariantCulture) : FloatingWildcard;
-            var minor = Minor.HasValue ? Minor.Value.ToString(CultureInfo.InvariantCulture) : FloatingWildcard;
-            return $"{major}.{minor}";
+            var major = Major.HasValue ? Major.GetValueOrDefault().ToString(CultureInfo.InvariantCulture) : FloatingWildcard;
+            var minor = Minor.HasValue ? Minor.GetValueOrDefault().ToString(CultureInfo.InvariantCulture) : FloatingWildcard;
+            return Patch.HasValue
+                ? $"{major}.{minor}.{Patch.GetValueOrDefault().ToString(CultureInfo.InvariantCulture)}"
+                : $"{major}.{minor}";
         }
     }
 }
