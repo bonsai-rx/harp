@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
 using System.Threading;
@@ -14,13 +13,18 @@ namespace Bonsai.Harp
     /// <summary>
     /// Represents an observable source of messages from the Harp device connected at the specified serial port.
     /// </summary>
+    /// <remarks>
+    /// This operator accepts a connection to any Harp device and does not verify the identity of the
+    /// device on the other end of the serial port, so it is intended for exploring and debugging
+    /// devices rather than for building an application. An application should use the operator
+    /// generated for its device, which asserts the expected identity class on connection. To find
+    /// out which device is connected at a serial port, open the device configuration editor.
+    /// </remarks>
     [XmlType(Namespace = Constants.XmlNamespace)]
     [Editor("Bonsai.Harp.Design.DeviceConfigurationEditor, Bonsai.Harp.Design", typeof(ComponentEditor))]
-    [Description("Produces a sequence of messages from the Harp device connected at the specified serial port.")]
-    public partial class Device : Source<HarpMessage>, INamedElement
+    [Description("Produces a sequence of messages from any Harp device connected at the specified serial port, without verifying the identity of the device.")]
+    public partial class Device : Source<HarpMessage>
     {
-        string name;
-        string portName;
         readonly int deviceId;
         readonly FirmwareMetadata deviceFirmware;
 
@@ -59,7 +63,7 @@ namespace Bonsai.Harp
                     nameof(whoAmI));
             }
 
-            portName = "COMx";
+            PortName = "COMx";
             OperationMode = OperationMode.Active;
             OperationLed = LedState.On;
             VisualIndicators = LedState.On;
@@ -162,99 +166,7 @@ namespace Bonsai.Harp
         /// </summary>
         [TypeConverter(typeof(PortNameConverter))]
         [Description("The name of the serial port used to communicate with the Harp device.")]
-        public string PortName
-        {
-            get { return portName; }
-            set
-            {
-                portName = value;
-                if (deviceId == 0)
-                {
-                    GetDeviceName(portName, LedState, VisualIndicators, Heartbeat).Subscribe(deviceName => name = deviceName);
-                }
-            }
-        }
-
-        static IObservable<string> GetDeviceName(string portName, LedState ledState, LedState visualIndicators, EnableFlag heartbeat)
-        {
-            return Observable.Create<string>(observer =>
-            {
-                var transport = default(SerialTransport);
-                var writeOpCtrl = OperationControl.FromPayload(MessageType.Write, new OperationControlPayload(
-                    OperationMode.Standby,
-                    dumpRegisters: false,
-                    muteReplies: false,
-                    ledState,
-                    visualIndicators,
-                    heartbeat));
-                var cmdReadWhoAmI = HarpCommand.ReadUInt16(WhoAmI.Address);
-                var cmdReadMajorHardwareVersion = HarpCommand.ReadByte(HardwareVersionHigh.Address);
-                var cmdReadMinorHardwareVersion = HarpCommand.ReadByte(HardwareVersionLow.Address);
-                var cmdReadMajorFirmwareVersion = HarpCommand.ReadByte(FirmwareVersionHigh.Address);
-                var cmdReadMinorFirmwareVersion = HarpCommand.ReadByte(FirmwareVersionLow.Address);
-                var cmdReadTimestampSeconds = HarpCommand.ReadUInt32(TimestampSeconds.Address);
-                var cmdReadDeviceName = HarpCommand.ReadByte(DeviceName.Address);
-                var cmdReadSerialNumber = HarpCommand.ReadUInt16(SerialNumber.Address);
-
-                var whoAmI = 0;
-                var timestamp = 0u;
-                var hardwareVersionHigh = 0;
-                var hardwareVersionLow = 0;
-                var firmwareVersionHigh = 0;
-                var firmwareVersionLow = 0;
-                var serialNumber = default(ushort?);
-                var messageObserver = Observer.Create<HarpMessage>(
-                    message =>
-                    {
-                        switch (message.Address)
-                        {
-                            case OperationControl.Address:
-                                transport.Write(cmdReadWhoAmI);
-                                transport.Write(cmdReadMajorHardwareVersion);
-                                transport.Write(cmdReadMinorHardwareVersion);
-                                transport.Write(cmdReadMajorFirmwareVersion);
-                                transport.Write(cmdReadMinorFirmwareVersion);
-                                transport.Write(cmdReadTimestampSeconds);
-                                transport.Write(cmdReadSerialNumber);
-                                transport.Write(cmdReadDeviceName);
-                                break;
-                            case WhoAmI.Address: whoAmI = WhoAmI.GetPayload(message); break;
-                            case HardwareVersionHigh.Address: hardwareVersionHigh = HardwareVersionHigh.GetPayload(message); break;
-                            case HardwareVersionLow.Address: hardwareVersionLow = HardwareVersionLow.GetPayload(message); break;
-                            case FirmwareVersionHigh.Address: firmwareVersionHigh = FirmwareVersionHigh.GetPayload(message); break;
-                            case FirmwareVersionLow.Address: firmwareVersionLow = FirmwareVersionLow.GetPayload(message); break;
-                            case TimestampSeconds.Address: timestamp = TimestampSeconds.GetPayload(message); break;
-                            case SerialNumber.Address: if (!message.Error) serialNumber = SerialNumber.GetPayload(message); break;
-                            case DeviceName.Address:
-                                var deviceName = nameof(Device);
-                                if (!message.Error) deviceName = DeviceName.GetPayload(message);
-                                Console.WriteLine("Serial Harp device.");
-                                if (!serialNumber.HasValue) Console.WriteLine($"WhoAmI: {whoAmI}");
-                                else Console.WriteLine($"WhoAmI: {whoAmI}-{serialNumber:x4}");
-                                Console.WriteLine($"Hw: {hardwareVersionHigh}.{hardwareVersionLow}");
-                                Console.WriteLine($"Fw: {firmwareVersionHigh}.{firmwareVersionLow}");
-                                Console.WriteLine($"Timestamp (s): {timestamp}");
-                                Console.WriteLine($"DeviceName: {deviceName}");
-                                Console.WriteLine();
-                                observer.OnNext(deviceName);
-                                observer.OnCompleted();
-                                break;
-                            default:
-                                break;
-                        }
-                    },
-                    observer.OnError,
-                    observer.OnCompleted);
-                transport = new SerialTransport(portName, messageObserver);
-                transport.IgnoreErrors = true;
-
-                transport.Write(writeOpCtrl);
-                return transport;
-            }).Timeout(TimeSpan.FromMilliseconds(500))
-              .OnErrorResumeNext(Observable.Return(nameof(Device)))
-              .SubscribeOn(Scheduler.Default)
-              .FirstAsync();
-        }
+        public string PortName { get; set; }
 
         private void CloseTransport(SerialTransport transport, OperationControlPayload controlPayload)
         {
@@ -316,8 +228,6 @@ namespace Bonsai.Harp
                 });
             });
         }
-
-        string INamedElement.Name => !string.IsNullOrEmpty(name) ? name : default;
 
         OperationControlPayload CreateOperationControlPayload() => new(
                 OperationMode,
