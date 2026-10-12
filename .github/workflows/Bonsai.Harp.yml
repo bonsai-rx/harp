@@ -20,6 +20,10 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      publish-documentation:
+        description: "Publish documentation to GitHub Pages?"
+        default: "false"
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
@@ -311,11 +315,10 @@ jobs:
       name: documentation-website
       url: ${{steps.publish.outputs.page_url}}
     # Only run if the workflow isn't dying and build-documentation was successful and either A) we're releasing or B) we have continuous deployment enabled
-    # Publishing to GitHub Pages is currently disabled for the canonical repo because Bonsai.Harp's documentation is published via https://github.com/harp-tech/harp-tech.github.io
     if: |
       !cancelled() && !failure() && needs.build-documentation.result == 'success'
-      && github.event.repository.fork
       && (github.event_name == 'release'
+        || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish-documentation == 'true')
         || (vars.CONTINUOUS_DOCUMENTATION && github.event_name != 'pull_request')
       )
     steps:
@@ -340,7 +343,6 @@ jobs:
           path: '.'
 
       # ----------------------------------------------------------------------- Publish to GitHub Pages (for forks)
-      - name: Publish to GitHub Pages (forks)
+      - name: Publish to GitHub Pages
         id: publish
-        if: github.event_name == 'release' || github.event.repository.fork
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
